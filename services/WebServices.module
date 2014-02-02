@@ -1,0 +1,44 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 20.11.13
+ * Time: 1:08
+ * To change this template use File | Settings | File Templates.
+ */
+
+/*
+ * Возвращаем объект web сервиса по его имени
+ * */
+require_once("TasksWebService.module");
+require_once("VehicleWebService.module");
+require_once("AccountWebService.module");
+require_once("AuthWebService.module");
+require_once("OrgWebService.module");
+require_once("DictWebService.module");
+require_once("Validators.module");
+require_once("AppErrors.module");
+require_once("SqlFactory.module");
+
+
+
+
+
+function getWebService($name)
+{
+    if("tasks" == $name)
+        return new TasksWebService();
+    else if ("vehicle" == $name)
+        return new VehicleWebService();
+    else if("account" == $name)
+        return new AccountWebService();
+    else if("auth" == $name)
+        return new AuthWebService();
+    else if("org" == $name)
+        return new OrgWebService();
+    else if("dict" == $name)
+        return new DictWebService();
+
+
+    return null;
+}

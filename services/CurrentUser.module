@@ -1,0 +1,47 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 14.12.13
+ * Time: 17:50
+ * To change this template use File | Settings | File Templates.
+ */
+
+class CurrentUser {
+
+    public static function isAuthenticated()
+    {
+        if (isset($_SESSION[SESSION_USERID]))
+            return true;
+        else
+            return false;
+    }
+
+    public static function setUser($userId, $userName)
+    {
+        session_regenerate_id();
+        $_SESSION[SESSION_USERID] = $userId;
+        $_SESSION[SESSION_USERNAME] = $userName;
+        $_SESSION[SESSION_REMOTE_ADDR] = $_SERVER['REMOTE_ADDR'];
+        $_SESSION[SESSION_STARTTIME] = time();
+    }
+
+    public static function unSetUser()
+    {
+        session_regenerate_id();
+        unset($_SESSION[SESSION_USERID]);
+        unset($_SESSION[SESSION_USERNAME]);
+        unset($_SESSION[SESSION_REMOTE_ADDR]);
+        unset($_SESSION[SESSION_STARTTIME]);
+    }
+
+    public static function getUserId()
+    {
+        return $_SESSION[SESSION_USERID];
+    }
+
+    public static function getUserName()
+    {
+        return $_SESSION[SESSION_USERNAME];
+    }
+}

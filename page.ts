@@ -1,0 +1,405 @@
+﻿///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
+///<reference path="ServerAjaxData.d.ts"/>
+
+module Page
+{
+    class AjaxAuthRequest
+    {
+        public login: string;
+        public pass: string;
+
+        constructor(login: string, pass: string)
+        {
+            this.login = login;
+            this.pass = pass;
+        }
+    }
+
+    interface AjaxAuthResponse
+    {
+        name: string;
+        banDate: Date;
+    }
+    
+    /*
+        Класс управляющий основными элементами на странице.
+
+        Поддерживаются 2 шаблона поведения: для приватных страниц и для публичных страниц.
+
+        Признак приватности страницы задаётся свойством "public isPrivatePage: boolean".        
+
+        Приветные страницы запрещают просмотр содержимого в #page-main-section без авторизации пользователя.        
+        
+        Сценарий поведения для приватных страниц:
+            1) Событие: загрузка страницы
+            Поведение: 
+                1) отображается секция #page-loading-section
+                2) производится проверка текущего статуса авторизации
+                3) если пользователь не авторизован, то отображаются секции: #page-auth-section, #i-page-top-login-container
+                4) если пользователь авторизован , то отображаются секции: #page-main-section, #i-page-top-logout-container
+
+            2) Событие: успешная авторизация
+            Поведение:
+                1) отображаются секции: #page-main-section, #i-page-top-logout-container
+                2) вызывается callback функция "callbackFoo(true);"
+
+            3) Событие: выход из системы
+            Поведение:
+                1) отображаются секции: #page-auth-section, #i-page-top-login-container
+                2) вызывается callback функция "callbackFoo(false);"
+    
+            4) Событие: нажатие на ссылку "Вход"
+            Поведение:
+                1) ничего не делать, т.к. если ссылка "Вход", значит отображается секция авторизации #page-auth-section 
+
+        Публичные страницы не запрещают просмотр содержимого в #page-main-section без авторизации пользователя.
+        
+        Сценарий поведения для публичных страниц:
+            1) Событие: загрузка страницы
+            Поведение: 
+                1) отображается секция #page-main-section
+                2) производится проверка текущего статуса авторизации
+                3) если пользователь не авторизован, то отображаются секции: #i-page-top-login-container
+                4) если пользователь авторизован, то отображаются секции: #i-page-top-logout-container
+
+            2) Событие: успешная авторизация
+            Поведение:
+                1) отображаются секции: #i-page-top-logout-container
+                2) скрывается секция: #page-auth-section
+                2) вызывается callback функция "callbackFoo(true);"
+
+            3) Событие: выход из системы
+            Поведение:
+                1) отображаются секции: #i-page-top-login-container
+                2) вызывается callback функция "callbackFoo(false);"
+
+            4) Событие: нажатие на ссылку "Вход"
+            Поведение:
+                1) скрыть или отобразить #page-auth-section 
+        
+
+
+    */
+    export class PageController
+    {
+        // ссылка на обратную функцию
+        public callbackFoo: (boolean) => void = null;
+        // приватная страница или нет - зависит как ведёт себя страница с секцией содержания
+        public isPrivatePage: boolean;
+        // текущее состояние авторизации
+        public isAuthorized: boolean;
+
+        // инициализация страницы
+        Init(isPrivatePage: boolean, callback: (boolean) => void): void
+        {
+            // сохраняем свойство приватности страницы
+            currentPage.isPrivatePage = isPrivatePage;
+
+            // сохраняем ссылку на обратную функцию
+            currentPage.callbackFoo = callback;
+
+            // присваиваем начальное свойство состояния авторизации
+            currentPage.isAuthorized = false;
+
+            ///////////////
+            // прикрепляем обработчики событий
+
+            // кнопка отправки логина и пароля
+            $("#page-auth-panel-btn").click(PageController.prototype._onSubmitClick);
+
+            // изменение текста в полях
+            $("#page-auth-panel input").keyup(PageController.prototype._onTextChange);
+
+            // ссылка входа в систему
+            $("#page-top-login-panel-login-link").click(PageController.prototype._onLoginClick);
+
+            // ссылка выхода из системы
+            $("#page-top-login-panel-logout-link").click(PageController.prototype._onLogoutClick);
+
+            // ссылка по имени пользователя
+            $("#page-top-login-panel-user-info").click(PageController.prototype._onUserNameClick);
+
+
+            if (currentPage.isPrivatePage)
+                PageController.prototype.switchToLoadingSection();
+            else
+                PageController.prototype.switchToMainSection();
+
+            // проверяем авторизацию на сайте
+            PageController.prototype.checkAuthStatus();
+        }
+
+        getAuthorizedState(): boolean
+        {
+            return currentPage.isAuthorized;
+        }
+
+        /*
+        Помогает сохранить работоспособность AJAX с любым именем хоста
+        Выполняет JSON запрос к серверу - имя хоста формируется динамически
+        */
+        getFullUrl(path: string): string
+        {
+            return document.location.protocol + "//" + document.location.host + "/" + path;  
+        } 
+
+        private _onTextChange(event: JQueryEventObject): void
+        {
+            $("#page-auth-panel input").removeClass("page-auth-panel-block-ctrl-red");
+        }
+
+        checkAuthStatus(): void
+        {
+            $.ajax({
+                type: "GET",
+                url: PageController.prototype.getFullUrl("api/auth"),
+                success: PageController.prototype._onAjaxCheckAuthStatusSuccess,
+                error: PageController.prototype._onAjaxCheckAuthStatusError
+            });
+        }
+
+        private _onAjaxCheckAuthStatusSuccess(data: ServerData.AjaxServerResponse, status: string, jqXHR: JQueryXHR): void
+        {
+            if (null == data.data)
+            {
+                $("#i-page-top-login-container").removeClass("hidden").addClass("block");
+                $("#i-page-top-logout-container").removeClass("block").addClass("hidden");
+                $("#i-page-top-login-user-info > span").text("");
+
+                currentPage.isAuthorized = false;
+
+                if (currentPage.isPrivatePage)
+                    PageController.prototype.switchToAuthSection();
+            }
+            else
+            {
+                $("#i-page-top-login-container").removeClass("block").addClass("hidden");
+                $("#i-page-top-logout-container").removeClass("hidden").addClass("block");
+                var authResp: AjaxAuthResponse = <AjaxAuthResponse>data.data;
+                $("#i-page-top-login-user-info > span").text(authResp.name);
+
+                currentPage.isAuthorized = true;
+
+                if (currentPage.isPrivatePage)
+                {
+                    PageController.prototype.switchToMainSection();
+
+                    // вызываем callback
+                    if (null != currentPage.callbackFoo)
+                        currentPage.callbackFoo(true);
+                }
+            }
+        }
+
+        private _onAjaxCheckAuthStatusError(jqXHR: JQueryXHR, status: string, message: string): void
+        {
+            if (currentPage.isPrivatePage)
+                PageController.prototype.switchToErrorSection("Произошла ошибка на сервере. Попробуйте перегрузить страницу позже.");
+        }
+
+        private _onUserNameClick(event: JQueryEventObject): void
+        {
+            window.location.href = PageController.prototype.getFullUrl("profile");
+        }
+
+        private _onLoginClick(event: JQueryEventObject): void
+        {
+            if (false == currentPage.isPrivatePage)
+            {
+                var state: boolean = $("#page-auth-section").hasClass("hidden");
+                PageController.prototype.switchAuthSectionVisability(state);
+            }            
+        }
+
+        private _onLogoutClick(event: JQueryEventObject): void
+        {
+            $.ajax({
+                type: "DELETE",
+                url: PageController.prototype.getFullUrl("api/auth"),
+                success: PageController.prototype._onAjaxLogoutSuccess,
+                error: PageController.prototype._onAjaxLogoutError
+            });
+        }
+
+
+        private _onAjaxLogoutSuccess(data: ServerData.AjaxServerResponse, status: string, jqXHR: JQueryXHR): void
+        {
+            $("#i-page-top-login-container").removeClass("hidden").addClass("block");
+            $("#i-page-top-logout-container").removeClass("block").addClass("hidden");
+            $("#i-page-top-login-user-info > span").text("");
+
+            if (currentPage.isPrivatePage)
+                PageController.prototype.switchToAuthSection();
+
+            // вызываем callback
+            if (null != currentPage.callbackFoo)
+                currentPage.callbackFoo(false);
+        }
+
+        private _onAjaxLogoutError(jqXHR: JQueryXHR, status: string, message: string): void
+        {
+            // ничего не делаем
+        }
+
+
+        private _onSubmitClick(event: JQueryEventObject): void
+        {
+            PageController.prototype.switchLoginControlsEnableState(false);
+
+            var login: string = $("#page-auth-panel-login").val();
+            var pass: string = $("#page-auth-panel-pass").val();
+
+            var request: AjaxAuthRequest = new AjaxAuthRequest(login.trim(), pass.trim());
+
+            $.ajax({
+                type: "POST",
+                url: PageController.prototype.getFullUrl("api/auth"),
+                data: JSON.stringify(request),
+                contentType: "application/json",
+                dataType: "json",
+                success: PageController.prototype._onAjaxLoginSuccess,
+                error: PageController.prototype._onAjaxLoginError
+            });
+        }
+
+
+        private _onAjaxLoginSuccess(data: ServerData.AjaxServerResponse, status: string, jqXHR: JQueryXHR): void
+        {
+            PageController.prototype.switchLoginControlsEnableState(true);
+
+            // обработка ответа сервера
+            var authResp: AjaxAuthResponse = <AjaxAuthResponse>data.data;
+
+            // отображаем имя в строке приветствия
+            $("#i-page-top-login-container").removeClass("block").addClass("hidden");
+            $("#i-page-top-logout-container").removeClass("hidden").addClass("block");
+            $("#i-page-top-login-user-info > span").text(authResp.name);
+
+            PageController.prototype.showLoginError(false, "");
+
+            if (currentPage.isPrivatePage)
+                PageController.prototype.switchToMainSection();
+            else
+                PageController.prototype.switchAuthSectionVisability(false);
+
+            // вызываем callback
+            if (null != currentPage.callbackFoo)
+                currentPage.callbackFoo(true);
+        }
+
+        private _onAjaxLoginError(jqXHR: JQueryXHR, status: string, message: string): void
+        {
+            PageController.prototype.switchLoginControlsEnableState(true);
+
+            if (1 > jqXHR.responseText.length)
+            {
+                var message: string = "Сервер не отвечает. Попробуйте повторить попытку позже.";
+                PageController.prototype.showLoginError(true, message);
+            }
+            else
+            {
+                // обработка ответа сервера
+                var data: ServerData.AjaxServerResponse = <ServerData.AjaxServerResponse>JSON.parse(jqXHR.responseText);
+                var authResp: AjaxAuthResponse = <AjaxAuthResponse>data.data;
+                var errorCode: number = parseInt(data.code);
+
+                if (3 == errorCode)
+                {
+                    // Логин или пароль указаны неверно
+                    $("#page-auth-panel input").addClass("page-auth-panel-block-ctrl-red");
+                    var message: string = "Неправильно указан email или пароль. Повторите попытку.";
+                    PageController.prototype.showLoginError(true, message);
+                }
+                else if (4 == errorCode)
+                {
+                    // Учётная запись не активирована
+                    var message: string = "Уважаемый " + authResp.name + ". Ваша учётная запись не активирована. Вход в систему невозможен."
+                PageController.prototype.showLoginError(true, message);
+                }
+                else if (5 == errorCode)
+                {
+                    // Учётная запись заблокирована администрацией
+                    var message: string = "Уважаемый " + authResp.name + ". Ваша учётная запись была заблокирована администрацией сайта " + authResp.banDate + ". Вход в систему невозможен.";
+                    PageController.prototype.showLoginError(true, message);
+                }
+            }
+        }
+
+        
+
+
+        switchToAuthSection(): void
+        {
+            $("#page-loading-section").removeClass("block").addClass("hidden");
+            $("#i-page-error-container").removeClass("block").addClass("hidden");
+            $("#page-main-section").removeClass("block").addClass("hidden");
+            $("#page-auth-section").removeClass("hidden").addClass("block");
+            
+        }
+
+        switchToMainSection(): void
+        {
+            $("#page-loading-section").removeClass("block").addClass("hidden");
+            $("#i-page-error-container").removeClass("block").addClass("hidden");
+            $("#page-auth-section").removeClass("block").addClass("hidden");
+            $("#page-main-section").removeClass("hidden").addClass("block");
+        }
+
+        switchToErrorSection(message: string): void
+        {
+            $("#page-loading-section").removeClass("block").addClass("hidden");
+            $("#page-auth-section").removeClass("block").addClass("hidden");
+            $("#page-main-section").removeClass("block").addClass("hidden");
+
+            $("#i-page-error-container").text(message).removeClass("hidden").addClass("block");
+
+        }
+
+        showLoginError(visible: boolean, message: string): void
+        {
+            if (visible)
+            {
+                $("#page-auth-error-panel").removeClass("hidden").addClass("block").text(message);
+            }
+            else
+            {
+                $("#page-auth-error-panel").removeClass("block").addClass("hidden").text("");
+            }
+            
+        }
+
+        switchToLoadingSection(): void
+        {
+            $("#page-loading-section").removeClass("hidden").addClass("block");
+            $("#i-page-error-container").removeClass("block").addClass("hidden");
+            $("#page-auth-section").removeClass("block").addClass("hidden");
+            $("#page-main-section").removeClass("block").addClass("hidden");
+        }
+
+        switchAuthSectionVisability(visible: boolean): void
+        {
+            if (visible)
+                $("#page-auth-section").removeClass("hidden").addClass("block");
+            else
+                $("#page-auth-section").removeClass("block").addClass("hidden");
+        }
+
+        switchLoginControlsEnableState(enable: boolean): void
+        {
+            if (enable)
+            {
+                $("#page-auth-panel-btn").removeClass("hidden").addClass("inline-block");
+                $("#page-auth-panel-loading").removeClass("inline-block").addClass("hidden");
+                $("#page-auth-panel input").removeAttr("disabled"); 
+            }
+            else
+            {
+                $("#page-auth-panel-btn").removeClass("inline-block").addClass("hidden");
+                $("#page-auth-panel-loading").removeClass("hidden").addClass("inline-block");
+                $("#page-auth-panel input").attr("disabled", "disabled"); 
+            }
+        }
+    }
+
+    var currentPage: PageController = new PageController();    
+}

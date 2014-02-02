@@ -1,0 +1,72 @@
+Date: 01.12.2013 11:34:47
+string(16) "onGet() - > test"
+
+
+Date: 01.12.2013 11:35:34
+string(16) "onGet() - > test"
+
+
+Date: 01.12.2013 11:41:17
+string(16) "onGet() - > test"
+
+
+Date: 01.12.2013 11:44:21
+string(16) "onGet() - > test"
+
+
+Date: 01.12.2013 11:50:33
+string(16) "onGet() - > test"
+
+
+Date: 01.12.2013 11:52:28
+string(16) "onGet() - > test"
+
+
+Date: 01.12.2013 11:52:51
+string(16) "onGet() - > test"
+
+
+Date: 01.12.2013 11:53:01
+string(16) "onGet() - > test"
+
+
+Date: 01.12.2013 11:53:17
+string(16) "onGet() - > test"
+
+
+Date: 01.12.2013 11:54:33
+string(16) "onGet() - > test"
+
+
+Date: 01.12.2013 11:57:18
+string(16) "onGet() - > test"
+
+
+Date: 01.12.2013 12:00:54
+string(16) "onGet() - > test"
+
+
+Date: 01.12.2013 12:04:14
+string(31) "onGet() - > test. Request = GET"
+
+
+Date: 01.12.2013 04:18:04
+string(31) "onGet() - > test. Request = GET"
+
+
+Date: 01.12.2013 04:25:26
+string(31) "onGet() - > test. Request = GET"
+
+
+Date: 01.12.2013 04:41:52
+string(34) "onGet() - > test. Request = GET - "
+
+
+Date: 01.12.2013 05:17:25
+string(37) "{"login":"asas","email":"as@mail.ru"}"
+
+
+Date: 01.12.2013 11:27:56
+string(38) "{"login":"asas","email":"asa@mail.ru"}"
+
+

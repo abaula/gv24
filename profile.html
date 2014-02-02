@@ -1,0 +1,666 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel="stylesheet" href="/main.css" type="text/css" />
+    <link rel="stylesheet" href="/profile.css" type="text/css" />
+    <link rel="stylesheet" href="/resources/font-awesome-4.0.3/css/font-awesome.min.css"/>
+    <script type="text/javascript" src="/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="/application.js"></script>
+    <script type="text/javascript" src="/profile.js"></script>
+    <script type="text/javascript" src="/validators.js"></script>
+    <script type="text/javascript" src="/dictionary.js"></script>    
+    <script type="text/javascript" src="/accountprofile.js"></script>
+    <script type="text/javascript" src="/orgprofile.js"></script>
+    <script type="text/javascript" src="/vehicleprofile.js"></script>
+
+    <title>Профиль</title>
+</head>
+<body>
+
+    <div class="c-page-top-section-block">
+        <div class="c-page-top-panel-block">
+            <div class="c-page-top-logo">gv24.ru</div>
+            <div class="c-page-top-spacer"></div>
+            <div class="c-page-top-spacer"></div>
+            <div class="c-page-top-menu-item"><div class="fa fa-gift"></div>&nbsp;Грузы</div>
+            <div class="c-page-top-menu-item"><div class="fa fa-users"></div>&nbsp;Перевозчики</div>
+            
+            <div class="c-page-top-login-block">
+                <div id="i-page-top-login-container" class="hidden">
+                    <div id="i-page-top-login-link"><div class="fa fa-sign-in"></div><span>Вход</span></div>
+                    <div id="i-page-top-reg-link"><div class="fa fa-pencil-square"></div><span>Регистрация</span></div>
+                </div>
+                <div id="i-page-top-logout-container" class="hidden">
+                    <div id="i-page-top-login-user-info" class="c-page-user-info-block"><div class="fa fa-user"></div><span></span></div>
+                    <div id="i-page-top-logout-link"><div class="fa fa-sign-out"></div><span>Выход</span></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- панель навигации -->
+    <div class="c-page-navigation-block"><div class="fa fa-home"></div><span>Главная / Профиль</span></div>
+    <!-- /панель навигации -->
+
+    <!-- панель ошибки страницы -->
+    <div id="i-page-error-container" class="c-page-error-container hidden"></div>
+    <!-- /панель ошибки страницы -->
+
+    <!-- панель авторизации -->
+    <div id="i-page-auth-container" class="c-page-auth-container hidden">
+
+        <div id="i-page-auth-form-block" class="c-page-form-outer-block">
+
+            <!-- панель закладок -->
+            <div id="i-page-auth-tabs" class="c-page-auth-tabs-block">
+                <span data-target-id="i-page-auth-login-container" class="selected">Авторизация</span>
+                <span data-target-id="i-page-auth-reg-container">Регистрация</span>
+                <span data-target-id="i-page-auth-remind-container">Напоминание пароля</span>
+            </div>
+            <!-- /панель закладок -->
+
+            <!-- панель авторизации -->
+            <div id="i-page-auth-login-container">
+
+                <div class="c-page-auth-panel-container">
+                    <div class="c-page-auth-panel-block">
+                        <div class="c-page-auth-panel-block-txt">Почта</div>
+                        <div class="c-page-auth-panel-block-ctrl"><input id="i-page-auth-login-login-txt" type="text" value="anton.baula@gmail.com" placeholder="" /></div>
+                    </div>
+                    <div class="c-page-auth-panel-block">
+                        <div class="c-page-auth-panel-block-txt">Пароль</div>
+                        <div class="c-page-auth-panel-block-ctrl"><input id="i-page-auth-login-pass-txt" type="password" value="root123" placeholder="" /></div>
+                    </div>
+                    <div class="c-page-auth-panel-block">
+                        <div class="c-page-auth-panel-block-ctrl"><button id="i-page-auth-login-submit-btn"><div class="fa fa-sign-in"></div>Войти</button></div>
+                    </div>
+
+                    <!-- панель отображаемая ошибка авторизации -->
+                    <div id="i-page-auth-login-error-container" class="c-page-auth-error-container hidden">
+                        <div class="fa fa-exclamation-circle"></div><span></span>
+                    </div>  
+                    <!-- /панель отображаемая ошибка авторизации -->
+
+                </div>
+            </div>
+            <!-- /панель авторизации -->
+
+            <!-- панель регистрации -->
+            <div id="i-page-auth-reg-container" class="hidden">
+                <div class="c-page-auth-panel-container">
+                    <div id="i-page-auth-reg-form-container" class="block">
+                        <div class="c-page-auth-panel-block">
+                            <div class="c-page-auth-panel-block-txt">Укажите имя</div>
+                            <div class="c-page-auth-panel-block-ctrl"><input id="i-page-auth-reg-login-txt" type="text" value="" placeholder="" /></div>
+                        </div>
+                        <div class="c-page-auth-panel-block">
+                            <div class="c-page-auth-panel-block-txt">Укажите почту</div>
+                            <div class="c-page-auth-panel-block-ctrl"><input id="i-page-auth-reg-email-txt" type="text" value="" placeholder="" /></div>
+                        </div>
+                        <div class="c-page-auth-panel-block">
+                            <div class="c-page-auth-panel-block-ctrl"><button id="i-page-auth-reg-submit-btn"><div class="fa fa-pencil-square-o"></div>Зарегистрировать</button></div>
+                        </div>              
+
+                        <!-- панель отображаемая ошибка регистрации -->
+                        <div id="i-page-auth-reg-error-container" class="c-page-auth-error-container hidden">
+                            <div class="fa fa-exclamation-circle"></div><span></span>
+                        </div>  
+                        <!-- /панель отображаемая ошибка регистрации -->
+                    </div>
+
+                    <!-- панель сообщения об успешной регистрации -->
+                    <div id="i-page-auth-reg-message-container"  class="c-page-auth-info-message-container hidden">
+                            <div class="fa fa-check-square-o"></div><span>Регистрация успешно завершена. Дальнейшие инструкции по активации учётной записи высланы на указанный email.</span>
+                    </div>
+                    <!-- /панель сообщения об успешной регистрации -->
+                </div>
+            </div>
+            <!-- /панель регистрации -->
+
+
+            <!-- панель напоминания пароля -->
+            <div id="i-page-auth-remind-container" class="hidden">
+
+                <div class="c-page-auth-panel-container">
+
+                    <div class="c-page-auth-panel-block">
+                        <div class="c-page-auth-panel-block-txt">Почта</div>
+                        <div class="c-page-auth-panel-block-ctrl"><input id="Text4" type="text" value="" placeholder=""/></div>
+                    </div>
+                    <div class="c-page-auth-panel-block">
+                        <div class="c-page-auth-panel-block-ctrl"><button id="Button2"><div class="fa fa-bell-o"></div>Напомнить</button></div>
+                    </div>  
+                
+                    <!-- панель отображаемая ошибка напоминания пароля -->
+                    <div id="i-page-auth-remind-error-container" class="c-page-auth-error-container hidden">
+                        <div class="fa fa-exclamation-circle"></div><span></span>
+                    </div>  
+                    <!-- /панель отображаемая ошибка напоминания пароля -->                            
+                </div>
+
+            </div>
+            <!-- /панель напоминания пароля -->
+
+            <!-- панель индикатора выполнения операции -->
+            <div id="i-page-auth-loading-container"  class="c-page-auth-loading-container hidden">
+                    <div class="fa fa-spinner fa-spin"></div>
+            </div>
+            <!-- /панель индикатора выполнения операции авторизации -->
+
+        </div>
+
+        <!-- панель отображаемая при отсутствии прав доступа -->
+        <div id="i-page-auth-required-container" class="c-page-auth-required-container hidden">
+            <div class="fa fa-lock"></div><span>Для доступа к содержимому требуется авторизация</span>
+        </div>
+        <!-- /панель отображаемая при отсутствии прав доступа -->
+
+    </div>
+    <!-- /панель авторизации -->
+
+    <!-- индикатор загрузки содержимого страницы -->
+    <div id="i-page-loading-container" class="c-page-loading-container block">
+        <div class="fa fa-spinner fa-spin"></div>
+    </div>
+    <!-- /индикатор загрузки содержимого страницы -->
+
+    <!-- ошибка содержимого страницы -->
+    <div id="i-page-main-section-error-container" class="c-page-main-error-container hidden">
+        <div><button id="i-page-main-section-error-btn">Обновить</button></div>
+        <div id="i-page-main-error-text-block" class="c-page-main-error-text-block"></div>
+    </div>
+    <!-- /ошибка содержимого страницы -->
+
+    <!-- содержимое страницы -->
+    <div id="i-page-main-container" class="c-page-main-container hidden">
+
+        <!-- ListView template --
+        <div class="c-page-lv-block">
+            <div class="c-page-lv-list-block">
+                <div data-target-id="someId" class="c-page-lv-list-item selected"><span></span></div>
+            </div>
+            <div class="c-page-lv-view-block">
+                <div id="someId" class="c-page-lv-view-container hidden"></div>
+            </div>
+        </div>
+        -- /ListView -->
+
+
+        <div id="i-ctrl-profile-navigation-block" class="c-ctrl-profile-navigation-block">
+            <div data-target-id="i-ctrl-profile-account-container"><div class="fa fa-folder"></div>Аккаунт</div>
+            <div data-target-id="i-ctrl-profile-org-container"><div class="fa fa-flag"></div>Организация</div>
+            <div data-target-id="i-ctrl-profile-tasks-container"><div class="fa fa-gift"></div>Грузы</div>
+            <div data-target-id="i-ctrl-profile-vehicle-container"><div class="fa fa-truck"></div>Машины</div>
+        </div>
+
+        <div class="c-ctrl-profile-containers-block">
+            
+            <div id="i-ctrl-profile-loading-container" class="c-ctrl-profile-loading-container block">
+                <div class="fa fa-spinner fa-spin"></div>
+            </div>
+            
+            <div id="i-ctrl-profile-error-container" class="c-ctrl-profile-error-container hidden">
+                <div><button id="i-ctrl-profile-update-btn"><div class="fa fa-refresh"></div>Обновить</button></div>
+                <div id="i-ctrl-profile-error-text" class="c-ctrl-profile-error-text-block"></div>
+            </div>
+            
+
+
+            <div id="i-ctrl-profile-account-container" class="hidden">
+
+                <!-- Информационный блок -->
+                <div class="c-page-info-message-block">
+                    <div class="c-page-info-message-header-block"><div class="fa fa-plus-square-o"></div><span>Аккаунт № <span id="i-ctrl-account-num"></span></span></div>
+                    <div class="c-page-info-message-text-container hidden">
+                        Дата регистрации: <span id="i-ctrl-account-reg-date"></span>
+                    </div>
+                </div>
+                <!-- /Информационный блок -->
+              
+                <div class="c-page-lv-block">
+                    <div class="c-page-lv-list-block">
+                        <div data-target-id="i-ctrl-account-login-container" class="c-page-lv-list-item selected"><div class="fa fa-user"></div><span>Имя</span></div>
+                        <div data-target-id="i-ctrl-account-email-container" class="c-page-lv-list-item"><div class="fa fa-envelope"></div><span>Почта</span></div>
+                        <div data-target-id="i-ctrl-account-password-container" class="c-page-lv-list-item"><div class="fa fa-key"></div><span>Пароль</span></div>
+                        <div data-target-id="i-ctrl-account-delete-container" class="c-page-lv-list-item"><div class="fa fa-trash-o"></div><span>Удаление</span></div>
+                    </div>
+                    <div class="c-page-lv-view-block">
+                        <div id="i-ctrl-account-login-container" class="c-page-lv-view-container">
+
+                            <!-- Информационный блок -->
+                            <div class="c-page-info-message-block">
+                                <div class="c-page-info-message-header-block"><div class="fa fa-plus-square-o"></div><span>Сведения</span></div>
+                                <div class="c-page-info-message-text-container hidden">
+                                    <ul>
+                                        <li>После изменения имени пользователя все подписи к информации оставленной ранее будут также изменены на новое имя.</li>
+                                        <li>Будьте внимательны при изменении имени пользователя, возможно вашими партнёрами и заказчиками будет трудно вас найти.</li>
+                                        <li>Не рекомендуется часто изменять имя пользователя.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- /Информационный блок -->
+
+                            <div id="i-ctrl-account-login" class="c-page-form-outer-block">
+                                <div class="c-page-form-block">
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">Имя пользователя:</div>
+                                        <div class="c-page-property-input-block"><input id="i-ctrl-account-login-txt" type="text" placeholder="Имя пользователя"/></div>
+                                        <div id="i-ctrl-account-login-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                    </div>
+                                    <div class="с-page-button-set-block">
+                                        <button id="i-ctrl-account-login-submit-btn"><div class="fa fa-check-square-o"></div>Изменить</button>
+                                        <button id="i-ctrl-account-login-cancel-btn"><div class="fa fa-undo"></div>Отменить изменения</button>
+                                    </div>                                    
+                                </div>
+                                <div id="i-ctrl-account-login-info-message" class="c-page-form-info-message-container hidden"><div class="fa fa-check-square-o"></div><span></span></div>
+                                <div id="i-ctrl-account-login-overlay" class="c-page-form-overlay-container"><div class="fa fa-spinner fa-spin"></div></div>
+                            </div>
+                        </div>
+
+                        <div id="i-ctrl-account-email-container" class="c-page-lv-view-container hidden">
+
+                            <!-- Информационный блок -->
+                            <div class="c-page-info-message-block">
+                                <div class="c-page-info-message-header-block"><div class="fa fa-plus-square-o"></div><span>Сведения</span></div>
+                                <div class="c-page-info-message-text-container hidden">
+                                    <ul>
+                                        <li>После изменения почтового адреса все сообщения и уведомления будут направляться на новый адрес электронной почты.</li>
+                                        <li>Напоминание пароля также будет отправляться на новый адрес электронной почты.</li>
+                                        <li>Внимательно проверьте адрес электронной почты перед изменением.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- /Информационный блок -->
+
+                            <div id="i-ctrl-account-email" class="c-page-form-outer-block">
+                                <div class="c-page-form-block">
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">Почта:</div>
+                                        <div class="c-page-property-input-block"><input id="i-ctrl-account-email-txt" type="text" placeholder="Электронная почта"/></div>
+                                        <div id="i-ctrl-account-email-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>  
+                                    </div>
+                                    <div class="с-page-button-set-block">
+                                        <button id="i-ctrl-account-email-submit-btn"><div class="fa fa-check-square-o"></div>Изменить</button>
+                                        <button id="i-ctrl-account-email-cancel-btn"><div class="fa fa-undo"></div>Отменить изменения</button>
+                                    </div>
+                                </div>
+                                <div id="i-ctrl-account-email-info-message" class="c-page-form-info-message-container hidden"><div class="fa fa-check-square-o"></div><span></span></div>
+                                <div id="i-ctrl-account-email-overlay" class="c-page-form-overlay-container"><div class="fa fa-spinner fa-spin"></div></div>
+                            </div>
+                        </div>
+                        <div id="i-ctrl-account-password-container" class="c-page-lv-view-container hidden">
+                            <!-- Информационный блок -->
+                            <div class="c-page-info-message-block">
+                                <div class="c-page-info-message-header-block"><div class="fa fa-plus-square-o"></div><span>Сведения</span></div>
+                                <div class="c-page-info-message-text-container hidden">
+                                    <ul>
+                                        <li>После изменения пароля следующий вход в систему будет возможен только с новым паролем.</li>
+                                        <li>Никогда и никому не сообщайте пароль от вашей учётной записи.</li>
+                                        <li>Храните пароль в надёжном месте, но надёжнее всего выучить и запомнить пароль.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- /Информационный блок -->
+
+                            <div id="i-ctrl-account-password" class="c-page-form-outer-block">
+                                <div class="c-page-form-block">
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">Старый пароль:</div>
+                                        <div class="c-page-property-input-block"><input id="i-ctrl-account-old-password-txt" type="password" placeholder="Старый пароль"/></div>
+                                        <div id="i-ctrl-account-old-password-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>  
+                                    </div>
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">Новый пароль:</div>
+                                        <div class="c-page-property-input-block"><input id="i-ctrl-account-new-password-1-txt" type="password" placeholder="Новый пароль"/></div>
+                                        <div id="i-ctrl-account-new-password-1-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>  
+                                    </div>
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">Новый пароль (повторно):</div>
+                                        <div class="c-page-property-input-block"><input id="i-ctrl-account-new-password-2-txt" type="password" placeholder="Подтверждение пароля"/></div>
+                                        <div id="i-ctrl-account-new-password-2-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>  
+                                    </div>
+                                    <div class="с-page-button-set-block">
+                                        <button id="i-ctrl-account-password-submit-btn"><div class="fa fa-check-square-o"></div>Изменить</button>
+                                        <button id="i-ctrl-account-password-cancel-btn"><div class="fa fa-undo"></div>Отменить изменения</button>
+                                    </div>
+                                </div>
+                                <div id="i-ctrl-account-password-info-message" class="c-page-form-info-message-container hidden"><div class="fa fa-check-square-o"></div><span></span></div>
+                                <div id="i-ctrl-account-password-overlay" class="c-page-form-overlay-container"><div class="fa fa-spinner fa-spin"></div></div>
+                            </div>
+                        </div>
+                        <div id="i-ctrl-account-delete-container" class="c-page-lv-view-container hidden">
+
+                            <!-- Информационный блок -->
+                            <div class="c-page-info-message-block">
+                                <div class="c-page-info-message-header-block"><div class="fa fa-minus-square-o"></div><span>Сведения</span></div>
+                                <div class="c-page-info-message-text-container">
+                                    <ul>
+                                        <li>После удаления ваша учётная запись будет заморожена на 30 дней.</li>
+                                        <li>В течении 30 дней вы сможете восстановить свою учётную запись.</li>
+                                        <li>Для восстановления вашей учётной записи перейдите по ссылке в письме.</li>
+                                        <li>Письмо со ссылкой для восстановления учётной записи будет выслано вам сразу после удаления.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- /Информационный блок -->
+
+                            <div id="i-ctrl-account-delete" class="c-page-form-outer-block">
+                                <div class="c-page-form-block">
+                                    <div class="с-page-button-set-block">
+                                        <button id="i-ctrl-account-delete-submit-btn"><div class="fa fa-times"></div>Удалить аккаунт</button>
+                                    </div>
+                                </div>
+                                <div id="i-ctrl-account-delete-info-message" class="c-page-form-info-message-container hidden"><div class="fa fa-check-square-o"></div><span></span></div>
+                                <div id="i-ctrl-account-delete-overlay" class="c-page-form-overlay-container"><div class="fa fa-spinner fa-spin"></div></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="i-ctrl-profile-org-container" class="hidden">
+
+                <!-- Информационный блок -->
+                <div class="c-page-info-message-block">
+                    <div class="c-page-info-message-header-block"><div class="fa fa-plus-square-o"></div><span>Сведения</span></div>
+                    <div class="c-page-info-message-text-container hidden">
+                        <ul>
+                            <li>Для размещения заявок на перевозку и предложений по услугам необходимо заполнить сведения о вашей организации.</li>
+                            <li>Обязательно укажите краткое название и организационную форму.</li>
+                            <li>Указанные контакты будут доступны для просмотра только при размещении заявок и обращении с предложениями о выполнении услуг.</li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /Информационный блок --> 
+
+
+                <!-- ListView -->
+                <div class="c-page-lv-block">
+                    <div class="c-page-lv-list-block">
+                        <div data-target-id="i-ctrl-org-info-container" class="c-page-lv-list-item selected"><div class="fa fa-folder-open-o"></div><span>Сведения</span></div>
+                        <div data-target-id="i-ctrl-org-address-container" class="c-page-lv-list-item"><div class="fa fa-building-o"></div><span>Адрес</span></div>
+                        <div data-target-id="i-ctrl-org-contacts-container" class="c-page-lv-list-item"><div class="fa fa-phone"></div><span>Контакты</span></div>
+                        <div data-target-id="i-ctrl-org-options-container" class="c-page-lv-list-item"><div class="fa fa-gear"></div><span>Настройки</span></div>
+                    </div>
+                    <div class="c-page-lv-view-block">
+                        <div id="i-ctrl-org-info-container" class="c-page-lv-view-container block">
+                            <!-- Информационный блок -->
+                            <div class="c-page-info-message-block">
+                                <div class="c-page-info-message-header-block"><div class="fa fa-plus-square-o"></div><span>Сведения</span></div>
+                                <div class="c-page-info-message-text-container hidden">
+                                    <ul>
+                                        <li>Для размещения заявок на перевозку и предложений по услугам необходимо заполнить сведения о вашей организации.</li>
+                                        <li>Обязательно укажите краткое название и организационную форму.</li>
+                                        <li>Указанные контакты будут доступны для просмотра только при размещении заявок и обращении с предложениями о выполнении услуг.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- /Информационный блок -->  
+
+                            <div id="i-ctrl-org-info" class="c-page-form-outer-block">
+                                <div class="c-page-form-block">
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">Краткое название*:</div>
+                                        <div class="c-page-property-input-block"><input id="i-ctrl-org-shortName-txt" type="text" placeholder="Например: Иванов Пётр или ООО Кедр"/></div>
+                                        <div id="i-ctrl-org-shortName-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>  
+                                    </div>
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">Полное название:</div>
+                                        <div class="c-page-property-input-block"><input id="i-ctrl-org-fullName-txt" type="text" placeholder="Например: ИП Иванов Пётр Сергеевич"/></div>
+                                        <div id="i-ctrl-org-fullName-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>  
+                                    </div>
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">Форма организации*:</div>
+                                        <div class="c-page-property-input-block"><select id="i-ctrl-org-form-select"></select></div>
+                                        <div  id="i-ctrl-org-form-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>  
+                                    </div>
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">ОГРН:</div>
+                                        <div class="c-page-property-input-block"><input id="i-ctrl-org-ogrn-txt" type="text" placeholder=""/></div>
+                                        <div id="i-ctrl-org-ogrn-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                    </div>
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">ИНН:</div>
+                                        <div class="c-page-property-input-block"><input id="i-ctrl-org-inn-txt" type="text" placeholder=""/></div>
+                                        <div id="i-ctrl-org-inn-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                    </div>
+
+                                    <div class="с-page-button-set-block">
+                                        <button id="i-ctrl-org-info-submit-btn"><div class="fa fa-check-square-o"></div>Изменить</button>
+                                        <button id="i-ctrl-org-info-cancel-btn"><div class="fa fa-undo"></div>Отменить изменения</button>
+                                    </div>                                    
+                                </div>
+                                <div id="i-ctrl-org-info-info-message" class="c-page-form-info-message-container hidden"><div class="fa fa-check-square-o"></div><span></span></div>
+                                <div id="i-ctrl-org-info-overlay" class="c-page-form-overlay-container"><div class="fa fa-spinner fa-spin"></div></div>
+                            </div>
+                    </div>
+                        <div id="i-ctrl-org-address-container" class="c-page-lv-view-container hidden">адрес</div>
+
+                        <div id="i-ctrl-org-contacts-container" class="c-page-lv-view-container hidden">
+                            <!-- Информационный блок -->
+                            <div class="c-page-info-message-block">
+                                <div class="c-page-info-message-header-block"><div class="fa fa-plus-square-o"></div><span>Сведения</span></div>
+                                <div class="c-page-info-message-text-container hidden">
+                                    <ul>
+                                        <li>Для размещения заявок на перевозку и предложений по услугам необходимо заполнить сведения о вашей организации.</li>
+                                        <li>Обязательно укажите краткое название и организационную форму.</li>
+                                        <li>Указанные контакты будут доступны для просмотра только при размещении заявок и обращении с предложениями о выполнении услуг.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- /Информационный блок -->  
+
+                            <div id="i-ctrl-org-contacts" class="c-page-form-outer-block">
+                                <div class="c-page-form-block">
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">Электронная почта:</div>
+                                        <div class="c-page-property-input-block"><input id="i-ctrl-org-email-txt" type="text" placeholder="name@server.ru"/></div>
+                                        <div id="i-ctrl-org-email-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                    </div>
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">Тел. рабочий:</div>
+                                        <div class="c-page-property-input-block"><input id="i-ctrl-org-phone1-txt" type="text" placeholder=""/></div>
+                                        <div id="i-ctrl-org-phone1-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                    </div>
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">Тел. личный:</div>
+                                        <div class="c-page-property-input-block"><input id="i-ctrl-org-phone2-txt" type="text" placeholder=""/></div>
+                                        <div id="i-ctrl-org-phone2-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                    </div>
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">Skype:</div>
+                                        <div class="c-page-property-input-block"><input id="i-ctrl-org-skype-txt" type="text" placeholder=""/></div>
+                                        <div id="i-ctrl-org-skype-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                    </div>
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">ICQ:</div>
+                                        <div class="c-page-property-input-block"><input id="i-ctrl-org-icq-txt" type="text" placeholder=""/></div>
+                                        <div id="i-ctrl-org-icq-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                    </div>
+
+                                    <div class="с-page-button-set-block">
+                                        <button id="i-ctrl-org-contacts-submit-btn"><div class="fa fa-check-square-o"></div>Изменить</button>
+                                        <button id="i-ctrl-org-contacts-cancel-btn"><div class="fa fa-undo"></div>Отменить изменения</button>
+                                    </div>                                    
+                                </div>
+                                <div id="i-ctrl-org-contacts-info-message" class="c-page-form-info-message-container hidden"><div class="fa fa-check-square-o"></div><span></span></div>
+                                <div id="i-ctrl-org-contacts-overlay" class="c-page-form-overlay-container"><div class="fa fa-spinner fa-spin"></div></div>
+                            </div>
+                        </div>
+
+                        <div id="i-ctrl-org-options-container" class="c-page-lv-view-container hidden">Настройки</div>
+                    </div>
+                </div>
+                <!-- /ListView -->
+                
+            </div>
+
+            <div id="i-ctrl-profile-tasks-container" class="hidden">задания на перевозку (грузы)</div>
+            <div id="i-ctrl-profile-vehicle-container" class="hidden">
+
+                <!-- List View -->
+                <div class="c-page-lv-block">
+                    <div class="c-page-lv-list-block">
+                        <div data-target-id="i-ctrl-car-all" class="c-page-lv-list-item selected"><span>Все</span></div>
+                    </div>
+                    <div class="c-page-lv-view-block">
+                        <div id="i-ctrl-vehicle-all" class="c-page-lv-view-container">
+
+
+                            <div id="i-ctrl-vehicle-edit-form-container" class="hidden">
+
+                                <!-- Информационный блок -->
+                                <div class="c-page-info-message-block">
+                                    <div class="c-page-info-message-header-block"><div class="fa fa-plus-square-o"></div><span>Сведения</span></div>
+                                    <div class="c-page-info-message-text-container hidden">
+                                        <ul>
+                                            <li>Правильно укажите тип машины. Не все категории грузов могут перевозиться на любом типе машины.</li>
+                                            <li>Параметры машины помогут правильно подобрать груз и рассчитать прибыль:
+                                                <ul>
+                                                    <li><span class="c-ctrl-info-param-name-text-block">Макс вес, кг</span> - укажите максимальную допустимый вес груза в килограммах;</li>
+                                                    <li><span class="c-ctrl-info-param-name-text-block">Макс объём, м<sup>3</sup></span> - укажите максимально допустимый объём груза в кубометрах;</li>
+                                                    <li><span class="c-ctrl-info-param-name-text-block">Затраты, руб/км</span> - укажите расчётную величину затрат в рублях за перегон машины на 1 километр;</li>
+                                                    <li><span class="c-ctrl-info-param-name-text-block">Свой тариф за кг, руб/100 км</span> - укажите свою ставку в рублях за перевоз 1 килограмма груза на 100 километров;</li>
+                                                    <li><span class="c-ctrl-info-param-name-text-block">Свой тариф за м<sup>3</sup>, руб/100 км</span> - укажите свою ставку в рублях за перевоз 1 кубометра груза на 100 километров.</li>
+                                                </ul>
+                                            </li>
+                                            <li>Свой тариф будет использован если заказчик не указал стоимость перевозки. Для расчёта стоимости по своему тарифу будет выбрано максимальное значение из расчётных.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <!-- /Информационный блок -->  
+
+
+                                <div id="i-ctrl-vehicle-edit-form" class="c-page-form-outer-block" >
+                                    <div class="c-page-form-block">
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Название:</div>
+                                            <div class="c-page-property-input-block"><input id="i-ctrl-vehicle-form-name-txt" type="text" placeholder=""/></div>
+                                            <div id="i-ctrl-vehicle-form-name-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>  
+                                        </div>
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Тип машины:</div>
+                                            <div class="c-page-property-input-block"><select id="i-ctrl-vehicle-form-type-select"></select></div>
+                                            <div  id="i-ctrl-vehicle-form-type-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>  
+                                        </div>
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Макс. вес, кг:</div>
+                                            <div class="c-page-property-input-block"><input id="i-ctrl-vehicle-form-max-weight-txt" type="text" placeholder=""/></div>
+                                            <div id="i-ctrl-vehicle-form-max-weight-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                        </div>
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Макс. объём, м<sup>3</sup>:</div>
+                                            <div class="c-page-property-input-block"><input id="i-ctrl-vehicle-form-max-value-txt" type="text" placeholder=""/></div>
+                                            <div id="i-ctrl-vehicle-form-max-value-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                        </div>
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Затраты, руб/км:</div>
+                                            <div class="c-page-property-input-block"><input id="i-ctrl-vehicle-form-expences-txt" type="text" placeholder=""/></div>
+                                            <div id="i-ctrl-vehicle-form-expences-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                        </div>
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Свой тариф за кг, руб/100 км:</div>
+                                            <div class="c-page-property-input-block"><input id="i-ctrl-vehicle-form-tax-weight-txt" type="text" placeholder=""/></div>
+                                            <div id="i-ctrl-vehicle-form-tax-weight-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                        </div>
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Свой тариф за м<sup>3</sup>, руб/100 км:</div>
+                                            <div class="c-page-property-input-block"><input id="i-ctrl-vehicle-form-tax-value-txt" type="text" placeholder=""/></div>
+                                            <div id="i-ctrl-vehicle-form-tax-value-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                        </div>
+
+                                        <div class="с-page-button-set-block">
+                                            <button id="i-ctrl-vehicle-form-submit-btn"><div class="fa fa-check-square-o"></div>Сохранить</button>
+                                            <button id="i-ctrl-vehicle-form-cancel-btn"><div class="fa fa-undo"></div>Отмена</button>
+                                        </div> 
+                                    </div>
+                                    <div id="i-ctrl-vehicle-form-overlay" class="c-page-form-overlay-container"><div class="fa fa-spinner fa-spin"></div></div>                                     
+                                </div>
+
+                                
+                            </div>
+
+                            <div id="i-ctrl-vehicle-list-container" class="block">
+
+                                <!-- Информационный блок -->
+                                <div class="c-page-info-message-block">
+                                    <div class="c-page-info-message-header-block"><div class="fa fa-plus-square-o"></div><span>Сведения</span></div>
+                                    <div class="c-page-info-message-text-container hidden">
+                                        <ul>
+                                            <li>Информация о работе с таблицей</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <!-- /Информационный блок -->
+
+                                <div id="i-ctrl-vehicle-table-block" class="c-page-form-outer-block" >
+
+                                    <div class="с-page-button-set-block">
+                                        <button id="i-ctrl-vehicle-list-add-btn"><div class="fa fa-plus"></div>Добавить</button>
+                                    </div>
+
+                                    <table id="i-ctrl-vehicle-table" class="c-ctrl-vehicle-table">                                    
+                                        <thead>
+                                           <tr>
+                                               <th>№</th>
+                                               <th>Название</th>
+                                               <th>Тип</th>
+                                               <th>Макс. вес,<br/>кг</th>
+                                               <th>Макс объём,<br/>м<sup>3</sup></th>
+                                               <th>Затраты,<br/>руб/км</th>
+                                               <th>Свой тариф за кг,<br/>руб/100 км</th>
+                                               <th>Свой тариф за м<sup>3</sup>,<br/>руб/100 км</th>
+                                               <th>Действия</th>
+                                           </tr>
+                                            <!-- Шаблон строки таблицы -->
+                                            <tr id="i-ctrl-vehicle-table-row-template" data-id="" class="hidden">
+                                               <td class="c-ctrl-vehicle-table-cell-num"></td>
+                                               <td class="c-ctrl-vehicle-table-cell-name"></td>
+                                               <td class="c-ctrl-vehicle-table-cell-type"></td>
+                                               <td class="c-ctrl-vehicle-table-cell-max-weight"></td>
+                                               <td class="c-ctrl-vehicle-table-cell-max-value"></td>
+                                               <td class="c-ctrl-vehicle-table-cell-expences"></td>
+                                               <td class="c-ctrl-vehicle-table-cell-tax-weight"></td>
+                                               <td class="c-ctrl-vehicle-table-cell-tax-value"></td>
+                                               <td class="c-ctrl-vehicle-table-cell-action"><span data-id="" class="c-ctrl-vehicle-table-cell-action-edit fa fa-pencil-square"></span><span data-id="" class="c-ctrl-vehicle-table-cell-action-delete fa fa-times"></span></td>
+                                            </tr>
+                                            <tr id="i-ctrl-vehicle-table-row-empty-template" class="hidden">
+                                                <td colspan="9">Нет записей</td>
+                                            </tr>
+                                            <tr id="i-ctrl-vehicle-table-row-confirm-template" class="c-ctrl-vehicle-table-row-delete-confirm-block hidden">
+                                                <td colspan="9">
+                                                    <span class="c-ctrl-vehicle-table-row-delete-confirm-message">Подтвердить удаление?</span>
+                                                    <div class="c-ctrl-vehicle-table-row-delete-conirm-button-block с-page-button-set-block">
+                                                        <button class="c-ctrl-vehicle-table-row-delete-confirm-button"><div class="fa fa-check-square-o"></div>Подтвердить</button>
+                                                        <button class="c-ctrl-vehicle-table-row-delete-cancel-button"><div class="fa fa-undo"></div>Отмена</button>
+                                                    </div>
+                                                    <div id="i-ctrl-vehicle-table-row-confirm-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                                </td>
+                                            </tr>
+                                            <!-- /Шаблон строки таблицы -->
+                                        </thead>
+                                        <tbody>                                        
+                                        </tbody>
+                                    </table>
+                                    <div id="i-ctrl-vehicle-table-block-overlay" class="c-page-form-overlay-container"><div class="fa fa-spinner fa-spin"></div></div>
+                                </div>
+                            </div>
+                            
+                            
+
+                        </div>
+                    </div>
+                </div>
+                <!-- /List View -->
+
+            </div>
+
+        </div>
+
+
+    </div>
+</body>
+</html>

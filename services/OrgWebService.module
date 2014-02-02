@@ -1,0 +1,305 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 31.12.13
+ * Time: 16:32
+ * To change this template use File | Settings | File Templates.
+ */
+require_once("WebServBase.module");
+require_once("Log.module");
+
+
+class OrgContactData
+{
+    public $id;
+    public $email;
+    public $emailNote;
+    public $phone1;
+    public $phone1Note;
+    public $phone2;
+    public $phone2Note;
+    public $skype;
+    public $skypeNote;
+    public $icq;
+    public $icqNote;
+
+    function __construct($id, $email, $emailNote, $phone1, $phone1Note, $phone2, $phone2Note, $skype, $skypeNote, $icq, $icqNote)
+    {
+        $this->id = $id;
+        $this->email = $email;
+        $this->emailNote = $emailNote;
+        $this->phone1 = $phone1;
+        $this->phone1Note = $phone1Note;
+        $this->phone2 = $phone2;
+        $this->phone2Note = $phone2Note;
+        $this->skype = $skype;
+        $this->skypeNote = $skypeNote;
+        $this->icq = $icq;
+        $this->icqNote = $icqNote;
+    }
+}
+
+class OrgInfoData
+{
+    public $id;
+    public $shortName;
+    public $fullName;
+    public $ogrn;
+    public $inn;
+    public $formId;
+
+    function __construct($id, $shortName, $fullName, $ogrn, $inn, $formId)
+    {
+        $this->id = $id;
+        $this->shortName = $shortName;
+        $this->fullName = $fullName;
+        $this->ogrn = $ogrn;
+        $this->inn = $inn;
+        $this->formId = $formId;
+    }
+}
+
+class AjaxOrgData
+{
+    public $id;
+    public $info;
+    public $contacts;
+
+    function __construct()
+    {
+        $this->id = null;
+        $this->info = null;
+        $this->contacts = null;
+    }
+}
+
+
+class OrgWebService extends WebServBase
+{
+
+    public function onGet($args)
+    {
+        // проверяем авторизован ли пользователь
+        if(false == CurrentUser::isAuthenticated())
+        {
+            // HTTP/1.1 401 Unauthorized
+            $this->returnError(401, array(2));
+            return;
+        }
+
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            $sql = 'select id, shortname, fullname, ogrn, inn, form_id from company where account_id=?i';
+
+            $result = $db->getRow($sql, CurrentUser::getUserId());
+            $respData = new AjaxOrgData();
+
+            if(false != $result)
+            {
+                $infoData = new OrgInfoData(
+                    $result['id'], $result['shortname'], $result['fullname'],
+                    $result['ogrn'], $result['inn'], $result['form_id']
+                );
+
+                $respData->id = $infoData->id;
+                $respData->info = $infoData;
+
+                ///////////////////////////////////////////
+                // получаем контакты
+
+                $sql = 'SELECT id, email, phone1, phone2, skype, icq, email_note, phone1_note, phone2_note, skype_note, icq_note FROM company_contacts WHERE company_id=?i';
+                $result = $db->getRow($sql, $infoData->id);
+
+                if(false != $result)
+                {
+                    $contactsData = new OrgContactData(
+                                                $result['id'], $result['email'], $result['email_note'],
+                                                $result['phone1'], $result['phone1_note'],
+                                                $result['phone2'], $result['phone2_note'],
+                                                $result['skype'], $result['skype_note'],
+                                                $result['icq'], $result['icq_note']
+                                                    );
+
+                    $respData->contacts = $contactsData;
+                }
+            }
+
+            if(null == $respData->info || null == $respData->contacts)
+            {
+                $this->returnError(500, array(1));
+            }
+            else
+            {
+                $response = new AjaxServerResponse(200, '', '', $respData);
+                sendHTTPStatus(200);
+                header('Content-type: application/json');
+                echo json_encode($response);
+            }
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1));
+        }
+    }
+
+    public function onPost($args, $data)
+    {
+        // HTTP/1.1 405 Method Not Allowed
+        sendHTTPStatus(405);
+        header('Allow: GET,PUT');
+    }
+
+    public function onPut($args, $data)
+    {
+        // проверяем авторизован ли пользователь
+        if(false == CurrentUser::isAuthenticated())
+        {
+            // HTTP/1.1 401 Unauthorized
+            $this->returnError(401, array(2), $data);
+            return;
+        }
+
+        //$userId = 7;
+        $userId = CurrentUser::getUserId();
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            // проверяем, что у пользователя есть записи об организациях
+            $sql = 'SELECT id FROM company WHERE account_id=?i';
+            $result = $db->getOne($sql, $userId);
+
+            if(null == $result)
+            // записей нет, сообщаем об ошибке
+            {
+                // HTTP/1.1 403 Forbidden
+                $this->returnError(403, array(1009), $data);
+            }
+            else
+            {
+                $companyId = intval($result);
+
+                if($companyId != $data->id)
+                {
+                    // неправильно указан Id организации
+                    // HTTP/1.1 403 Forbidden
+                    $this->returnError(403, array(6), $data);
+                }
+                else
+                {
+                    $db->query("START TRANSACTION");
+
+                    $errors1 = null;
+                    $errors2 = null;
+
+                    if(null != $data->info)
+                        $errors1 = $this->_updateInfo($data->info, $db, $companyId, $userId);
+
+                    if(null != $data->contacts)
+                        $errors2 = $this->_updateContacts($data->contacts, $db, $companyId);
+
+
+                    if(null != $errors1 || null != $errors2)
+                    {
+                        $errors = array();
+
+                        if(null != $errors1)
+                            array_push($errors, $errors1);
+
+                        if(null != $errors2)
+                            array_push($errors, $errors2);
+
+                        $db->query("ROLLBACK");
+
+                        // HTTP/1.1 403 Forbidden
+                        $this->returnError(403, $errors, $data);
+                    }
+                    else
+                    {
+                        $db->query("COMMIT");
+                        $response = new AjaxServerResponse(200, '', '', $data);
+                        sendHTTPStatus(200);
+                        header('Content-type: application/json');
+                        echo json_encode($response);
+                    }
+                }
+            }
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1), $data);
+        }
+    }
+
+    public function onDelete($args, $data)
+    {
+        // HTTP/1.1 405 Method Not Allowed
+        sendHTTPStatus(405);
+        header('Allow: GET,PUT');
+    }
+
+    private function _updateInfo($data, $db, $companyId, $userId)
+    {
+        $errors = array();
+
+        // проверяем заполнение обязательных полей
+        // 1. краткое название
+        if(1 > strlen($data->shortName))
+        {
+            // Необходимо указать краткое название
+            array_push($errors, 1010);
+        }
+
+        // 2. форма собственности
+        if(false == is_numeric($data->formId) || 1 > intval($data->formId))
+        {
+            // Необходимо указать форму организации
+            array_push($errors, 1011);
+        }
+
+        if(1 > count($errors))
+        {
+            // обновляем данные об организации
+            $sql = 'UPDATE company SET shortname=?s, fullname=?s, ogrn=?s, inn=?s, form_id=?i WHERE id=?i AND account_id=?i';
+            $result = $db->query($sql, $data->shortName, $data->fullName, $data->ogrn, $data->inn, $data->formId, $companyId, $userId);
+
+            if(false == $result)
+                array_push($errors, 1);
+        }
+
+        return (0 < count($errors)) ? $errors : null;
+    }
+
+    private function _updateContacts($data, $db, $companyId)
+    {
+        $errors = array();
+
+        if(false == Validators::validateEmail($data->email))
+        {
+            // Неверно указан email
+            array_push($errors, 1001);
+        }
+
+        if(1 > count($errors))
+        {
+            // обновляем данные о контактах организации
+            $sql = 'UPDATE company_contacts SET email=?s, phone1=?s, phone2=?s, skype=?s, icq=?s, email_note=?s, phone1_note=?s, phone2_note=?s, skype_note=?s, icq_note=?s WHERE id=?i AND company_id=?i';
+            $result = $db->query($sql, $data->email, $data->phone1, $data->phone2, $data->skype, $data->icq,
+                                        $data->emailNote, $data->phone1Note, $data->phone2Note, $data->skypeNote, $data->icqNote,
+                                        $data->id, $companyId);
+
+            if(false == $result)
+                array_push($errors, 1);
+
+        }
+
+        return (0 < count($errors)) ? $errors : null;
+    }
+
+
+}

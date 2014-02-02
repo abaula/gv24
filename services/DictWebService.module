@@ -1,0 +1,121 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 01.01.14
+ * Time: 0:57
+ * To change this template use File | Settings | File Templates.
+ */
+require_once("WebServBase.module");
+require_once("Log.module");
+
+
+
+
+class DictEntry
+{
+    public $id;
+    public $name;
+    public $description;
+
+    function __construct($id, $name, $description)
+    {
+        $this->id = $id;
+        $this->name = $name;
+        $this->description = $description;
+    }
+}
+
+class DictData
+{
+    public $name;
+    public $data;
+
+    function __construct($name, $data)
+    {
+        $this->name = $name;
+        $this->data = $data;
+    }
+}
+
+
+class DictWebService extends WebServBase
+{
+
+    public function onGet($args)
+    {
+        //var_dump($args);
+
+        if('companyforms' == $args[0])
+        {
+            $this->_getDataFromTableName($args[0], 'company_forms');
+        }
+        else if('transporttype' == $args[0])
+        {
+            $this->_getDataFromTableName($args[0], 'transport_type');
+        }
+        else
+        {
+            // HTTP/1.1 404 Not Found
+            $this->returnError(404, array(6));
+        }
+    }
+
+    public function onPost($args, $data)
+    {
+        // HTTP/1.1 405 Method Not Allowed
+        sendHTTPStatus(405);
+        header('Allow: GET');
+    }
+
+    public function onPut($args, $data)
+    {
+        // HTTP/1.1 405 Method Not Allowed
+        sendHTTPStatus(405);
+        header('Allow: GET');
+    }
+
+    public function onDelete($args, $data)
+    {
+        // HTTP/1.1 405 Method Not Allowed
+        sendHTTPStatus(405);
+        header('Allow: GET');
+    }
+
+    private function _getDataFromTableName($name, $tableName)
+    {
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            $sql = 'select id, name, description from ' . $tableName;
+            $result = $db->query($sql);
+            $respData = null;
+
+            if(null != $result)
+            {
+                $respData = array();
+
+                while($row = $db->fetch($result))
+                {
+                    $entry = new DictEntry(
+                        $row['id'], $row['name'], $row['description']
+                    );
+
+                    array_push($respData, $entry);
+                }
+            }
+
+            $data = new DictData($name, $respData);
+            $response = new AjaxServerResponse(200, '', '', $data);
+            sendHTTPStatus(200);
+            header('Content-type: application/json');
+            echo json_encode($response);
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1));
+        }
+    }
+}

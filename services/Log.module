@@ -1,0 +1,33 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 01.12.13
+ * Time: 15:06
+ * To change this template use File | Settings | File Templates.
+ */
+
+require_once("Settings.inc");
+
+class Log {
+
+    public static function write($data)
+    {
+        $date = date('d.m.Y h:i:s');
+        $log = "Date: ". $date ."\r\n" . self::_varDumpToString($data) . "\r\n\r\n";
+        error_log($log, 3, ERROR_FILE);
+    }
+
+    public static function writeSqlExeption($db, $ex)
+    {
+
+    }
+
+    private static function _varDumpToString ($var)
+    {
+        ob_start();
+        var_dump($var);
+        $result = ob_get_clean();
+        return $result;
+    }
+}

@@ -1,0 +1,97 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 07.12.13
+ * Time: 17:46
+ * To change this template use File | Settings | File Templates.
+ */
+
+class AppErrors {
+
+    public static function GetError($num)
+    {
+        $error = "";
+
+        switch($num)
+        {
+            case 1:
+                $error = "Ошибка SQL сервера";
+                break;
+
+            case 2:
+                $error = "Требуется авторизация";
+                break;
+
+            case 3:
+                $error = "Логин или пароль указаны неверно";
+                break;
+
+            case 4:
+                $error = "Учётная запись не активирована";
+                break;
+
+            case 5:
+                $error = "Учётная запись заблокирована администрацией";
+                break;
+
+            case 6:
+                $error = "Запрос непонятен";
+                break;
+
+            case 1001:
+                $error = "Email указан неправильно. Внимательно проверьте указанный адрес";
+                break;
+
+            case 1002:
+                $error = "Логин указан неправильно. Укажите не менее 3-х и не более 15 латинских символов и, по желанию, цифр";
+                break;
+
+            case 1003:
+                $error = "Указанный логин уже зарегистрирован";
+                break;
+
+            case 1004:
+                $error = "Указанный email уже зарегистрирован";
+                break;
+
+            case 1005:
+                $error = "Пароль должен быть длинной не менее 6-ти символов";
+                break;
+
+            case 1006:
+                $error = "Новый пароль и подтверждение не совпадают";
+                break;
+
+            case 1007:
+                $error = "Старый и новый пароли не должны совпадать";
+                break;
+
+            case 1008:
+                $error = "Старый пароль указан неверно";
+                break;
+
+            case 1009:
+                $error = "Данные об организации уже существуют";
+                break;
+
+            case 1010:
+                $error = "Необходимо указать краткое название";
+                break;
+
+            case 1011:
+                $error = "Необходимо указать форму организации";
+                break;
+
+            case 1012:
+                $error = "";
+                break;
+
+            //.
+        }
+
+
+
+        return $error;
+    }
+}

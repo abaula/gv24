@@ -1,0 +1,169 @@
+﻿
+/* Выравнивание контролов
+    */
+
+#i-ctrl-account-password-container div.c-page-property-key-block {
+    width: 115pt;
+}
+
+#i-ctrl-org-info-container div.c-page-property-key-block {
+    width: 100pt;
+}
+
+#i-ctrl-org-contacts-container div.c-page-property-key-block {
+    width: 90pt;
+}
+
+
+#i-ctrl-vehicle-edit-form-container div.c-page-property-key-block {
+    width: 135pt;
+}
+
+.c-ctrl-info-param-name-text-block {
+    background-color: #ffffff;
+    font-weight: 400;
+    border: 1px solid #c0c0c0;
+    border-radius: 3px;
+}
+
+.c-ctrl-profile-containers-block {
+    display: block;
+    margin-top: 30px;
+}
+
+.c-ctrl-profile-loading-container {
+    width: 1200px; /* Ширина макета */
+    margin: 0 auto; /* Выравниваем макет по центру */
+    height: 100px;
+}
+
+
+.c-ctrl-profile-loading-container > div {
+    position: relative;
+    left: 576px;
+    top: 26px;
+    font-size: 48pt;
+    color: #e0e0e0;
+}
+
+.c-ctrl-profile-error-container {
+    width: 1200px; /* Ширина макета */
+    margin: 0 auto; /* Выравниваем макет по центру */
+}
+
+    .c-ctrl-profile-error-container div.fa {
+        margin-right: 4px;
+    }
+
+    .c-ctrl-profile-navigation-block > div {
+        display: inline-block;
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-top: 4px;
+        padding-bottom: 4px;
+        cursor: pointer;
+    }
+
+    .c-ctrl-profile-navigation-block > div:hover {
+        border-radius: 5px;
+        background-color: #def5fa;
+    }
+
+    .c-ctrl-profile-navigation-block > div.selected {
+        border: 1px solid #003366;
+        border-radius: 5px;
+        background-color: #336699;
+        color: #ffffff;
+    }
+
+    .c-ctrl-profile-navigation-block div.fa {
+        margin-right: 4px;
+    }
+
+
+.c-ctrl-profile-error-text-block {
+    text-align: center;
+    color: #ff0000;
+}
+
+
+.c-ctrl-vehicle-table {
+    border-collapse: collapse;
+    font-size: 8pt;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.c-ctrl-vehicle-table > TBODY {
+    background-color: #ffffff;
+}
+
+.c-ctrl-vehicle-table > THEAD {
+    background-color:#73aeea;
+}
+
+.c-ctrl-vehicle-table TH {
+    padding: 2px;
+    box-shadow: inset 1px 1px 4px #61a6ed;
+    border: 1px solid #336699;
+    color: #ffffff;
+    font-weight: normal;
+}
+
+.c-ctrl-vehicle-table TD {
+    padding: 4px;
+    border: 1px solid #c0c0c0;
+}
+
+.c-ctrl-vehicle-table-cell-num {
+}
+
+.c-ctrl-vehicle-table-cell-name {
+}
+
+.c-ctrl-vehicle-table-cell-type {
+}
+
+.c-ctrl-vehicle-table-cell-max-weight {
+}
+
+.c-ctrl-vehicle-table-cell-max-value {
+}
+
+.c-ctrl-vehicle-table-cell-expences {
+}
+
+.c-ctrl-vehicle-table-cell-tax-weight {
+}
+
+.c-ctrl-vehicle-table-cell-tax-value {
+}
+
+.c-ctrl-vehicle-table-cell-action {
+}
+
+    .c-ctrl-vehicle-table-cell-action span {
+        margin-right: 10px;
+        cursor: pointer;
+        font-size: 11pt;
+    }
+
+.c-ctrl-vehicle-table-row-delete-confirm-message {
+    display: block;
+    text-align: center;
+    font-size: 10pt;
+}
+
+.c-ctrl-vehicle-table-row-delete-confirm-block {
+}
+
+.c-ctrl-vehicle-table-row-delete-conirm-button-block {
+    display: block;
+    text-align: center;
+}
+
+.c-ctrl-vehicle-table-row-delete-confirm-button {
+}
+
+.c-ctrl-vehicle-table-row-delete-cancel-button {
+}

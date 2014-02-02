@@ -1,0 +1,29 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 08.12.13
+ * Time: 16:06
+ * To change this template use File | Settings | File Templates.
+ */
+require_once("Log.module");
+
+class Mail {
+
+    public static function Send($to, $subject, $message)
+    {
+        $headers = 'From: ' . EMAIL_FROM . "\r\n" .
+            'Reply-To: ' . EMAIL_FROM . "\r\n" .
+            'X-Mailer: PHP/' . phpversion();
+
+        $isSent = mail($to, $subject, $message, $headers);
+
+        if(false == $isSent)
+        {
+            Log::write("Mail is not send.\r\nTo: $to, Subject: $subject");
+        }
+
+        return $isSent;
+    }
+
+}

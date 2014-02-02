@@ -1,0 +1,375 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 01.12.13
+ * Time: 14:05
+ * To change this template use File | Settings | File Templates.
+ */
+require_once("WebServBase.module");
+require_once("Log.module");
+require_once("Mail.module");
+
+
+class AjaxRegistrationRequest
+{
+    public $login;
+    public $email;
+}
+
+class AjaxUpdateAccountRequest
+{
+    public $operation;
+
+    public $newLogin;
+    public $newEmail;
+
+    public $oldPass;
+    public $newPass;
+    public $newPassConf;
+}
+
+
+class AjaxAccountDataResponse
+{
+    public $id;
+    public $login;
+    public $email;
+    public $regDate;
+
+    function __construct($id, $login, $email, $regDate)
+    {
+        $this->id = $id;
+        $this->login = $login;
+        $this->email = $email;
+        $this->regDate = $regDate;
+    }
+}
+
+
+
+class AccountWebService extends WebServBase
+{
+
+    public function onGet($args)
+    {
+        /*
+        // HTTP/1.1 401 Unauthorized
+        $this->returnError(401, array(2));
+        return;
+        */
+
+        // проверяем авторизован ли пользователь
+        if(false == CurrentUser::isAuthenticated())
+        {
+            // HTTP/1.1 401 Unauthorized
+            $this->returnError(401, array(2));
+            return;
+        }
+
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            $sql = 'select id, email, name, regdate from account where id=?i';
+            $result = $db->getRow($sql, CurrentUser::getUserId());
+
+            if(null == $result)
+            {
+                $this->returnError(500, array(1));
+            }
+            else
+            {
+                $respData = new AjaxAccountDataResponse($result['id'], $result['name'], $result['email'], $result['regdate']);
+                $response = new AjaxServerResponse(200, '', '', $respData);
+                sendHTTPStatus(200);
+                header('Content-type: application/json');
+                echo json_encode($response);
+            }
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1));
+        }
+    }
+
+    public function onPost($args, $data)
+    {
+        // $data => AjaxRegistrationRequest
+
+        $data->login = trim($data->login);
+        $data->email = trim($data->email);
+
+        //////////////////////////////////////////
+        // проверка формата переданных данных
+        $errors = $this->_validateParams($data);
+
+        if(0 < count($errors))
+        {
+            // HTTP/1.1 400 Bad Request
+            $this->returnError(400, $errors);
+        }
+        else
+        {
+            $db = SqlFactory::getSql();
+
+            try
+            {
+                // провека отсутствия дублей логина и email в БД
+                $sql = 'select 1 from account where name=?s';
+                $result = intval($db->getOne($sql, $data->login));
+
+                if(1 == $result)
+                    // Указанный логин уже зарегистрирован
+                    array_push($errors, 1003);
+
+                $sql = 'select 1 from account where email=?s';
+                $result = intval($db->getOne($sql, $data->email));
+
+                if(1 == $result)
+                    // Указанный email уже зарегистрирован
+                    array_push($errors, 1004);
+
+                if(1 > count($errors))
+                {
+                    // генерим пароль и код активации
+                    $date = date("Y-m-d H:i:s");
+                    $hashstring = $data->login . $data->email . $date;
+                    $hash = md5($hashstring);
+                    $pass = substr($hash, 0, 5);
+                    $md5pass = md5($pass);
+                    $actcode = substr($hash, -5);
+
+                    // создание новой учётной записи
+                    $sql = 'INSERT INTO account (email, passMD5, name, regdate, isactive, actcode, isadmin, bandate) VALUES (?s, ?s, ?s, ?s, 0, ?s, 0, NULL)';
+
+                    $db->query($sql, $data->email, $md5pass, $data->login, $date, $actcode);
+
+                    // отправляем письмо
+                    $this->_sendRegistrationEmail($data->login, $data->email);
+
+                    // возвращаем результат
+                    $response = new AjaxServerResponse(200, '', '');
+                    sendHTTPStatus(200);
+                    header('Content-type: application/json');
+                    echo json_encode($response);
+                }
+                else
+                {
+                    $this->returnError(403, $errors);
+                }
+            }
+            catch(Exception $ex)
+            {
+                Log::writeSqlExeption($db, $ex);
+                $this->returnError(500, array(1));
+            }
+        }
+    }
+
+    public function onPut($args, $data)
+    {
+        /*
+        // HTTP/1.1 401 Unauthorized
+        $this->returnError(401, array(2), $data);
+        return;
+        */
+
+        // проверяем авторизован ли пользователь
+        if(false == CurrentUser::isAuthenticated())
+        {
+            // HTTP/1.1 401 Unauthorized
+            $this->returnError(401, array(2), $data);
+            return;
+        }
+
+        if("login" == $data->operation)
+        {
+            $this->_updateLogin($data);
+        }
+        else if("password" == $data->operation)
+        {
+            $this->_updatePassword($data);
+        }
+        else if("email" == $data->operation)
+        {
+            $this->_updateEmail($data);
+        }
+        else
+        {
+            // HTTP/1.1 403 Forbidden
+            $this->returnError(403, array(6), $data);
+            return;
+        }
+    }
+
+    public function onDelete($args, $data)
+    {
+        // TODO: Implement onDelete() method.
+    }
+
+    private function _sendRegistrationEmail($who, $to)
+    {
+        // TODO: Implement _sendRegistrationEmail() method.
+    }
+
+
+    private function _updateLogin($data)
+    {
+        // проверка переданных значений
+        if(false == Validators::validateLogin($data->newLogin))
+        {
+            // HTTP/1.1 403 Forbidden
+            $this->returnError(403, array(1002), $data);
+            return;
+        }
+
+        // внесение изменений в БД
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            $sql = 'update account set name=?s where id=?i';
+            $result = $db->query($sql, $data->newLogin, CurrentUser::getUserId());
+
+            if(null == $result)
+            {
+                $this->returnError(500, array(1), $data);
+            }
+            else
+            {
+                $response = new AjaxServerResponse(200, '', '', $data);
+                sendHTTPStatus(200);
+                header('Content-type: application/json');
+                echo json_encode($response);
+            }
+
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1), $data);
+        }
+
+    }
+
+    private function _updatePassword($data)
+    {
+        // проверка переданных значений
+        $errors = Validators::validatePassword($data->oldPass, $data->newPass, $data->newPassConf);
+
+        if(0 < count($errors))
+        {
+            // HTTP/1.1 403 Forbidden
+            $this->returnError(403, $errors, $data);
+            return;
+        }
+
+        // внесение изменений в БД
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            // проверяем старый пароль
+            $md5pass = md5($data->oldPass);
+            $sql = 'select 1 from account where passMD5=?s and id=?i';
+            $result = $db->getRow($sql, $md5pass, CurrentUser::getUserId());
+
+            if(null == $result)
+            {
+                // HTTP/1.1 403 Forbidden
+                $this->returnError(403, array(1008), $data);
+                return;
+            }
+
+            // Обновляем пароль
+            $md5pass = md5($data->newPass);
+            $sql = 'update account set passMD5=?s where id=?i';
+            $result = $db->query($sql, $md5pass, CurrentUser::getUserId());
+
+            if(null == $result)
+            {
+                $this->returnError(500, array(1), $data);
+            }
+            else
+            {
+                $response = new AjaxServerResponse(200, '', '', $data);
+                sendHTTPStatus(200);
+                header('Content-type: application/json');
+                echo json_encode($response);
+            }
+
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1), $data);
+        }
+
+    }
+
+    private function _updateEmail($data)
+    {
+        // проверка переданных значений
+        if(false == Validators::validateEmail($data->newEmail))
+        {
+            // HTTP/1.1 403 Forbidden
+            $this->returnError(403, array(1002), $data);
+            return;
+        }
+
+        // внесение изменений в БД
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            $sql = 'update account set email=?s where id=?i';
+            $result = $db->query($sql, $data->newEmail, CurrentUser::getUserId());
+
+            if(null == $result)
+            {
+                $this->returnError(500, array(1), $data);
+            }
+            else
+            {
+                $response = new AjaxServerResponse(200, '', '', $data);
+                sendHTTPStatus(200);
+                header('Content-type: application/json');
+                echo json_encode($response);
+            }
+
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1), $data);
+        }
+
+    }
+
+
+    private function _validateParams($req)
+    {
+        $errors = array();
+
+        if(false == Validators::validateEmail($req->email))
+        {
+            // Неверно указан email
+            array_push($errors, 1001);
+        }
+
+
+        if(false == Validators::validateLogin($req->login))
+        {
+            // Неверно указан логин
+            array_push($errors, 1002);
+        }
+
+        return $errors;
+    }
+
+
+
+
+}

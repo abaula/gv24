@@ -1,0 +1,47 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 04.01.14
+ * Time: 23:57
+ * To change this template use File | Settings | File Templates.
+ */
+
+class Validators
+{
+    public static function validateEmail($email)
+    {
+        return (false != filter_var($email, FILTER_VALIDATE_EMAIL));
+    }
+
+    public static function validateLogin($login)
+    {
+        return (false != preg_match('/^[a-z0-9_-]{3,15}$/', $login));
+    }
+
+    public static function validatePassword($oldPass, $newPass, $newPassConf)
+    {
+        $errors = array();
+
+        if(6 > strlen($newPass))
+        {
+            // Пароль должен быть длинной не менее 6-ти символов
+            array_push($errors, 1005);
+        }
+
+        if($oldPass == $newPass)
+        {
+            // Старый и новый пароли не должны совпадать
+            array_push($errors, 1007);
+        }
+
+        if($newPass != $newPassConf)
+        {
+            // Новый пароль и подтверждение не совпадают
+            array_push($errors, 1006);
+        }
+
+
+        return $errors;
+    }
+}

@@ -1,0 +1,453 @@
+﻿@import url(http://fonts.googleapis.com/css?family=PT+Sans&subset=cyrillic,cyrillic-ext,latin,latin-ext);
+
+body {
+    padding: 0px 0px 0px 0px;
+    margin: 0px 0px 0px 0px;
+    font-family: 'PT Sans' , sans-serif;
+    font-size: 11pt;
+    background-color: #ffffff;
+}
+
+button, input {
+    font-family: inherit;
+    font-size: 10pt;
+}
+
+.c-page-top-section-block {
+    width: 100%;
+    height: 40px;
+    background-color: #336699;
+    
+}
+
+.c-page-top-panel-block {
+    width: 1200px; /* Ширина макета */
+    margin: 0 auto; /* Выравниваем макет по центру */
+    display: block;
+}
+
+
+/* BEGIN: Информационный блок */
+.c-page-info-message-block {
+    font-size: 10pt;
+}
+
+.c-page-info-message-header-block {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.c-page-info-message-header-block > span {
+    text-decoration: underline;
+    margin-left: 2pt;
+}
+
+.c-page-info-message-text-container {
+    border: 1px solid #ffd800;
+    background-color: #faf4d4;
+    padding: 4px 4px 4px 4px;
+    margin-top: 4px;
+    border-radius: 4px;
+}
+
+/* END: Информационный блок */
+
+/* BEGIN: Видимость контейнеров */
+.hidden {
+    display: none;
+}
+
+.block {
+    display: block;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+.cell {
+    display: table-cell;
+}
+/* END: Видимость контейнеров */
+
+/* <!-- ListView --> */
+.c-page-lv-block {
+    width: 1200px;
+    overflow: auto;
+    margin-top: 10px;
+    padding-top: 10px;
+    display: block;
+    border-top: 1px solid #d0d0d0;
+}
+
+.c-page-lv-list-block {
+    width: 120px;
+    display: block;
+    float: left; 
+}
+
+.c-page-lv-list-item {
+    display: block;
+    cursor: pointer;
+    padding: 4px 4px 4px 4px;
+}
+
+.c-page-lv-list-item:hover {
+    border-radius: 5px;
+    background-color: #def5fa;
+}
+
+.c-page-lv-list-item span {
+    margin-left: 4px;
+}
+
+.c-page-lv-list-item.selected {
+    padding: 4px 4px 4px 4px;
+    background-color: #59a1d5;
+    color: #ffffff;
+    border: 1px solid #5799ca;
+    border-radius: 5px;
+}
+
+.c-page-lv-view-block {
+    display: block;
+    margin-left: 120px;
+    padding-left: 20px;
+    width: 1058px;
+}
+
+.c-page-lv-view-container {
+}
+/* <!-- /ListView --> */
+
+
+/* Форма */
+.c-page-form-outer-block {
+    position: relative;
+}
+
+.c-page-form-block {
+    margin-top: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    background: url(resources/bg.jpg);
+    padding: 4px 4px 4px 4px;
+    font-size: 10pt;
+}
+
+.c-page-property-set-block {
+    display: block;
+    margin-top: 4px;
+}
+
+.c-page-property-key-block {
+    display: table-cell;
+    padding-left: 6px;
+    padding-right: 6px;
+    background-color: #f0f0f0;
+    border-left: 1px solid #e0e0e0; 
+    border-top: 1px solid #e0e0e0; 
+    border-bottom: 1px solid #e0e0e0; 
+    border-bottom-left-radius: 4px;
+    border-top-left-radius: 4px; 
+}
+
+.c-page-property-input-block {
+    display: table-cell;
+}
+
+    .c-page-property-input-block input {
+        display: table-cell;
+        margin: 0px 0px 0px 0px;
+        height: 18pt;
+        padding-left: 6px;
+        padding-right: 6px;
+        border: 1px solid #e0e0e0;
+        border-bottom-right-radius: 4px;
+        border-top-right-radius: 4px;
+    }
+
+    .c-page-property-input-block select {
+        display: table-cell;
+        margin: 0px 0px 0px 0px;
+        height: 18pt;
+        padding: 2pt 2pt 2pt 3px;
+        border: 1px solid #e0e0e0;
+    }
+
+.c-page-property-error-container {
+    color: #ff0000;
+    padding-left: 10px;
+    font-size: 10pt;
+}
+
+    .c-page-property-error-container span {
+        margin-left: 4px;
+    }
+
+.с-page-button-set-block {
+    display: block;
+    margin-top: 10px;
+}
+
+.с-page-button-set-block > button {
+    font-family: inherit;
+    font-size: 9pt;
+}
+
+.с-page-button-set-block > button > div {
+    margin-right: 4px;
+}
+
+.c-page-form-info-message-container {
+    margin-top: 10px;
+    color: #2c8506;
+}
+
+.c-page-form-info-message-container > div {
+    margin-right: 4px;
+}
+
+.c-page-form-overlay-container {
+    display:none; 
+    overflow: hidden;
+    position: absolute; 
+    background: #ffffff;
+    opacity: 0.5;
+}
+
+.c-page-form-overlay-container > div {
+    position:absolute;
+    font-size: 48pt;
+    color: #e0e0e0;
+}
+
+/* /Форма */
+
+
+.c-page-top-login-block {
+    display: inline-block;    
+    float: right;
+    padding-top: 10px;
+    font-size: 10pt;
+    color: #ffffff;
+}
+
+    .c-page-top-login-block > div > div {
+        display: inline-block; 
+        margin-left: 10px;
+        cursor: pointer;
+    }
+
+    .c-page-top-login-block span {
+        margin-left: 4px;
+    }
+
+.c-page-user-info-block {
+    border: 1px dashed #ffffff;
+    color: #f0f0f0;
+    padding: 1pt 2pt 1pt 2pt;
+}
+
+
+.c-page-top-menu-item {
+    display: inline-block;
+    vertical-align: top;
+    padding-top: 10px;
+    margin-left: 32px;
+    font-size: 12pt;
+    font-weight: 900;
+    cursor: pointer;
+    color: #ffffff;
+}
+
+.c-page-top-menu-item:hover {
+    text-decoration: underline;
+
+}
+
+.c-page-top-logo {
+    display: inline-block;
+    color: #ffffff;
+    font-size: 20pt;
+}
+
+.c-page-top-spacer {
+    display: inline-block;
+    width: 100px;
+    color: #fff;
+}
+
+
+.c-page-navigation-block {
+    width: 1200px; /* Ширина макета */
+    margin: 0 auto; /* Выравниваем макет по центру */
+    display: block;
+
+    padding-top: 4px;    
+    padding-bottom: 4px;
+    
+    margin-bottom: 10px;
+
+    font-size: 10pt;
+    border-left: 1px solid #e0e0e0;
+    border-right: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    background: url(resources/bg.jpg);
+}
+
+    .c-page-navigation-block > span {
+        margin-left: 4px;
+    }
+
+    .c-page-navigation-block > div.fa {
+        margin-left: 4px;
+    }
+
+.c-page-loading-container {
+    width: 1200px; /* Ширина макета */
+    margin: 0 auto; /* Выравниваем макет по центру */
+    height: 100px;
+}
+
+    .c-page-loading-container > div {
+        position: relative;
+        left: 576px;
+        top: 26px;
+        font-size: 48pt;
+        color: #e0e0e0;
+    }
+
+.c-page-error-container {
+    width: 1200px; /* Ширина макета */
+    margin: 0 auto; /* Выравниваем макет по центру */
+    text-align: center;
+    color: #ff0000;
+}
+
+
+.c-page-auth-loading-container {
+    position:absolute; 
+    background: #ffffff;
+    opacity: 0.5;
+}
+
+.c-page-auth-loading-container > div {
+    position:absolute;
+    font-size: 36pt;
+    color: #e0e0e0;
+}
+
+
+.c-page-auth-required-container {
+    width: 100%;
+    margin: 12pt auto;
+    text-align: center;
+    font-size: 12pt;
+}
+
+    .c-page-auth-required-container span {
+        margin-left: 10px;
+    }
+
+.c-page-main-container {
+    width: 1200px; /* Ширина макета */
+    margin: 0 auto; /* Выравниваем макет по центру */
+}
+
+.c-page-main-error-container {
+    width: 1200px; /* Ширина макета */
+    margin: 0 auto; /* Выравниваем макет по центру */
+}
+
+
+.c-page-main-error-text-block {
+    text-align: center;
+    color: #ff0000;
+}
+
+
+.c-page-auth-error-container {    
+    margin-left: 4px;
+    color: #ff0000;
+}
+
+    .c-page-auth-error-container span {
+        margin-left: 4px;
+    }
+
+.c-page-auth-container {
+    width: 1200px; /* Ширина макета */
+    margin: 0 auto; /* Выравниваем макет по центру */
+}
+
+.c-page-auth-panel-container {
+    width: 1188px;
+    display: block;
+    background-color: #0094ff;
+    border-left: 1px solid #336699;
+    border-right: 1px solid #336699;
+    border-bottom: 1px solid #336699;
+    border-top: 1px solid #336699;
+    border-top-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    color: #ffffff;
+    font-size: 10pt; 
+    padding: 6px;
+}
+
+.c-page-auth-panel-block {
+    display: inline-block;       
+}
+
+.c-page-auth-panel-block div.fa {
+    margin-right: 4px;
+}
+
+
+.c-page-auth-panel-block-txt {
+
+}
+
+.c-page-auth-tabs-block {
+    font-size: 9pt;
+    margin-bottom: 0px;
+}
+
+.c-page-auth-panel-block-ctrl button, .c-page-auth-panel-block-ctrl input {
+    font-size: 9pt;
+}
+
+.c-page-auth-panel-block-ctrl-red {
+    color: #ff0000;
+}
+
+.c-page-auth-tabs-block > span {
+    display: inline-block;
+    padding: 6px 6px 2px 6px;
+    border-left: 1px solid #336699;
+    border-right: 1px solid #336699;
+    border-top: 1px solid #336699;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    background-color: #def5fa;
+    cursor: pointer;
+}
+
+.c-page-auth-tabs-block > span.selected {
+    background-color: #0094ff;
+    color: #ffffff;
+    border-bottom: 1px solid #0094ff;
+    margin-bottom: -1px;
+    font-weight: bold;
+    cursor: default;
+}
+
+.c-page-auth-info-message-container {
+    color: #f0f0f0;
+}
+
+    .c-page-auth-info-message-container > span {
+        margin-left: 4px;
+    }

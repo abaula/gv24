@@ -1,0 +1,55 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 20.11.13
+ * Time: 19:10
+ * To change this template use File | Settings | File Templates.
+ */
+
+abstract class WebServBase
+{
+    public function InvokeMember($method, $args)
+    {
+        if("GET" == $method)
+        {
+            $this->onGet($args);
+        }
+        else if ("POST" == $method)
+        {
+            $json = file_get_contents('php://input');
+            $data = json_decode($json);
+            $this->onPost($args, $data);
+        }
+        else if ("PUT" == $method)
+        {
+            $json = file_get_contents('php://input');
+            $data = json_decode($json);
+            $this->onPut($args, $data);
+        }
+        else if ("DELETE" == $method)
+        {
+            $json = file_get_contents('php://input');
+            $data = json_decode($json);
+            $this->onDelete($args, $data);
+        }
+    }
+
+    protected function returnError($httpcode, $appcodes, $data = null)
+    {
+        $arrmsg = array();
+
+        foreach($appcodes as $val)
+            array_push($arrmsg, sprintf('%s', AppErrors::GetError($val) ));
+
+        $response = new AjaxServerResponse(join(';', $appcodes), join(';', $arrmsg), '', $data);
+        sendHTTPStatus($httpcode);
+        header('Content-type: application/json');
+        echo json_encode($response);
+    }
+
+    abstract public function onGet($args);
+    abstract public function onPost($args, $data);
+    abstract public function onPut($args, $data);
+    abstract public function onDelete($args, $data);
+}

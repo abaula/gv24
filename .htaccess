@@ -1,0 +1,6 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine on
+    RewriteRule ^profile/?$ /profile.html [L]
+    RewriteRule ^registration/?$ /registration.html [L]
+    RewriteRule ^api/(.*)$ /services/api.php [L]
+</IfModule>

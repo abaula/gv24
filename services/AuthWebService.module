@@ -1,0 +1,132 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 14.12.13
+ * Time: 20:12
+ * To change this template use File | Settings | File Templates.
+ */
+require_once("WebServBase.module");
+require_once("Log.module");
+
+
+
+class AjaxAuthRequest
+{
+    public $login;
+    public $pass;
+}
+
+
+class AjaxAuthResponse
+{
+    public $name;
+    public $banDate;
+
+    function __construct($name, $banDate = null)
+    {
+        $this->name = $name;
+        $this->banDate = $banDate;
+    }
+}
+
+class AuthWebService extends WebServBase
+{
+
+    public function onGet($args)
+    {
+        // возвращаем результат
+        if(CurrentUser::isAuthenticated())
+            $respData = new AjaxAuthResponse(CurrentUser::getUserName());
+        else
+            $respData = null;
+
+        //$response = new AjaxServerResponse(200, '', '');
+        $response = new AjaxServerResponse(200, '', '', $respData);
+        sendHTTPStatus(200);
+        header('Content-type: application/json');
+        echo json_encode($response);
+    }
+
+    public function onPost($args, $data)
+    {
+        $email = trim($data->login);
+        $pass = trim($data->pass);
+        $md5pass = strlen($pass) > 0 ? md5($pass) : '';
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            $sql = 'select id, name, isActive, banDate from account where email=?s and passMD5=?s';
+            $result = $db->getRow($sql, $email, $md5pass);
+
+            if(null == $result)
+            {
+                // HTTP/1.1 403 Forbidden
+                $this->returnError(403, array(3));
+                return;
+            }
+
+            if(0 == intval($result['isActive']))
+            {
+                $respData = new AjaxAuthResponse($result['name']);
+
+                // HTTP/1.1 403 Forbidden
+                $this->returnError(403, array(4), $respData);
+                return;
+            }
+
+            if(null != $result['banDate'])
+            {
+                $respData = new AjaxAuthResponse($result['name'], $result['banDate']);
+
+                // HTTP/1.1 403 Forbidden
+                $this->returnError(403, array(5), $respData);
+                return;
+            }
+
+            // Создаём сессию
+            CurrentUser::setUser($result['id'], $result['name']);
+
+            // возвращаем результат
+            $respData = new AjaxAuthResponse($result['name']);
+            $response = new AjaxServerResponse(200, '', '', $respData);
+            sendHTTPStatus(200);
+            header('Content-type: application/json');
+            echo json_encode($response);
+
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1));
+        }
+
+    }
+
+    public function onPut($args, $data)
+    {
+        // TODO напоминание пароля по email
+
+        // HTTP/1.1 405 Method Not Allowed
+        sendHTTPStatus(405);
+        header('Allow: GET,POST,DELETE');
+    }
+
+    public function onDelete($args, $data)
+    {
+        if(CurrentUser::isAuthenticated())
+        {
+            CurrentUser::unSetUser();
+            $response = new AjaxServerResponse(200, '', '');
+            sendHTTPStatus(200);
+            header('Content-type: application/json');
+            echo json_encode($response);
+        }
+        else
+        {
+            // HTTP/1.1 424 Failed Dependency
+            sendHTTPStatus(424);
+        }
+    }
+}

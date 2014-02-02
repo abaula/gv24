@@ -1,0 +1,19 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 07.12.13
+ * Time: 20:14
+ * To change this template use File | Settings | File Templates.
+ */
+require_once("SafeMySQL.module");
+
+class SqlFactory {
+
+    public static function getSql()
+    {
+        global $db_ops;
+        return new SafeMySQL($db_ops);
+    }
+
+}

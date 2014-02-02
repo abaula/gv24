@@ -1,0 +1,281 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 20.11.13
+ * Time: 20:34
+ * To change this template use File | Settings | File Templates.
+ */
+
+require_once("WebServBase.module");
+require_once("Log.module");
+
+
+class AjaxVehicle
+{
+    public $id;
+    public $typeId;
+    public $name;
+    public $maxValue;
+    public $maxWeight;
+    public $expences;
+    public $taxWeight;
+    public $taxValue;
+
+
+    function __construct($id, $typeId, $name, $maxValue, $maxWeight, $expences, $taxWeight, $taxValue)
+    {
+        $this->id = $id;
+        $this->typeId = $typeId;
+        $this->name = $name;
+        $this->maxValue = $maxValue;
+        $this->maxWeight = $maxWeight;
+        $this->expences = $expences;
+        $this->taxWeight = $taxWeight;
+        $this->taxValue = $taxValue;
+    }
+}
+
+class AjaxVehicleList
+{
+    public $vehicles;
+
+    function __construct()
+    {
+        $this->vehicles = null;
+    }
+}
+
+
+
+class VehicleWebService extends WebServBase
+{
+    public function onGet($args)
+    {
+        // проверяем авторизован ли пользователь
+        if(false == CurrentUser::isAuthenticated())
+        {
+            // HTTP/1.1 401 Unauthorized
+            $this->returnError(401, array(2));
+            return;
+        }
+
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            // получаем id органзации
+            $sql = 'select id from company where account_id=?i';
+
+            $orgId = $db->getOne($sql, CurrentUser::getUserId());
+
+            if(false == $orgId)
+            {
+                $this->returnError(500, array(1));
+            }
+            else
+            {
+                ///////////////////////////////////////////
+                // получаем авто
+                $sql = 'SELECT id, type_id, name, max_value, max_weight, expences, tax_weight, tax_value FROM transport WHERE company_id=?i';
+                $result = $db->query($sql, $orgId);
+
+                if(false == $result)
+                {
+                    $this->returnError(500, array(1));
+                }
+                else
+                {
+                    $arr = array();
+
+                    while($row = $db->fetch($result))
+                    {
+                        $entry = new AjaxVehicle
+                            (
+                            $row['id'], $row['type_id'], $row['name'],
+                            $row['max_value'], $row['max_weight'],
+                            $row['expences'], $row['tax_weight'], $row['tax_value']
+                            );
+
+                        array_push($arr, $entry);
+                    }
+
+                    $respData = new AjaxVehicleList();
+
+                    if(0 < count($arr))
+                        $respData->vehicles = $arr;
+
+                    $response = new AjaxServerResponse(200, '', '', $respData);
+                    sendHTTPStatus(200);
+                    header('Content-type: application/json');
+                    echo json_encode($response);
+                }
+            }
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1));
+        }
+
+
+    }
+
+    public function onPost($args, $data)
+    {
+        // проверяем авторизован ли пользователь
+        if(false == CurrentUser::isAuthenticated())
+        {
+            // HTTP/1.1 401 Unauthorized
+            $this->returnError(401, array(2));
+            return;
+        }
+
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            // получаем id органзации
+            $sql = 'select id from company where account_id=?i';
+
+            $orgId = $db->getOne($sql, CurrentUser::getUserId());
+
+            if(false == $orgId)
+            {
+                $this->returnError(500, array(1));
+            }
+            else
+            {
+                ///////////////////////////////////////////
+                // сохраняем авто
+                $sql = 'INSERT INTO transport(company_id, type_id, name, max_value, max_weight, expences, tax_weight, tax_value) VALUES (?i, ?i, ?s, ?i, ?i, ?i, ?s, ?s)';
+                $result = $db->query($sql, $orgId, $data->typeId, $data->name, $data->maxValue, $data->maxWeight, $data->expences, $data->taxWeight, $data->taxValue);
+
+                if(false == $result)
+                {
+                    $this->returnError(500, array(1));
+                }
+                else
+                {
+                    $data->id = $db->insertId();
+                    $response = new AjaxServerResponse(200, '', '', $data);
+                    sendHTTPStatus(200);
+                    header('Content-type: application/json');
+                    echo json_encode($response);
+                }
+
+            }
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1));
+        }
+
+    }
+
+    public function onPut($args, $data)
+    {
+        // проверяем авторизован ли пользователь
+        if(false == CurrentUser::isAuthenticated())
+        {
+            // HTTP/1.1 401 Unauthorized
+            $this->returnError(401, array(2));
+            return;
+        }
+
+
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            // получаем id органзации
+            $sql = 'select id from company where account_id=?i';
+
+            $orgId = $db->getOne($sql, CurrentUser::getUserId());
+
+            if(false == $orgId)
+            {
+                $this->returnError(500, array(1));
+            }
+            else
+            {
+                ///////////////////////////////////////////
+                // обновляем авто
+                $sql = 'UPDATE transport SET type_id=?i, name=?s, max_value=?i, max_weight=?i, expences=?i, tax_weight=?s, tax_value=?s WHERE id=?i AND company_id=?i';
+                $result = $db->query($sql, $data->typeId, $data->name, $data->maxValue, $data->maxWeight, $data->expences, $data->taxWeight, $data->taxValue, $data->id, $orgId);
+
+                if(false == $result)
+                {
+                    $this->returnError(500, array(1));
+                }
+                else
+                {
+                    $response = new AjaxServerResponse(200, '', '', $data);
+                    sendHTTPStatus(200);
+                    header('Content-type: application/json');
+                    echo json_encode($response);
+                }
+            }
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1));
+        }
+
+
+    }
+
+    public function onDelete($args, $data)
+    {
+        // проверяем авторизован ли пользователь
+        if(false == CurrentUser::isAuthenticated())
+        {
+            // HTTP/1.1 401 Unauthorized
+            $this->returnError(401, array(2));
+            return;
+        }
+
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            // получаем id органзации
+            $sql = 'select id from company where account_id=?i';
+
+            $orgId = $db->getOne($sql, CurrentUser::getUserId());
+
+            if(false == $orgId)
+            {
+                $this->returnError(500, array(1));
+            }
+            else
+            {
+                ///////////////////////////////////////////
+                // удаляем авто
+                $sql = 'DELETE FROM transport WHERE id=?i AND company_id=?i';
+                $result = $db->query($sql, $data->id, $orgId);
+
+                if(false == $result)
+                {
+                    $this->returnError(500, array(1));
+                }
+                else
+                {
+                    $response = new AjaxServerResponse(200, '', '', $data);
+                    sendHTTPStatus(200);
+                    header('Content-type: application/json');
+                    echo json_encode($response);
+                }
+            }
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1));
+        }
+    }
+
+
+}
