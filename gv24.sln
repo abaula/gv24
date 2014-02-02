@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 2012 for Web
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RouteCalculatorJS", "RouteCalculatorJS.csproj", "{EF659E31-D8AF-4668-821D-6A5EB2D9ED48}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gv24", "gv24.csproj", "{EF659E31-D8AF-4668-821D-6A5EB2D9ED48}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
