@@ -26,8 +26,8 @@ define('MEMCACHE_PORT', 11211);
 
 // virtual Directories
 define('WEBAPI_URI', 'api');
-define('PROFILE_URI', 'profile');
-define('REGISTRATION_URI', 'registration');
+//define('PROFILE_URI', 'profile');
+//define('REGISTRATION_URI', 'registration');
 
 
 
@@ -37,7 +37,7 @@ define('ERROR_FILE', ROOT_PATH . '/errors.log.txt');
 
 
 // Urls
-define('HOME_URL', 'http://localhost/');
+//define('HOME_URL', 'http://localhost/');
 
 // Session Keys
 define('SESSION_USERID', 'UserId');

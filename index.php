@@ -19,6 +19,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/services/AccountWebService.module');
 require_once($_SERVER['DOCUMENT_ROOT'] . '/services/OrgWebService.module');
 require_once($_SERVER['DOCUMENT_ROOT'] . '/services/Mail.module');
 require_once($_SERVER['DOCUMENT_ROOT'] . '/services/AuthWebService.module');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/services/CityAutoCompleteWebService.module');
 
 
 //создание класса, коннект в БД
@@ -92,3 +93,13 @@ function Test_Org_Post()
 }
 
 //Test_Org_Post();
+
+
+function Test_CityAutoCompleteWebService_Get()
+{
+    $args = array('мур');
+    $app = new CityAutoCompleteWebService();
+    $app->onGet($args);
+}
+
+//Test_CityAutoCompleteWebService_Get();

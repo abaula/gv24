@@ -16,6 +16,7 @@ require_once("AccountWebService.module");
 require_once("AuthWebService.module");
 require_once("OrgWebService.module");
 require_once("DictWebService.module");
+require_once("CityAutoCompleteWebService.module");
 require_once("Validators.module");
 require_once("AppErrors.module");
 require_once("SqlFactory.module");
@@ -38,6 +39,8 @@ function getWebService($name)
         return new OrgWebService();
     else if("dict" == $name)
         return new DictWebService();
+    else if("cityautocomplete" == $name)
+        return new CityAutoCompleteWebService();
 
 
     return null;

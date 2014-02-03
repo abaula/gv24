@@ -92,7 +92,7 @@ class DictWebService extends WebServBase
             $result = $db->query($sql);
             $respData = null;
 
-            if(null != $result)
+            if(false != $result)
             {
                 $respData = array();
 

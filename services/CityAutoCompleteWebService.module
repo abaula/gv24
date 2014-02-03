@@ -1,0 +1,140 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 03.02.14
+ * Time: 22:57
+ * To change this template use File | Settings | File Templates.
+ */
+require_once("WebServBase.module");
+require_once("Log.module");
+
+
+class CityData
+{
+    public $id;
+    public $latitude;
+    public $longitude;
+    public $name;
+    public $fullname;
+    public $district;
+    public $region;
+    public $suffix;
+    public $cladrCode;
+    public $postCode;
+
+    function __construct($id, $latitude, $longitude, $name, $fullname, $district, $region, $suffix, $cladrCode, $postCode)
+    {
+        $this->id = $id;
+        $this->latitude = $latitude;
+        $this->longitude = $longitude;
+        $this->name = $name;
+        $this->fullname = $fullname;
+        $this->district = $district;
+        $this->region = $region;
+        $this->suffix = $suffix;
+        $this->cladrCode = $cladrCode;
+        $this->postCode = $postCode;
+    }
+
+
+}
+
+
+class AjaxCityAutoComplete
+{
+    public $searchString;
+    public $cities;
+
+    function __construct($searchString, $cities)
+    {
+        $this->cities = $cities;
+        $this->searchString = $searchString;
+    }
+}
+
+
+
+class CityAutoCompleteWebService extends WebServBase
+{
+
+    public function onGet($args)
+    {
+        $searchString = trim($args[0]);
+
+        //echo $searchString;
+
+        if(3 > mb_strlen($searchString, 'UTF-8'))
+        {
+            // HTTP/1.1 400 Bad Request
+            $this->returnError(400, array(1012));
+            return;
+        }
+
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            $searchString = $searchString . '%';
+            $sql = "SELECT id, latitude, longitude, name, fullname, district, region, suffix, cladr_code, postcode FROM geocities WHERE name LIKE ?s ORDER BY name ASC";
+            $result = $db->query($sql, $searchString);
+
+            if(false == $result)
+            {
+                // HTTP/1.1 403 Forbidden
+                $this->returnError(403, array(3));
+            }
+            else
+            {
+                $respData = array();
+
+                while($row = $db->fetch($result))
+                {
+                    $entry = new CityData(
+                        $row['id'],
+                        $row['latitude'] / 10000000, $row['longitude'] / 10000000,
+                        $row['name'], $row['fullname'],
+                        $row['district'], $row['region'], $row['suffix'],
+                        $row['cladr_code'], $row['postcode']
+                    );
+
+                    array_push($respData, $entry);
+                }
+
+                $cityData = new AjaxCityAutoComplete($searchString, $respData);
+
+                // возвращаем результат
+                $response = new AjaxServerResponse(200, '', '', $cityData);
+                sendHTTPStatus(200);
+                header('Content-type: application/json');
+                echo json_encode($response);
+            }
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1));
+        }
+    }
+
+    public function onPost($args, $data)
+    {
+        // HTTP/1.1 405 Method Not Allowed
+        sendHTTPStatus(405);
+        header('Allow: GET');
+    }
+
+    public function onPut($args, $data)
+    {
+        // HTTP/1.1 405 Method Not Allowed
+        sendHTTPStatus(405);
+        header('Allow: GET');
+    }
+
+    public function onDelete($args, $data)
+    {
+        // HTTP/1.1 405 Method Not Allowed
+        sendHTTPStatus(405);
+        header('Allow: GET');
+    }
+}
