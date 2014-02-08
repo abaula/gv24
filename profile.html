@@ -437,7 +437,60 @@
                                 <div id="i-ctrl-org-info-overlay" class="c-page-form-overlay-container"><div class="fa fa-spinner fa-spin"></div></div>
                             </div>
                     </div>
-                        <div id="i-ctrl-org-address-container" class="c-page-lv-view-container hidden">адрес</div>
+                        <div id="i-ctrl-org-address-container" class="c-page-lv-view-container hidden">
+                            <!-- Информационный блок -->
+                            <div class="c-page-info-message-block">
+                                <div class="c-page-info-message-header-block"><div class="fa fa-plus-square-o"></div><span>Сведения</span></div>
+                                <div class="c-page-info-message-text-container hidden">
+                                    <ul>
+                                        <li>Для повышения доверия к вам других участников системы рекомендуется указать полный адрес.</li>
+                                        <li>Введите первые буквы города и выберите город из списка.</li>
+                                        <li>Указанный адрес будет доступен для просмотра только при размещении заявок и обращении с предложениями о выполнении услуг.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- /Информационный блок -->  
+
+                            <div id="i-ctrl-org-address" class="c-page-form-outer-block">
+                                <div class="c-page-form-block">
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">Регион:</div>
+                                        <div class="c-page-property-input-block"><input id="i-ctrl-org-address-region-txt" type="text" disabled="disabled" placeholder=""/></div>
+                                        <div id="i-ctrl-org-address-region-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                    </div>
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">Район:</div>
+                                        <div class="c-page-property-input-block"><input id="i-ctrl-org-address-district-txt" type="text" disabled="disabled" placeholder=""/></div>
+                                        <div id="i-ctrl-org-address-district-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                    </div>
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">Город:</div>
+                                        <div class="c-page-property-input-block"><input id="i-ctrl-org-address-city-txt" type="text" placeholder=""/></div>
+                                        <div id="i-ctrl-org-address-city-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                    </div>
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">Индекс:</div>
+                                        <div class="c-page-property-input-block"><input id="i-ctrl-org-address-index-txt" type="text" disabled="disabled" placeholder=""/></div>
+                                        <div id="i-ctrl-org-address-index-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                    </div>
+                                    <div class="c-page-property-set-block">
+                                        <div class="c-page-property-key-block">Адрес:</div>
+                                        <div class="c-page-property-input-block"><input id="i-ctrl-org-address-adress-txt" type="text" placeholder=""/></div>
+                                        <div id="i-ctrl-org-address-adress-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                    </div>
+                                    <div class="с-page-button-set-block">
+                                        <button id="i-ctrl-org-address-submit-btn"><div class="fa fa-check-square-o"></div>Изменить</button>
+                                        <button id="i-ctrl-org-address-cancel-btn"><div class="fa fa-undo"></div>Отменить изменения</button>
+                                    </div>                                    
+                                </div>
+                                <div id="i-ctrl-org-address-info-message" class="c-page-form-info-message-container hidden"><div class="fa fa-check-square-o"></div><span></span></div>
+                                <div id="i-ctrl-org-address-info-overlay" class="c-page-form-overlay-container"><div class="fa fa-spinner fa-spin"></div></div>
+                            </div>
+
+
+
+
+                        </div>
 
                         <div id="i-ctrl-org-contacts-container" class="c-page-lv-view-container hidden">
                             <!-- Информационный блок -->

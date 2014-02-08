@@ -31,11 +31,25 @@ module OrgProfile
         formId: number = null;
     }
 
+    export class OrgAddressData
+    {
+        public id: number;
+        public cityId: number;
+        public address: string;
+        public city: string;
+        public district: string;
+        public region: string;
+        public postcode: string;
+        public longitude: number;
+        public latitude: number;
+    }
+
     export class AjaxOrgData
     {        
         id: number = 0;
         info: OrgInfoData = null;
         contacts: OrgContactsData = null;
+        address: OrgAddressData = null;
     }
 
 

@@ -60,17 +60,45 @@ class OrgInfoData
     }
 }
 
+class OrgAddressData
+{
+    public $id;
+    public $cityId;
+    public $address;
+    public $city;
+    public $district;
+    public $region;
+    public $postcode;
+    public $longitude;
+    public $latitude;
+
+    function __construct($id, $cityId, $address, $cityId, $district, $region, $postcode, $latitude, $longitude)
+    {
+        $this->cityId = $cityId;
+        $this->address = $address;
+        $this->city = $cityId;
+        $this->district = $district;
+        $this->id = $id;
+        $this->latitude = $latitude;
+        $this->longitude = $longitude;
+        $this->postcode = $postcode;
+        $this->region = $region;
+    }
+}
+
 class AjaxOrgData
 {
     public $id;
     public $info;
     public $contacts;
+    public $address;
 
     function __construct()
     {
         $this->id = null;
         $this->info = null;
         $this->contacts = null;
+        $this->address = null;
     }
 }
 
@@ -125,9 +153,28 @@ class OrgWebService extends WebServBase
 
                     $respData->contacts = $contactsData;
                 }
+
+                ///////////////////////////////////////////
+                // получаем адрес
+
+                $sql = 'SELECT A.id, A.city_id, A.address, C.name, C.district, C.region, C.postcode, C.longitude, C.latitude FROM company_address A LEFT OUTER JOIN geocities C on C.id = A.city_id WHERE A.company_id=?i';
+                $result = $db->getRow($sql, $infoData->id);
+
+                if(false != $result)
+                {
+                    $addressData = new OrgAddressData(
+                                                $result['id'], $result['city_id'], $result['address'],
+                                                $result['name'], $result['district'], $result['region'],
+                                                $result['postcode'],
+                                                $result['longitude'] / 10000000, $result['latitude']  / 10000000
+                                            );
+
+                    $respData->address = $addressData;
+                }
+
             }
 
-            if(null == $respData->info || null == $respData->contacts)
+            if(null == $respData->info || null == $respData->contacts || null == $respData->address)
             {
                 $this->returnError(500, array(1));
             }

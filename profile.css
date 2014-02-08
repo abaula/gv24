@@ -19,6 +19,14 @@
     width: 135pt;
 }
 
+#i-ctrl-org-address div.c-page-property-key-block {
+    width: 60pt;
+}
+
+#i-ctrl-org-address input {
+    width: 200pt;
+}
+
 .c-ctrl-info-param-name-text-block {
     background-color: #ffffff;
     font-weight: 400;

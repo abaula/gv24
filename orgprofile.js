@@ -36,11 +36,19 @@ var OrgProfile;
     })();
     OrgProfile.OrgInfoData = OrgInfoData;
 
+    var OrgAddressData = (function () {
+        function OrgAddressData() {
+        }
+        return OrgAddressData;
+    })();
+    OrgProfile.OrgAddressData = OrgAddressData;
+
     var AjaxOrgData = (function () {
         function AjaxOrgData() {
             this.id = 0;
             this.info = null;
             this.contacts = null;
+            this.address = null;
         }
         return AjaxOrgData;
     })();
