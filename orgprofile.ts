@@ -6,6 +6,10 @@
 
 module OrgProfile
 {
+
+
+
+
     export class OrgContactsData
     {
         id: number = 0;
@@ -72,10 +76,12 @@ module OrgProfile
             // события отправки изменённых данных на сервер
             $("#i-ctrl-org-info-submit-btn").click(__currentOrgProfile.onInfoSubmitClick);
             $("#i-ctrl-org-contacts-submit-btn").click(__currentOrgProfile.onContactsSubmitClick);
+            $("#i-ctrl-org-address-submit-btn").click(__currentOrgProfile.onAddressSubmitClick);
 
             // события отмены редактирования данных
             $("#i-ctrl-org-info-cancel-btn").click(__currentOrgProfile.onInfoCancelClick);
             $("#i-ctrl-org-contacts-cancel-btn").click(__currentOrgProfile.onContactsCancelClick);
+            $("#i-ctrl-org-address-cancel-btn").click(__currentOrgProfile.onAddressCancelClick);
 
             // получаем данные с сервера
             __currentOrgProfile.queryData();
@@ -432,6 +438,36 @@ module OrgProfile
             __currentOrgProfile.drawContactsData();
         }
 
+        onAddressCancelClick(event: JQueryEventObject): void
+        {
+            // прячем все сообщения
+            __currentOrgProfile.clearAllAddressMessages();
+
+            // сбрасываем значения в текстовых контролах
+            $("#i-ctrl-org-address :text").val("");
+
+            // восстанавливаем прежние значения
+            __currentOrgProfile.drawAddressData();
+        }
+
+
+        clearAllAddressMessages(): void
+        {
+            // прячем сообщение
+            __currentOrgProfile.application.switchFormInfoMessageVisibility("#i-ctrl-org-address-info-message", "", false);
+            // прячем ошибки
+            __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-region-error-message", "", false);
+            __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-district-error-message", "", false);
+            __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-city-error-message", "", false);
+            __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-index-error-message", "", false);
+            __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-address-error-message", "", false);
+        }
+
+        onAddressSubmitClick(event: JQueryEventObject): void
+        {
+
+        }
+
 
         // обновление данных с сервера
         uploadData()
@@ -509,6 +545,7 @@ module OrgProfile
         {
             __currentOrgProfile.drawInfoData();
             __currentOrgProfile.drawContactsData();
+            __currentOrgProfile.drawAddressData();
         }
 
         
@@ -546,7 +583,22 @@ module OrgProfile
             $("#i-ctrl-org-icq-txt").val(data.icq);
         }
 
+        drawAddressData(): void
+        {
+            // shortcut
+            var data: OrgAddressData = __currentOrgProfile.orgData.address;
 
+            if (null == data || null == data.cityId)
+                return;
+
+            // обновляем контролы
+            $("#i-ctrl-org-address-region-txt").val(data.region);
+            $("#i-ctrl-org-address-district-txt").val(data.district);
+            $("#i-ctrl-org-address-city-txt").val(data.city);
+            $("#i-ctrl-org-address-index-txt").val(data.postcode);
+            $("#i-ctrl-org-address-address-txt").val(data.address);
+
+        }
 
 
 

@@ -71,10 +71,12 @@ var OrgProfile;
             // события отправки изменённых данных на сервер
             $("#i-ctrl-org-info-submit-btn").click(OrgProfile.__currentOrgProfile.onInfoSubmitClick);
             $("#i-ctrl-org-contacts-submit-btn").click(OrgProfile.__currentOrgProfile.onContactsSubmitClick);
+            $("#i-ctrl-org-address-submit-btn").click(OrgProfile.__currentOrgProfile.onAddressSubmitClick);
 
             // события отмены редактирования данных
             $("#i-ctrl-org-info-cancel-btn").click(OrgProfile.__currentOrgProfile.onInfoCancelClick);
             $("#i-ctrl-org-contacts-cancel-btn").click(OrgProfile.__currentOrgProfile.onContactsCancelClick);
+            $("#i-ctrl-org-address-cancel-btn").click(OrgProfile.__currentOrgProfile.onAddressCancelClick);
 
             // получаем данные с сервера
             OrgProfile.__currentOrgProfile.queryData();
@@ -380,6 +382,32 @@ else
             OrgProfile.__currentOrgProfile.drawContactsData();
         };
 
+        OrgProfileController.prototype.onAddressCancelClick = function (event) {
+            // прячем все сообщения
+            OrgProfile.__currentOrgProfile.clearAllAddressMessages();
+
+            // сбрасываем значения в текстовых контролах
+            $("#i-ctrl-org-address :text").val("");
+
+            // восстанавливаем прежние значения
+            OrgProfile.__currentOrgProfile.drawAddressData();
+        };
+
+        OrgProfileController.prototype.clearAllAddressMessages = function () {
+            // прячем сообщение
+            OrgProfile.__currentOrgProfile.application.switchFormInfoMessageVisibility("#i-ctrl-org-address-info-message", "", false);
+
+            // прячем ошибки
+            OrgProfile.__currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-region-error-message", "", false);
+            OrgProfile.__currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-district-error-message", "", false);
+            OrgProfile.__currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-city-error-message", "", false);
+            OrgProfile.__currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-index-error-message", "", false);
+            OrgProfile.__currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-address-error-message", "", false);
+        };
+
+        OrgProfileController.prototype.onAddressSubmitClick = function (event) {
+        };
+
         // обновление данных с сервера
         OrgProfileController.prototype.uploadData = function () {
             OrgProfile.__currentOrgProfile.orgData = null;
@@ -437,6 +465,7 @@ else
         OrgProfileController.prototype.drawData = function () {
             OrgProfile.__currentOrgProfile.drawInfoData();
             OrgProfile.__currentOrgProfile.drawContactsData();
+            OrgProfile.__currentOrgProfile.drawAddressData();
         };
 
         OrgProfileController.prototype.drawInfoData = function () {
@@ -469,6 +498,21 @@ else
             $("#i-ctrl-org-phone2-txt").val(data.phone2);
             $("#i-ctrl-org-skype-txt").val(data.skype);
             $("#i-ctrl-org-icq-txt").val(data.icq);
+        };
+
+        OrgProfileController.prototype.drawAddressData = function () {
+            // shortcut
+            var data = OrgProfile.__currentOrgProfile.orgData.address;
+
+            if (null == data || null == data.cityId)
+                return;
+
+            // обновляем контролы
+            $("#i-ctrl-org-address-region-txt").val(data.region);
+            $("#i-ctrl-org-address-district-txt").val(data.district);
+            $("#i-ctrl-org-address-city-txt").val(data.city);
+            $("#i-ctrl-org-address-index-txt").val(data.postcode);
+            $("#i-ctrl-org-address-address-txt").val(data.address);
         };
         return OrgProfileController;
     })();
