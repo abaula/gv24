@@ -220,7 +220,7 @@ class OrgWebService extends WebServBase
             $sql = 'SELECT id FROM company WHERE account_id=?i';
             $result = $db->getOne($sql, $userId);
 
-            if(null == $result)
+            if(false == $result)
             // записей нет, сообщаем об ошибке
             {
                 // HTTP/1.1 403 Forbidden
@@ -249,8 +249,11 @@ class OrgWebService extends WebServBase
                     if(null != $data->contacts)
                         $errors2 = $this->_updateContacts($data->contacts, $db, $companyId);
 
+                    if(null != $data->address)
+                        $errors3 = $this->_updateAddress($data->address, $db, $companyId);
 
-                    if(null != $errors1 || null != $errors2)
+
+                    if(null != $errors1 || null != $errors2 || null != $errors3)
                     {
                         $errors = array();
 
@@ -259,6 +262,9 @@ class OrgWebService extends WebServBase
 
                         if(null != $errors2)
                             array_push($errors, $errors2);
+
+                        if(null != $errors3)
+                            array_push($errors, $errors3);
 
                         $db->query("ROLLBACK");
 
@@ -348,5 +354,30 @@ class OrgWebService extends WebServBase
         return (0 < count($errors)) ? $errors : null;
     }
 
+    private function _updateAddress($data, $db, $companyId)
+    {
+        $errors = array();
 
+        // проверяем, что у пользователя есть записи об организациях
+        $sql = 'SELECT id FROM geocities WHERE id=?i';
+        $result = $db->getOne($sql, $data->cityId);
+
+        if(false == $result)
+        // ID города указан неверно, сообщаем об ошибке
+        {
+            // Неверно указан ID города
+            array_push($errors, 1013);
+        }
+        else
+        {
+            // обновляем данные о контактах организации
+            $sql = 'UPDATE company_address SET city_id=?i, address=?s WHERE id=?i AND company_id=?i';
+            $result = $db->query($sql, $data->cityId, $data->address, $data->id, $companyId);
+
+            if(false == $result)
+                array_push($errors, 1);
+        }
+
+        return (0 < count($errors)) ? $errors : null;
+    }
 }
