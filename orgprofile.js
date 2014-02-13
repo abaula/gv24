@@ -5,6 +5,56 @@
 ///<reference path="validators.ts"/>
 var OrgProfile;
 (function (OrgProfile) {
+    var CitySelector = (function () {
+        function CitySelector() {
+            this.control = null;
+            this.timer = 0;
+            this.searchValue = null;
+            this.busy = false;
+            this.timeoutMs = 1000;
+        }
+        CitySelector.prototype.init = function (control) {
+            OrgProfile.__currentCitySelector.clear();
+            OrgProfile.__currentCitySelector.control = control;
+            OrgProfile.__currentCitySelector.control.bind("keyup cut paste", OrgProfile.__currentCitySelector.onTextChange);
+        };
+
+        CitySelector.prototype.clear = function () {
+            if (0 < OrgProfile.__currentCitySelector.timer)
+                clearTimeout(OrgProfile.__currentCitySelector.timer);
+
+            if (null != OrgProfile.__currentCitySelector.control)
+                OrgProfile.__currentCitySelector.control.unbind("keyup cut paste", OrgProfile.__currentCitySelector.onTextChange);
+
+            // TODO сбрасываем отправленные на сервер запросы
+            OrgProfile.__currentCitySelector.busy = false;
+        };
+
+        CitySelector.prototype.onTextChange = function (event) {
+            if (0 < OrgProfile.__currentCitySelector.timer)
+                clearTimeout(OrgProfile.__currentCitySelector.timer);
+
+            OrgProfile.__currentCitySelector.timer = setTimeout(OrgProfile.__currentCitySelector.onTimeout, OrgProfile.__currentCitySelector.timeoutMs);
+        };
+
+        CitySelector.prototype.onTimeout = function () {
+            var value = OrgProfile.__currentCitySelector.control.val().trim();
+
+            if (value == OrgProfile.__currentCitySelector.searchValue)
+                return;
+
+            OrgProfile.__currentCitySelector.searchValue = value;
+
+            // TODO выставляем флаг блокировки поиска и отправляем поисковый запрос на сервер
+            //__currentCitySelector.busy = true;
+            window.console.log(OrgProfile.__currentCitySelector.searchValue);
+        };
+        return CitySelector;
+    })();
+    OrgProfile.CitySelector = CitySelector;
+
+    OrgProfile.__currentCitySelector = new CitySelector();
+
     var OrgContactsData = (function () {
         function OrgContactsData() {
             this.id = 0;
@@ -68,6 +118,8 @@ var OrgProfile;
             OrgProfile.__currentOrgProfile.parent = parent;
             Dictionary.__currDictionary.init(app, OrgProfile.__currentOrgProfile);
 
+            OrgProfile.__currentOrgProfile.bindCitySelector();
+
             // события отправки изменённых данных на сервер
             $("#i-ctrl-org-info-submit-btn").click(OrgProfile.__currentOrgProfile.onInfoSubmitClick);
             $("#i-ctrl-org-contacts-submit-btn").click(OrgProfile.__currentOrgProfile.onContactsSubmitClick);
@@ -90,6 +142,8 @@ var OrgProfile;
         };
 
         OrgProfileController.prototype.onShow = function (state) {
+            OrgProfile.__currentOrgProfile.bindCitySelector();
+
             // запрашиваем данные у модели
             OrgProfile.__currentOrgProfile.queryData();
         };
@@ -102,6 +156,7 @@ var OrgProfile;
         OrgProfileController.prototype.dataLoaded = function (sender) {
             // Not Implemented
         };
+
         OrgProfileController.prototype.dataReady = function (sender) {
             // Not Implemented
         };
@@ -114,6 +169,11 @@ var OrgProfile;
             if ("companyforms" == name) {
                 OrgProfile.__currentOrgProfile.drawCompanyForms(Dictionary.__currDictionary.companyForms);
             }
+        };
+
+        OrgProfileController.prototype.bindCitySelector = function () {
+            // подключаем контрол выбора города
+            OrgProfile.__currentCitySelector.init($("#i-ctrl-org-address-city-txt"));
         };
 
         OrgProfileController.prototype.drawCompanyForms = function (data) {

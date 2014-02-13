@@ -7,7 +7,61 @@
 module OrgProfile
 {
 
+    export class CitySelector
+    {
+        control: JQuery = null;
+        timer: number = 0;
+        searchValue: string = null;
+        busy: boolean = false;
+        timeoutMs: number = 1000;
 
+        init(control: JQuery): void
+        {
+            __currentCitySelector.clear();
+            __currentCitySelector.control = control;
+            __currentCitySelector.control.bind("keyup cut paste", __currentCitySelector.onTextChange);
+        }
+
+        clear(): void
+        {
+            if (0 < __currentCitySelector.timer)
+                clearTimeout(__currentCitySelector.timer);
+
+            if (null != __currentCitySelector.control)
+                __currentCitySelector.control.unbind("keyup cut paste", __currentCitySelector.onTextChange);
+
+            // TODO сбрасываем отправленные на сервер запросы
+
+            __currentCitySelector.busy = false;
+        }
+
+        onTextChange(event: JQueryEventObject): void
+        {
+            if (0 < __currentCitySelector.timer)
+                clearTimeout(__currentCitySelector.timer);
+
+            __currentCitySelector.timer = setTimeout(__currentCitySelector.onTimeout, __currentCitySelector.timeoutMs);            
+        }
+
+        onTimeout(): void
+        {
+            var value: string = __currentCitySelector.control.val().trim();
+
+            if (value == __currentCitySelector.searchValue)
+                return;
+
+            __currentCitySelector.searchValue = value;
+
+            // TODO выставляем флаг блокировки поиска и отправляем поисковый запрос на сервер
+            //__currentCitySelector.busy = true;
+
+            window.console.log(__currentCitySelector.searchValue);
+        }
+
+
+    }
+
+    export var __currentCitySelector = new CitySelector();
 
 
     export class OrgContactsData
@@ -73,6 +127,8 @@ module OrgProfile
             __currentOrgProfile.parent = parent;
             Dictionary.__currDictionary.init(app, __currentOrgProfile);
 
+            __currentOrgProfile.bindCitySelector();
+
             // события отправки изменённых данных на сервер
             $("#i-ctrl-org-info-submit-btn").click(__currentOrgProfile.onInfoSubmitClick);
             $("#i-ctrl-org-contacts-submit-btn").click(__currentOrgProfile.onContactsSubmitClick);
@@ -97,6 +153,9 @@ module OrgProfile
 
         onShow(state: Application.IState): void
         {
+            __currentOrgProfile.bindCitySelector();
+
+
             // запрашиваем данные у модели
             __currentOrgProfile.queryData();
         }
@@ -111,6 +170,7 @@ module OrgProfile
         {
             // Not Implemented
         }
+
         dataReady(sender: Application.IComponent): void
         {
             // Not Implemented
@@ -127,6 +187,12 @@ module OrgProfile
             {
                 __currentOrgProfile.drawCompanyForms(Dictionary.__currDictionary.companyForms);
             }
+        }
+
+        bindCitySelector(): void
+        {
+            // подключаем контрол выбора города
+            __currentCitySelector.init($("#i-ctrl-org-address-city-txt"));
         }
 
         drawCompanyForms(data: Dictionary.DictionaryEntry[]): void
