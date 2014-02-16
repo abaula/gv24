@@ -60,7 +60,7 @@ class CityAutoCompleteWebService extends WebServBase
 
     public function onGet($args)
     {
-        $searchString = trim($args[0]);
+        $searchString = trim(urldecode($args[0]));
 
         //echo $searchString;
 
@@ -75,9 +75,9 @@ class CityAutoCompleteWebService extends WebServBase
 
         try
         {
-            $searchString = $searchString . '%';
-            $sql = "SELECT id, latitude, longitude, name, fullname, district, region, suffix, cladr_code, postcode FROM geocities WHERE name LIKE ?s ORDER BY name ASC";
-            $result = $db->query($sql, $searchString);
+            $ss = $searchString . '%';
+            $sql = "SELECT id, latitude, longitude, name, fullname, district, region, suffix, cladr_code, postcode FROM geocities WHERE name LIKE ?s AND suffix='Город' ORDER BY name ASC";
+            $result = $db->query($sql, $ss);
 
             if(false == $result)
             {

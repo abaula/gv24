@@ -6,62 +6,7 @@
 
 module OrgProfile
 {
-
-    export class CitySelector
-    {
-        control: JQuery = null;
-        timer: number = 0;
-        searchValue: string = null;
-        busy: boolean = false;
-        timeoutMs: number = 1000;
-
-        init(control: JQuery): void
-        {
-            __currentCitySelector.clear();
-            __currentCitySelector.control = control;
-            __currentCitySelector.control.bind("keyup cut paste", __currentCitySelector.onTextChange);
-        }
-
-        clear(): void
-        {
-            if (0 < __currentCitySelector.timer)
-                clearTimeout(__currentCitySelector.timer);
-
-            if (null != __currentCitySelector.control)
-                __currentCitySelector.control.unbind("keyup cut paste", __currentCitySelector.onTextChange);
-
-            // TODO сбрасываем отправленные на сервер запросы
-
-            __currentCitySelector.busy = false;
-        }
-
-        onTextChange(event: JQueryEventObject): void
-        {
-            if (0 < __currentCitySelector.timer)
-                clearTimeout(__currentCitySelector.timer);
-
-            __currentCitySelector.timer = setTimeout(__currentCitySelector.onTimeout, __currentCitySelector.timeoutMs);            
-        }
-
-        onTimeout(): void
-        {
-            var value: string = __currentCitySelector.control.val().trim();
-
-            if (value == __currentCitySelector.searchValue)
-                return;
-
-            __currentCitySelector.searchValue = value;
-
-            // TODO выставляем флаг блокировки поиска и отправляем поисковый запрос на сервер
-            //__currentCitySelector.busy = true;
-
-            window.console.log(__currentCitySelector.searchValue);
-        }
-
-
-    }
-
-    export var __currentCitySelector = new CitySelector();
+    
 
 
     export class OrgContactsData
@@ -111,7 +56,7 @@ module OrgProfile
     }
 
 
-    export class OrgProfileController implements Application.IComponent
+    export class OrgProfileController implements Application.IComponent, Application.ICitySelector
     {
         public isComponentLoaded: boolean = false;
         public application: Application.IApplication = null;
@@ -119,6 +64,7 @@ module OrgProfile
 
         public orgData: AjaxOrgData = null;
         public errorData: ServerData.AjaxServerResponse = null;
+        public cityTmpData: Application.CityData = null;
 
         // вызовы от IApplication
         onLoad(app: Application.IApplication, parent: Application.IComponent, state: Application.IState): void
@@ -192,7 +138,7 @@ module OrgProfile
         bindCitySelector(): void
         {
             // подключаем контрол выбора города
-            __currentCitySelector.init($("#i-ctrl-org-address-city-txt"));
+            Application.__currentCitySelector.init($("#i-ctrl-org-address-city-txt"), __currentOrgProfile);
         }
 
         drawCompanyForms(data: Dictionary.DictionaryEntry[]): void
@@ -508,7 +454,8 @@ module OrgProfile
         {
             // прячем все сообщения
             __currentOrgProfile.clearAllAddressMessages();
-
+            // сбрасываем временные данные о выбранном городе
+            __currentOrgProfile.cityTmpData = null;
             // сбрасываем значения в текстовых контролах
             $("#i-ctrl-org-address :text").val("");
 
@@ -534,6 +481,28 @@ module OrgProfile
 
         }
 
+        onCitySelected(city: Application.CityData): void
+        {
+            __currentOrgProfile.cityTmpData = city;
+            __currentOrgProfile.applyCityData();
+        }
+
+        onCitySelectedAbort(): void
+        {
+            if (null == __currentOrgProfile.cityTmpData)
+                __currentOrgProfile.drawAddressData();
+            else
+                __currentOrgProfile.applyCityData(); 
+        }
+
+        applyCityData(): void
+        {
+            var city: Application.CityData = __currentOrgProfile.cityTmpData;
+            $("#i-ctrl-org-address-region-txt").val(city.region);
+            $("#i-ctrl-org-address-district-txt").val(city.district);
+            $("#i-ctrl-org-address-city-txt").val(city.name);
+            $("#i-ctrl-org-address-index-txt").val(city.postCode);
+        }
 
         // обновление данных с сервера
         uploadData()
@@ -651,6 +620,9 @@ module OrgProfile
 
         drawAddressData(): void
         {
+            // чистим контролы
+            $("#i-ctrl-org-address input").val("");
+
             // shortcut
             var data: OrgAddressData = __currentOrgProfile.orgData.address;
 

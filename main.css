@@ -451,3 +451,20 @@ button, input {
     .c-page-auth-info-message-container > span {
         margin-left: 4px;
     }
+
+.c-page-city-select-block {
+    display: block;
+    position: absolute; 
+    background-color: #ffffff;    
+    border: 1px solid #808080;
+    cursor: pointer;
+}
+
+.c-page-city-select-item {
+    padding: 4px 6px 2px 6px;
+}
+
+.c-page-city-select-item:hover {    
+    background-color: #336699;
+    color: #ffffff;
+}

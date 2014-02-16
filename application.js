@@ -3,6 +3,197 @@
 ///<reference path="Dictionary.ts"/>
 var Application;
 (function (Application) {
+    var CityData = (function () {
+        function CityData() {
+        }
+        return CityData;
+    })();
+    Application.CityData = CityData;
+
+    var AjaxCityAutoComplete = (function () {
+        function AjaxCityAutoComplete() {
+        }
+        return AjaxCityAutoComplete;
+    })();
+    Application.AjaxCityAutoComplete = AjaxCityAutoComplete;
+
+    var CitySelector = (function () {
+        function CitySelector() {
+            this.control = null;
+            this.component = null;
+            this.timer = 0;
+            this.searchValue = null;
+            this.busy = false;
+            this.timeoutMs = 1000;
+            this.currentRequest = null;
+            this.listBlockHtml = null;
+            this.listData = null;
+        }
+        CitySelector.prototype.init = function (control, component) {
+            Application.__currentCitySelector.clear();
+            Application.__currentCitySelector.component = component;
+            Application.__currentCitySelector.control = control;
+            Application.__currentCitySelector.control.bind("keyup cut paste", Application.__currentCitySelector.onTextChange);
+            Application.__currentCitySelector.control.bind("blur", Application.__currentCitySelector.onLostFocus);
+        };
+
+        CitySelector.prototype.clear = function () {
+            Application.__currentCitySelector.clearListBlock();
+
+            if (0 < Application.__currentCitySelector.timer)
+                clearTimeout(Application.__currentCitySelector.timer);
+
+            if (null != Application.__currentCitySelector.control) {
+                Application.__currentCitySelector.control.unbind("keyup cut paste", Application.__currentCitySelector.onTextChange);
+                Application.__currentCitySelector.control.unbind("blur", Application.__currentCitySelector.onLostFocus);
+            }
+
+            if (null != Application.__currentCitySelector.currentRequest)
+                Application.__currentCitySelector.currentRequest.abort();
+
+            Application.__currentCitySelector.currentRequest = null;
+            Application.__currentCitySelector.busy = false;
+            Application.__currentCitySelector.listData = null;
+            Application.__currentCitySelector.component = null;
+        };
+
+        CitySelector.prototype.clearListBlock = function () {
+            if (null != Application.__currentCitySelector.listBlockHtml) {
+                $("div", Application.__currentCitySelector.listBlockHtml).unbind("click", Application.__currentCitySelector.onItemClick);
+                Application.__currentCitySelector.listBlockHtml.remove();
+                Application.__currentCitySelector.listBlockHtml = null;
+            }
+        };
+
+        CitySelector.prototype.onTextChange = function (event) {
+            if (0 < Application.__currentCitySelector.timer)
+                clearTimeout(Application.__currentCitySelector.timer);
+
+            if (true == Application.__currentCitySelector.busy)
+                return;
+
+            Application.__currentCitySelector.timer = setTimeout(Application.__currentCitySelector.onTimeout, Application.__currentCitySelector.timeoutMs);
+        };
+
+        CitySelector.prototype.onTimeout = function () {
+            var value = Application.__currentCitySelector.control.val().trim();
+
+            if (value == Application.__currentCitySelector.searchValue)
+                return;
+
+            Application.__currentCitySelector.searchValue = value;
+
+            if (3 > value.length) {
+                Application.__currentCitySelector.clearListBlock();
+                return;
+            }
+
+            //window.console.log(__currentCitySelector.searchValue);
+            // выставляем флаг блокировки поиска и отправляем поисковый запрос на сервер
+            Application.__currentCitySelector.busy = true;
+            Application.__currentCitySelector.getData(value);
+        };
+
+        CitySelector.prototype.getData = function (query) {
+            Application.__currentCitySelector.currentRequest = $.ajax({
+                type: "GET",
+                url: Application.__currentApp.getFullUri("api/cityautocomplete/" + query),
+                success: Application.__currentCitySelector.onAjaxGetOrgDataSuccess,
+                error: Application.__currentCitySelector.onAjaxGetOrgDataError
+            });
+        };
+
+        CitySelector.prototype.onAjaxGetOrgDataError = function (jqXHR, status, message) {
+            Application.__currentCitySelector.busy = false;
+            Application.__currentCitySelector.currentRequest = null;
+            //window.console.log("_onAjaxError");
+        };
+
+        CitySelector.prototype.onAjaxGetOrgDataSuccess = function (data, status, jqXHR) {
+            Application.__currentCitySelector.busy = false;
+            Application.__currentCitySelector.currentRequest = null;
+
+            //window.console.log("_onAjaxGetAccountDataSuccess");
+            Application.__currentCitySelector.listData = data.data;
+
+            // данные получены рисуем выпадающий список выбора
+            Application.__currentCitySelector.drawList();
+        };
+
+        CitySelector.prototype.drawList = function () {
+            Application.__currentCitySelector.clearListBlock();
+            var data = Application.__currentCitySelector.listData;
+
+            if (false == Application.__currentCitySelector.control.is(":focus"))
+                return;
+
+            if (null == data.cities || 1 > data.cities.length)
+                return;
+
+            Application.__currentCitySelector.listBlockHtml = $('<div class="c-page-city-select-block"></div>');
+
+            for (var i = 0; i < data.cities.length; i++) {
+                var city = data.cities[i];
+                var item = $('<div class="c-page-city-select-item"></div>');
+                item.text(city.fullname);
+                item.attr("data-id", city.id);
+                item.bind("click", Application.__currentCitySelector.onItemClick);
+                Application.__currentCitySelector.listBlockHtml.append(item);
+            }
+
+            // вычисляем положение списка на экране
+            var top = Application.__currentCitySelector.control.offset().top;
+            top += Application.__currentCitySelector.control.height();
+            var left = Application.__currentCitySelector.control.offset().left;
+
+            Application.__currentCitySelector.listBlockHtml.appendTo($("body"));
+            Application.__currentCitySelector.listBlockHtml.css({ top: top, left: left });
+        };
+
+        CitySelector.prototype.onItemClick = function (event) {
+            Application.__currentCitySelector.searchValue = null;
+            var elem = $(event.delegateTarget);
+
+            //window.console.log("__currentCitySelector.onItemClick(" + elem.attr("data-id") + ")");
+            var city = Application.__currentCitySelector.getCityById(parseInt(elem.attr("data-id")));
+            Application.__currentCitySelector.component.onCitySelected(city);
+            Application.__currentCitySelector.clearListBlock();
+        };
+
+        CitySelector.prototype.getCityById = function (id) {
+            var city = null;
+
+            if (null != Application.__currentCitySelector.listData && null != Application.__currentCitySelector.listData.cities) {
+                for (var i = 0; i < Application.__currentCitySelector.listData.cities.length; i++) {
+                    var c = Application.__currentCitySelector.listData.cities[i];
+
+                    if (id == c.id) {
+                        city = c;
+                        break;
+                    }
+                }
+            }
+
+            return city;
+        };
+
+        CitySelector.prototype.onLostFocus = function (event) {
+            if (null != Application.__currentCitySelector.listBlockHtml) {
+                if ($(Application.__currentCitySelector.listBlockHtml).is(':hover'))
+                    setTimeout(Application.__currentCitySelector.clearListBlock, 500);
+else
+                    Application.__currentCitySelector.clearListBlock();
+            }
+
+            Application.__currentCitySelector.searchValue = null;
+            Application.__currentCitySelector.component.onCitySelectedAbort();
+        };
+        return CitySelector;
+    })();
+    Application.CitySelector = CitySelector;
+
+    Application.__currentCitySelector = new CitySelector();
+
     var AjaxRegistrationRequest = (function () {
         function AjaxRegistrationRequest(login, email) {
             this.login = login;

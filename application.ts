@@ -4,6 +4,240 @@
 
 module Application
 {
+    export class CityData
+    {
+        id: number;
+        latitude: number;
+        longitude: number;
+        name: string;
+        fullname: string;
+        district: string;
+        region: string;
+        suffix: string;
+        cladrCode: string;
+        postCode: string;
+    }
+
+
+    export class AjaxCityAutoComplete
+    {
+        searchString: string;
+        cities: CityData[];
+    }
+
+    export interface ICitySelector
+    {
+        onCitySelected(city: CityData): void;
+        onCitySelectedAbort(): void;
+    }
+
+    export class CitySelector
+    {
+        control: JQuery = null;
+        component: ICitySelector = null;
+        timer: number = 0;
+        searchValue: string = null;
+        busy: boolean = false;
+        timeoutMs: number = 1000;
+        currentRequest: JQueryXHR = null;
+        listBlockHtml: JQuery = null;
+        listData: AjaxCityAutoComplete = null;
+
+        init(control: JQuery, component: ICitySelector): void
+        {
+            __currentCitySelector.clear();
+            __currentCitySelector.component = component;
+            __currentCitySelector.control = control;
+            __currentCitySelector.control.bind("keyup cut paste", __currentCitySelector.onTextChange);
+            __currentCitySelector.control.bind("blur", __currentCitySelector.onLostFocus);
+        }
+
+        clear(): void
+        {
+            __currentCitySelector.clearListBlock();
+
+            if (0 < __currentCitySelector.timer)
+                clearTimeout(__currentCitySelector.timer);
+
+            if (null != __currentCitySelector.control)
+            {
+                __currentCitySelector.control.unbind("keyup cut paste", __currentCitySelector.onTextChange);
+                __currentCitySelector.control.unbind("blur", __currentCitySelector.onLostFocus);
+            }
+
+            // сбрасываем отправленные на сервер запросы
+            if (null != __currentCitySelector.currentRequest)
+                __currentCitySelector.currentRequest.abort();
+
+            __currentCitySelector.currentRequest = null;
+            __currentCitySelector.busy = false;
+            __currentCitySelector.listData = null;
+            __currentCitySelector.component = null;
+        }
+
+        clearListBlock(): void
+        {
+            if (null != __currentCitySelector.listBlockHtml)
+            {
+                $("div", __currentCitySelector.listBlockHtml).unbind("click", __currentCitySelector.onItemClick);
+                __currentCitySelector.listBlockHtml.remove();
+                __currentCitySelector.listBlockHtml = null;
+            }
+        }
+
+        onTextChange(event: JQueryEventObject): void
+        {
+            if (0 < __currentCitySelector.timer)
+                clearTimeout(__currentCitySelector.timer);
+
+            if (true == __currentCitySelector.busy)
+                return;
+
+            __currentCitySelector.timer = setTimeout(__currentCitySelector.onTimeout, __currentCitySelector.timeoutMs);
+        }
+
+        onTimeout(): void
+        {
+            var value: string = __currentCitySelector.control.val().trim();
+
+            if (value == __currentCitySelector.searchValue)
+                return;
+
+            __currentCitySelector.searchValue = value;
+
+            if (3 > value.length)
+            {
+                __currentCitySelector.clearListBlock();
+                return;
+            }
+
+            //window.console.log(__currentCitySelector.searchValue);
+            // выставляем флаг блокировки поиска и отправляем поисковый запрос на сервер
+            __currentCitySelector.busy = true;
+            __currentCitySelector.getData(value);
+        }
+
+
+        getData(query: string): void
+        {
+            __currentCitySelector.currentRequest = $.ajax({
+                type: "GET",
+                url: __currentApp.getFullUri("api/cityautocomplete/" + query),
+                success: __currentCitySelector.onAjaxGetOrgDataSuccess,
+                error: __currentCitySelector.onAjaxGetOrgDataError
+            });
+        }
+
+        onAjaxGetOrgDataError(jqXHR: JQueryXHR, status: string, message: string): void
+        {
+            __currentCitySelector.busy = false;
+            __currentCitySelector.currentRequest = null;
+            //window.console.log("_onAjaxError");
+        }
+
+        onAjaxGetOrgDataSuccess(data: ServerData.AjaxServerResponse, status: string, jqXHR: JQueryXHR): void
+        {
+            __currentCitySelector.busy = false;
+            __currentCitySelector.currentRequest = null;
+            //window.console.log("_onAjaxGetAccountDataSuccess");
+
+            __currentCitySelector.listData = <AjaxCityAutoComplete>data.data;
+            // данные получены рисуем выпадающий список выбора
+            __currentCitySelector.drawList();
+        }
+
+        drawList(): void
+        {
+            __currentCitySelector.clearListBlock();
+            var data: AjaxCityAutoComplete = __currentCitySelector.listData;
+
+            // если контрол уже потерял фокус, то ничего не отображаем
+            if (false == __currentCitySelector.control.is(":focus"))
+                return;
+
+            if (null == data.cities || 1 > data.cities.length)
+                return;
+
+            __currentCitySelector.listBlockHtml = $('<div class="c-page-city-select-block"></div>');
+
+            for (var i: number = 0; i < data.cities.length; i++)
+            {
+                var city: CityData = data.cities[i];
+                var item: JQuery = $('<div class="c-page-city-select-item"></div>');
+                item.text(city.fullname);
+                item.attr("data-id", city.id);
+                item.bind("click", __currentCitySelector.onItemClick);
+                __currentCitySelector.listBlockHtml.append(item);
+            }
+
+            // вычисляем положение списка на экране
+            var top: number = __currentCitySelector.control.offset().top;
+            top += __currentCitySelector.control.height();
+            var left: number = __currentCitySelector.control.offset().left;
+
+            __currentCitySelector.listBlockHtml.appendTo($("body"));
+            __currentCitySelector.listBlockHtml.css({ top: top, left: left });
+        }
+
+        onItemClick(event: JQueryEventObject): void
+        {
+            __currentCitySelector.searchValue = null;
+            var elem: JQuery = $(event.delegateTarget);
+            //window.console.log("__currentCitySelector.onItemClick(" + elem.attr("data-id") + ")");
+            var city: CityData = __currentCitySelector.getCityById(parseInt(elem.attr("data-id")));
+            __currentCitySelector.component.onCitySelected(city);
+            __currentCitySelector.clearListBlock();
+        }
+
+        getCityById(id: number): CityData
+        {
+            var city: CityData = null;
+
+            if (null != __currentCitySelector.listData && null != __currentCitySelector.listData.cities)
+            {
+                for (var i: number = 0; i < __currentCitySelector.listData.cities.length; i++)
+                {
+                    var c: CityData = __currentCitySelector.listData.cities[i];
+
+                    if (id == c.id)
+                    {
+                        city = c;
+                        break;
+                    }
+                }
+            }
+
+            return city;
+        }
+
+        onLostFocus(event: JQueryEventObject): void
+        {
+            if (null != __currentCitySelector.listBlockHtml)
+            {
+                if ($(__currentCitySelector.listBlockHtml).is(':hover'))
+                    setTimeout(__currentCitySelector.clearListBlock, 500);
+                else
+                    __currentCitySelector.clearListBlock();
+            }
+
+            __currentCitySelector.searchValue = null;
+            __currentCitySelector.component.onCitySelectedAbort();
+        }
+    }
+
+    export var __currentCitySelector = new CitySelector();
+
+
+
+
+
+
+
+
+
+
+
+
     class AjaxRegistrationRequest
     {
         public login: string;
