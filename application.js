@@ -33,7 +33,8 @@ var Application;
             Application.__currentCitySelector.clear();
             Application.__currentCitySelector.component = component;
             Application.__currentCitySelector.control = control;
-            Application.__currentCitySelector.control.bind("keyup cut paste", Application.__currentCitySelector.onTextChange);
+            Application.__currentCitySelector.control.bind("cut paste", Application.__currentCitySelector.onTextChange);
+            Application.__currentCitySelector.control.bind("keydown", Application.__currentCitySelector.onKeyDown);
             Application.__currentCitySelector.control.bind("blur", Application.__currentCitySelector.onLostFocus);
         };
 
@@ -44,7 +45,8 @@ var Application;
                 clearTimeout(Application.__currentCitySelector.timer);
 
             if (null != Application.__currentCitySelector.control) {
-                Application.__currentCitySelector.control.unbind("keyup cut paste", Application.__currentCitySelector.onTextChange);
+                Application.__currentCitySelector.control.unbind("cut paste", Application.__currentCitySelector.onTextChange);
+                Application.__currentCitySelector.control.unbind("keydown", Application.__currentCitySelector.onKeyDown);
                 Application.__currentCitySelector.control.unbind("blur", Application.__currentCitySelector.onLostFocus);
             }
 
@@ -59,10 +61,84 @@ var Application;
 
         CitySelector.prototype.clearListBlock = function () {
             if (null != Application.__currentCitySelector.listBlockHtml) {
-                $("div", Application.__currentCitySelector.listBlockHtml).unbind("click", Application.__currentCitySelector.onItemClick);
+                $("div", Application.__currentCitySelector.listBlockHtml).unbind("click mouseenter mouseleave");
                 Application.__currentCitySelector.listBlockHtml.remove();
                 Application.__currentCitySelector.listBlockHtml = null;
             }
+        };
+
+        CitySelector.prototype.onMouseEnter = function (event) {
+            $("div.c-page-city-select-item", Application.__currentCitySelector.listBlockHtml).removeClass("c-page-city-select-item-selected");
+            $(event.delegateTarget).addClass("c-page-city-select-item-selected");
+        };
+
+        CitySelector.prototype.onMouseLeave = function (event) {
+            $("div.c-page-city-select-item", Application.__currentCitySelector.listBlockHtml).removeClass("c-page-city-select-item-selected");
+        };
+
+        CitySelector.prototype.onKeyDown = function (event) {
+            if (null != Application.__currentCitySelector.listBlockHtml) {
+                if (40 == event.keyCode) {
+                    Application.__currentCitySelector.onArrowDown();
+                    return;
+                } else if (38 == event.keyCode) {
+                    Application.__currentCitySelector.onArrowUp();
+                    return;
+                } else if (13 == event.keyCode) {
+                    Application.__currentCitySelector.onEnter();
+                    return;
+                } else if (27 == event.keyCode) {
+                    Application.__currentCitySelector.onEscape();
+                    return;
+                }
+            }
+
+            Application.__currentCitySelector.onTextChange(event);
+        };
+
+        CitySelector.prototype.onArrowDown = function () {
+            var selectedItem = Application.__currentCitySelector.getSelectedItem();
+
+            if (0 < selectedItem.length) {
+                var nextItem = selectedItem.next();
+
+                if (0 < nextItem.length) {
+                    selectedItem.removeClass("c-page-city-select-item-selected");
+                    nextItem.addClass("c-page-city-select-item-selected");
+                }
+            } else {
+                $("div.c-page-city-select-item", Application.__currentCitySelector.listBlockHtml).first().addClass("c-page-city-select-item-selected");
+            }
+        };
+
+        CitySelector.prototype.onArrowUp = function () {
+            var selectedItem = Application.__currentCitySelector.getSelectedItem();
+
+            if (0 < selectedItem.length) {
+                var prevItem = selectedItem.prev();
+
+                if (0 < prevItem.length) {
+                    selectedItem.removeClass("c-page-city-select-item-selected");
+                    prevItem.addClass("c-page-city-select-item-selected");
+                }
+            }
+        };
+
+        CitySelector.prototype.onEnter = function () {
+            var selectedItem = Application.__currentCitySelector.getSelectedItem();
+
+            if (0 < selectedItem.length) {
+                var id = parseInt(selectedItem.attr("data-id"));
+                Application.__currentCitySelector.onItemClicked(id);
+            }
+        };
+
+        CitySelector.prototype.onEscape = function () {
+            Application.__currentCitySelector.clearListBlock();
+        };
+
+        CitySelector.prototype.getSelectedItem = function () {
+            return $("div.c-page-city-select-item-selected", Application.__currentCitySelector.listBlockHtml);
         };
 
         CitySelector.prototype.onTextChange = function (event) {
@@ -138,6 +214,8 @@ var Application;
                 item.text(city.fullname);
                 item.attr("data-id", city.id);
                 item.bind("click", Application.__currentCitySelector.onItemClick);
+                item.bind("mouseenter", Application.__currentCitySelector.onMouseEnter);
+                item.bind("mouseleave", Application.__currentCitySelector.onMouseLeave);
                 Application.__currentCitySelector.listBlockHtml.append(item);
             }
 
@@ -155,7 +233,11 @@ var Application;
             var elem = $(event.delegateTarget);
 
             //window.console.log("__currentCitySelector.onItemClick(" + elem.attr("data-id") + ")");
-            var city = Application.__currentCitySelector.getCityById(parseInt(elem.attr("data-id")));
+            Application.__currentCitySelector.onItemClicked(parseInt(elem.attr("data-id")));
+        };
+
+        CitySelector.prototype.onItemClicked = function (id) {
+            var city = Application.__currentCitySelector.getCityById(id);
             Application.__currentCitySelector.component.onCitySelected(city);
             Application.__currentCitySelector.clearListBlock();
         };

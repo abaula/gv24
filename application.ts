@@ -48,7 +48,8 @@ module Application
             __currentCitySelector.clear();
             __currentCitySelector.component = component;
             __currentCitySelector.control = control;
-            __currentCitySelector.control.bind("keyup cut paste", __currentCitySelector.onTextChange);
+            __currentCitySelector.control.bind("cut paste", __currentCitySelector.onTextChange);
+            __currentCitySelector.control.bind("keydown", __currentCitySelector.onKeyDown);
             __currentCitySelector.control.bind("blur", __currentCitySelector.onLostFocus);
         }
 
@@ -61,7 +62,8 @@ module Application
 
             if (null != __currentCitySelector.control)
             {
-                __currentCitySelector.control.unbind("keyup cut paste", __currentCitySelector.onTextChange);
+                __currentCitySelector.control.unbind("cut paste", __currentCitySelector.onTextChange);
+                __currentCitySelector.control.unbind("keydown", __currentCitySelector.onKeyDown);
                 __currentCitySelector.control.unbind("blur", __currentCitySelector.onLostFocus);
             }
 
@@ -79,10 +81,113 @@ module Application
         {
             if (null != __currentCitySelector.listBlockHtml)
             {
-                $("div", __currentCitySelector.listBlockHtml).unbind("click", __currentCitySelector.onItemClick);
+                $("div", __currentCitySelector.listBlockHtml).unbind("click mouseenter mouseleave");
                 __currentCitySelector.listBlockHtml.remove();
                 __currentCitySelector.listBlockHtml = null;
             }
+        }
+
+        onMouseEnter(event: JQueryEventObject): void
+        {
+            $("div.c-page-city-select-item", __currentCitySelector.listBlockHtml).removeClass("c-page-city-select-item-selected");
+            $(event.delegateTarget).addClass("c-page-city-select-item-selected");
+        }
+
+        onMouseLeave(event: JQueryEventObject): void
+        {
+            $("div.c-page-city-select-item", __currentCitySelector.listBlockHtml).removeClass("c-page-city-select-item-selected");
+        }
+
+        onKeyDown(event: JQueryEventObject): void
+        {
+            if (null != __currentCitySelector.listBlockHtml)
+            {
+                if (40 == event.keyCode)
+                // arrow down
+                {
+                    __currentCitySelector.onArrowDown();
+                    return;
+                }
+                else if (38 == event.keyCode)
+                // arrow up
+                {
+                    __currentCitySelector.onArrowUp();
+                    return;
+                }
+                else if (13 == event.keyCode)
+                // enter
+                {
+                    __currentCitySelector.onEnter(); 
+                    return;
+                }
+                else if (27 == event.keyCode)
+                // escape
+                {
+                    __currentCitySelector.onEscape(); 
+                    return;
+                }
+            }
+
+            __currentCitySelector.onTextChange(event);
+        }
+
+        onArrowDown(): void
+        {
+            var selectedItem: JQuery = __currentCitySelector.getSelectedItem();
+
+            if (0 < selectedItem.length)
+            {
+                var nextItem: JQuery = selectedItem.next();
+
+                if (0 < nextItem.length)
+                {
+                    selectedItem.removeClass("c-page-city-select-item-selected");
+                    nextItem.addClass("c-page-city-select-item-selected");
+                }
+            }
+            else
+            {
+                $("div.c-page-city-select-item", __currentCitySelector.listBlockHtml).first().addClass("c-page-city-select-item-selected");
+            }
+        }
+
+        onArrowUp(): void
+        {
+            var selectedItem: JQuery = __currentCitySelector.getSelectedItem();
+
+            if (0 < selectedItem.length)
+            {
+                var prevItem: JQuery = selectedItem.prev();
+
+                if (0 < prevItem.length)
+                {
+                    selectedItem.removeClass("c-page-city-select-item-selected");
+                    prevItem.addClass("c-page-city-select-item-selected");
+                }
+            }
+        }
+
+        onEnter(): void
+        {
+            var selectedItem: JQuery = __currentCitySelector.getSelectedItem();
+
+            if (0 < selectedItem.length)
+            {
+                var id: number = parseInt(selectedItem.attr("data-id"));
+                __currentCitySelector.onItemClicked(id);
+            }
+
+        }
+
+        onEscape(): void
+        {
+            __currentCitySelector.clearListBlock();
+        }
+
+
+        getSelectedItem(): JQuery
+        {
+            return $("div.c-page-city-select-item-selected", __currentCitySelector.listBlockHtml);
         }
 
         onTextChange(event: JQueryEventObject): void
@@ -167,6 +272,8 @@ module Application
                 item.text(city.fullname);
                 item.attr("data-id", city.id);
                 item.bind("click", __currentCitySelector.onItemClick);
+                item.bind("mouseenter", __currentCitySelector.onMouseEnter);
+                item.bind("mouseleave", __currentCitySelector.onMouseLeave);
                 __currentCitySelector.listBlockHtml.append(item);
             }
 
@@ -184,7 +291,12 @@ module Application
             __currentCitySelector.searchValue = null;
             var elem: JQuery = $(event.delegateTarget);
             //window.console.log("__currentCitySelector.onItemClick(" + elem.attr("data-id") + ")");
-            var city: CityData = __currentCitySelector.getCityById(parseInt(elem.attr("data-id")));
+            __currentCitySelector.onItemClicked(parseInt(elem.attr("data-id")));
+        }
+
+        onItemClicked(id: number): void
+        {
+            var city: CityData = __currentCitySelector.getCityById(id);
             __currentCitySelector.component.onCitySelected(city);
             __currentCitySelector.clearListBlock();
         }
