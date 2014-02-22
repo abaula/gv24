@@ -176,7 +176,6 @@ module Application
                 var id: number = parseInt(selectedItem.attr("data-id"));
                 __currentCitySelector.onItemClicked(id);
             }
-
         }
 
         onEscape(): void
@@ -296,7 +295,7 @@ module Application
 
         onItemClicked(id: number): void
         {
-            var city: CityData = __currentCitySelector.getCityById(id);
+            var city = __currentCitySelector.getCityById(id);
             __currentCitySelector.component.onCitySelected(city);
             __currentCitySelector.clearListBlock();
         }

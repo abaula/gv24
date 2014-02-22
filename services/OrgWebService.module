@@ -72,11 +72,11 @@ class OrgAddressData
     public $longitude;
     public $latitude;
 
-    function __construct($id, $cityId, $address, $cityId, $district, $region, $postcode, $latitude, $longitude)
+    function __construct($id, $cityId, $address, $city, $district, $region, $postcode, $latitude, $longitude)
     {
         $this->cityId = $cityId;
         $this->address = $address;
-        $this->city = $cityId;
+        $this->city = $city;
         $this->district = $district;
         $this->id = $id;
         $this->latitude = $latitude;
@@ -291,9 +291,64 @@ class OrgWebService extends WebServBase
 
     public function onDelete($args, $data)
     {
-        // HTTP/1.1 405 Method Not Allowed
-        sendHTTPStatus(405);
-        header('Allow: GET,PUT');
+        // проверяем авторизован ли пользователь
+        if(false == CurrentUser::isAuthenticated())
+        {
+            // HTTP/1.1 401 Unauthorized
+            $this->returnError(401, array(2), $data);
+            return;
+        }
+
+        //$userId = 7;
+        $userId = CurrentUser::getUserId();
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            // проверяем, что у пользователя есть записи об организациях
+            $sql = 'SELECT id FROM company WHERE account_id=?i';
+            $result = $db->getOne($sql, $userId);
+
+            if(false == $result)
+                // записей нет, сообщаем об ошибке
+            {
+                // HTTP/1.1 403 Forbidden
+                $this->returnError(403, array(1009), $data);
+            }
+            else
+            {
+                $companyId = intval($result);
+
+                if($companyId != $data->id)
+                {
+                    // неправильно указан Id организации
+                    // HTTP/1.1 403 Forbidden
+                    $this->returnError(403, array(6), $data);
+                }
+                else
+                {
+                    $sql = 'UPDATE company_address SET city_id=NULL, country=NULL, address=NULL WHERE company_id=?i';
+                    $result = $db->query($sql, $companyId);
+
+                    if(false == $result)
+                    {
+                        $this->returnError(500, array(1), $data);
+                    }
+                    else
+                    {
+                        $response = new AjaxServerResponse(200, '', '', $data);
+                        sendHTTPStatus(200);
+                        header('Content-type: application/json');
+                        echo json_encode($response);
+                    }
+                }
+            }
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1), $data);
+        }
     }
 
     private function _updateInfo($data, $db, $companyId, $userId)

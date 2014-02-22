@@ -79,6 +79,7 @@ module OrgProfile
             $("#i-ctrl-org-info-submit-btn").click(__currentOrgProfile.onInfoSubmitClick);
             $("#i-ctrl-org-contacts-submit-btn").click(__currentOrgProfile.onContactsSubmitClick);
             $("#i-ctrl-org-address-submit-btn").click(__currentOrgProfile.onAddressSubmitClick);
+            $("#i-ctrl-org-address-delete-btn").click(__currentOrgProfile.onAddressDeleteClick);
 
             // события отмены редактирования данных
             $("#i-ctrl-org-info-cancel-btn").click(__currentOrgProfile.onInfoCancelClick);
@@ -387,7 +388,7 @@ module OrgProfile
             var data: AjaxOrgData = new AjaxOrgData();
             data.id = __currentOrgProfile.orgData.id;
             data.contacts = contactsData;
-
+            
             $.ajax({
                 type: "PUT",
                 url: __currentOrgProfile.application.getFullUri("api/org"),
@@ -450,6 +451,18 @@ module OrgProfile
             __currentOrgProfile.drawContactsData();
         }
 
+        clearAllAddressMessages(): void
+        {
+            // прячем сообщение
+            __currentOrgProfile.application.switchFormInfoMessageVisibility("#i-ctrl-org-address-info-message", "", false);
+            // прячем ошибки
+            __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-region-error-message", "", false);
+            __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-district-error-message", "", false);
+            __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-city-error-message", "", false);
+            __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-index-error-message", "", false);
+            __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-address-error-message", "", false);
+        }
+
         onAddressCancelClick(event: JQueryEventObject): void
         {
             // прячем все сообщения
@@ -463,26 +476,177 @@ module OrgProfile
             __currentOrgProfile.drawAddressData();
         }
 
-
-        clearAllAddressMessages(): void
-        {
-            // прячем сообщение
-            __currentOrgProfile.application.switchFormInfoMessageVisibility("#i-ctrl-org-address-info-message", "", false);
-            // прячем ошибки
-            __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-region-error-message", "", false);
-            __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-district-error-message", "", false);
-            __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-city-error-message", "", false);
-            __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-index-error-message", "", false);
-            __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-address-error-message", "", false);
-        }
-
         onAddressSubmitClick(event: JQueryEventObject): void
         {
+            // очищаем сообщения об ошибках
+            __currentOrgProfile.clearAllAddressMessages();
+
+            var errors: boolean = false;
+
+            // проверка города
+            if (null == __currentOrgProfile.cityTmpData)
+            {
+                __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-city-error-message", "Не указан город", true);
+                errors = true;
+            }
+
+            // проверка адреса
+            var addr: string = $("#i-ctrl-org-address-address-txt").val().trim();
+
+            if (1 > addr.length)
+            {
+                __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-address-error-message", "Не указан адрес", true);
+                errors = true;
+            }
+
+
+            if (false == errors)
+            {
+                var address: OrgAddressData = new OrgAddressData();
+                address.id = __currentOrgProfile.orgData.address.id;
+                address.city = __currentOrgProfile.cityTmpData.name;
+                address.cityId = __currentOrgProfile.cityTmpData.id;
+                address.district = __currentOrgProfile.cityTmpData.district;
+                address.region = __currentOrgProfile.cityTmpData.region;
+                address.postcode = __currentOrgProfile.cityTmpData.postCode;
+                address.latitude = __currentOrgProfile.cityTmpData.latitude;
+                address.longitude = __currentOrgProfile.cityTmpData.longitude;
+                address.address = addr;
+                __currentOrgProfile.updateAddressData(address);
+            }
+        }
+
+        updateAddressData(address: OrgAddressData): void
+        {
+            // блокируем и отображаем картинку загрузки
+            __currentOrgProfile.application.showOverlay("#i-ctrl-org-address-info-overlay", "#i-ctrl-org-address");
+
+            var data: AjaxOrgData = new AjaxOrgData();
+            data.id = __currentOrgProfile.orgData.id;
+            data.address = address;
+
+            $.ajax({
+                type: "PUT",
+                url: __currentOrgProfile.application.getFullUri("api/org"),
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                dataType: "json",
+                success: __currentOrgProfile.onAjaxUpdateAddressSuccess,
+                error: __currentOrgProfile.onAjaxUpdateAddressError
+            });
 
         }
+
+        onAjaxUpdateAddressError(jqXHR: JQueryXHR, status: string, message: string): void
+        {
+            // прячем overlay
+            __currentOrgProfile.application.hideOverlay("#i-ctrl-org-address-info-overlay");
+            //window.console.log("_onAjaxSaveAddressError");
+
+            var response: ServerData.AjaxServerResponse = <ServerData.AjaxServerResponse>JSON.parse(jqXHR.responseText);
+            var data: AjaxOrgData = <AjaxOrgData>response.data;
+
+            var errCode: string[] = response.code.split(";");
+            var errMsg: string[] = response.userMessage.split(";");
+
+            for (var i: number = 0; i < errCode.length; i++)
+            {
+                var code: number = parseInt(errCode[i]);
+
+                if (2 == code)
+                    __currentOrgProfile.application.checkAuthStatus();
+                if (1013 == code)
+                    __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-city-error-message", errMsg[i], true);
+                else
+                    __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-address-error-message", errMsg[i], true);
+            }
+
+        }
+
+        onAjaxUpdateAddressSuccess(data: ServerData.AjaxServerResponse, status: string, jqXHR: JQueryXHR): void
+        {
+            // прячем overlay
+            __currentOrgProfile.application.hideOverlay("#i-ctrl-org-address-info-overlay");
+            //window.console.log("_onAjaxGetAccountDataSuccess");
+
+            var orgData: AjaxOrgData = <AjaxOrgData>data.data;
+
+            // сохраняем обновлённую информацию об организации
+            __currentOrgProfile.orgData.address = orgData.address;
+
+            // сообщение об успешном обновлении данных
+            __currentOrgProfile.application.switchFormInfoMessageVisibility("#i-ctrl-org-address-info-message", "Данные обновлены.", true);
+        }
+
+        onAddressDeleteClick(event: JQueryEventObject): void
+        {
+            // очищаем сообщения об ошибках
+            __currentOrgProfile.clearAllAddressMessages();
+
+            // блокируем и отображаем картинку загрузки
+            __currentOrgProfile.application.showOverlay("#i-ctrl-org-address-info-overlay", "#i-ctrl-org-address");
+
+            var data: AjaxOrgData = new AjaxOrgData();
+            data.id = __currentOrgProfile.orgData.id;
+
+            $.ajax({
+                type: "DELETE",
+                url: __currentOrgProfile.application.getFullUri("api/org"),
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                dataType: "json",
+                success: __currentOrgProfile.onAjaxDeleteAddressSuccess,
+                error: __currentOrgProfile.onAjaxDeleteAddressError
+            });
+        }
+
+        onAjaxDeleteAddressError(jqXHR: JQueryXHR, status: string, message: string): void
+        {
+            // прячем overlay
+            __currentOrgProfile.application.hideOverlay("#i-ctrl-org-address-info-overlay");
+            //window.console.log("_onAjaxSaveAddressError");
+
+            var response: ServerData.AjaxServerResponse = <ServerData.AjaxServerResponse>JSON.parse(jqXHR.responseText);
+            var data: AjaxOrgData = <AjaxOrgData>response.data;
+
+            var errCode: string[] = response.code.split(";");
+            var errMsg: string[] = response.userMessage.split(";");
+
+            for (var i: number = 0; i < errCode.length; i++)
+            {
+                var code: number = parseInt(errCode[i]);
+
+                if (2 == code)
+                    __currentOrgProfile.application.checkAuthStatus();
+                else
+                    __currentOrgProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-org-address-address-error-message", errMsg[i], true);
+            }
+
+        }
+
+        onAjaxDeleteAddressSuccess(data: ServerData.AjaxServerResponse, status: string, jqXHR: JQueryXHR): void
+        {
+            // прячем overlay
+            __currentOrgProfile.application.hideOverlay("#i-ctrl-org-address-info-overlay");
+            //window.console.log("_onAjaxGetAccountDataSuccess");
+
+            // сохраняем обновлённую информацию об организации
+            var address: OrgAddressData = new OrgAddressData();
+            address.id = __currentOrgProfile.orgData.address.id;
+            __currentOrgProfile.orgData.address = address;
+            __currentOrgProfile.cityTmpData = null;
+            __currentOrgProfile.drawAddressData();
+
+            // сообщение об успешном обновлении данных
+            __currentOrgProfile.application.switchFormInfoMessageVisibility("#i-ctrl-org-address-info-message", "Адрес удалён", true);
+        }
+
 
         onCitySelected(city: Application.CityData): void
         {
+            // очищаем сообщения об ошибках
+            __currentOrgProfile.clearAllAddressMessages();
+
             __currentOrgProfile.cityTmpData = city;
             __currentOrgProfile.applyCityData();
         }
@@ -561,6 +725,8 @@ module OrgProfile
 
             // загрузка компонента произведена успешно
             __currentOrgProfile.orgData = <AjaxOrgData>data.data;
+            __currentOrgProfile.setTmpCityData(__currentOrgProfile.orgData.address);
+            
             // помещаем данные в контролы
             __currentOrgProfile.drawData();
 
@@ -574,6 +740,19 @@ module OrgProfile
                 __currentOrgProfile.parent.dataReady(__currentOrgProfile);
             }
         }
+
+        setTmpCityData(address: OrgAddressData): void
+        {
+            __currentOrgProfile.cityTmpData = new Application.CityData();
+            __currentOrgProfile.cityTmpData.id = address.cityId;
+            __currentOrgProfile.cityTmpData.name = address.city;
+            __currentOrgProfile.cityTmpData.district = address.district;
+            __currentOrgProfile.cityTmpData.region = address.region;
+            __currentOrgProfile.cityTmpData.postCode = address.postcode;
+            __currentOrgProfile.cityTmpData.latitude = address.latitude;
+            __currentOrgProfile.cityTmpData.longitude = address.longitude;
+        }
+
 
         // помещаем данные в контролы
         drawData(): void
