@@ -28,6 +28,7 @@
     <Content Include="default.htm" />
     <Content Include="dictionary.ts" />
     <Content Include="Graph.ts" />
+    <Content Include="tasksprofile.ts" />
     <Content Include="main.css" />
     <Content Include="orgprofile.ts" />
     <Content Include="profile.css" />

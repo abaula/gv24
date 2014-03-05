@@ -4,6 +4,7 @@
 ///<reference path="accountprofile.ts"/>
 ///<reference path="orgprofile.ts"/>
 ///<reference path="vehicleprofile.ts"/>
+///<reference path="tasksprofile.ts"/>
 var Profile;
 (function (Profile) {
     var ProfileController = (function () {
@@ -91,6 +92,7 @@ var Profile;
             } else if ("i-ctrl-profile-org-container" == id) {
                 OrgProfile.__currentOrgProfile.onUpdate(Profile.__currentComp.state);
             } else if ("i-ctrl-profile-tasks-container" == id) {
+                TasksProfile.__currentTasksProfile.onUpdate(Profile.__currentComp.state);
             } else if ("i-ctrl-profile-vehicle-container" == id) {
                 VehicleProfile.__currentVehProfile.onUpdate(Profile.__currentComp.state);
             }
@@ -139,6 +141,7 @@ var Profile;
                 OrgProfile.__currentOrgProfile.onHide(Profile.__currentComp.state);
             } else if ("i-ctrl-profile-tasks-container" == id) {
                 $("#i-ctrl-profile-tasks-container").removeClass("block").addClass("hidden");
+                TasksProfile.__currentTasksProfile.onHide(Profile.__currentComp.state);
             } else if ("i-ctrl-profile-vehicle-container" == id) {
                 $("#i-ctrl-profile-vehicle-container").removeClass("block").addClass("hidden");
                 VehicleProfile.__currentVehProfile.onHide(Profile.__currentComp.state);
@@ -158,6 +161,10 @@ else
 else
                     OrgProfile.__currentOrgProfile.onLoad(Profile.__currentComp.application, Profile.__currentComp, Profile.__currentComp.state);
             } else if ("i-ctrl-profile-tasks-container" == id) {
+                if (TasksProfile.__currentTasksProfile.isComponentLoaded)
+                    TasksProfile.__currentTasksProfile.onShow(Profile.__currentComp.state);
+else
+                    TasksProfile.__currentTasksProfile.onLoad(Profile.__currentComp.application, Profile.__currentComp, Profile.__currentComp.state);
             } else if ("i-ctrl-profile-vehicle-container" == id) {
                 if (VehicleProfile.__currentVehProfile.isComponentLoaded)
                     VehicleProfile.__currentVehProfile.onShow(Profile.__currentComp.state);
@@ -196,8 +203,11 @@ else
             } else if ("i-ctrl-profile-org-container" == id && component == OrgProfile.__currentOrgProfile) {
                 // отображаем панель организации
                 $("#i-ctrl-profile-org-container").removeClass("hidden").addClass("block");
+            } else if ("i-ctrl-profile-tasks-container" == id && component == TasksProfile.__currentTasksProfile) {
+                // отображаем панель заданий на перевозку
+                $("#i-ctrl-profile-tasks-container").removeClass("hidden").addClass("block");
             } else if ("i-ctrl-profile-vehicle-container" == id && component == VehicleProfile.__currentVehProfile) {
-                // отображаем панель организации
+                // отображаем панель машины
                 $("#i-ctrl-profile-vehicle-container").removeClass("hidden").addClass("block");
             }
         };

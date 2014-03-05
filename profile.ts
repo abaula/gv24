@@ -4,6 +4,7 @@
 ///<reference path="accountprofile.ts"/>
 ///<reference path="orgprofile.ts"/>
 ///<reference path="vehicleprofile.ts"/>
+///<reference path="tasksprofile.ts"/>
 
 module Profile
 {
@@ -117,7 +118,7 @@ module Profile
             }
             else if ("i-ctrl-profile-tasks-container" == id)
             {
-
+                TasksProfile.__currentTasksProfile.onUpdate(__currentComp.state);
             }
             else if ("i-ctrl-profile-vehicle-container" == id)
             {
@@ -175,6 +176,7 @@ module Profile
             else if ("i-ctrl-profile-tasks-container" == id)
             {
                 $("#i-ctrl-profile-tasks-container").removeClass("block").addClass("hidden");
+                TasksProfile.__currentTasksProfile.onHide(__currentComp.state);
             }
             else if ("i-ctrl-profile-vehicle-container" == id)
             {
@@ -202,7 +204,11 @@ module Profile
                     OrgProfile.__currentOrgProfile.onLoad(__currentComp.application, __currentComp, __currentComp.state);
             }
             else if ("i-ctrl-profile-tasks-container" == id)
-            {
+            {                
+                if (TasksProfile.__currentTasksProfile.isComponentLoaded)
+                    TasksProfile.__currentTasksProfile.onShow(__currentComp.state);
+                else
+                    TasksProfile.__currentTasksProfile.onLoad(__currentComp.application, __currentComp, __currentComp.state);
             }
             else if ("i-ctrl-profile-vehicle-container" == id)
             {                
@@ -252,10 +258,17 @@ module Profile
                 // отображаем панель организации
                 $("#i-ctrl-profile-org-container").removeClass("hidden").addClass("block");
             }
+            else if ("i-ctrl-profile-tasks-container" == id
+                && component == TasksProfile.__currentTasksProfile)
+            {
+                // отображаем панель заданий на перевозку
+                $("#i-ctrl-profile-tasks-container").removeClass("hidden").addClass("block");
+            }
+
             else if ("i-ctrl-profile-vehicle-container" == id
                 && component == VehicleProfile.__currentVehProfile)
             {
-                // отображаем панель организации
+                // отображаем панель машины
                 $("#i-ctrl-profile-vehicle-container").removeClass("hidden").addClass("block");
             }
 

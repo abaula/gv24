@@ -12,6 +12,7 @@
     <script type="text/javascript" src="/accountprofile.js"></script>
     <script type="text/javascript" src="/orgprofile.js"></script>
     <script type="text/javascript" src="/vehicleprofile.js"></script>
+    <script type="text/javascript" src="/tasksprofile.js"></script>
 
     <title>Профиль</title>
 </head>
@@ -552,7 +553,154 @@
                 
             </div>
 
-            <div id="i-ctrl-profile-tasks-container" class="hidden">задания на перевозку (грузы)</div>
+            <div id="i-ctrl-profile-tasks-container" class="hidden">
+
+                <!-- List View -->
+                <div class="c-page-lv-block">
+                    <div class="c-page-lv-list-block">
+                        <div data-target-id="i-ctrl-tasks-all" class="c-page-lv-list-item selected"><span>Все</span></div>
+                    </div>
+                    <div class="c-page-lv-view-block">
+                        <div id="i-ctrl-tasks-all" class="c-page-lv-view-container">
+
+
+                            <div id="Div2" class="block">
+
+                                <!-- Информационный блок -->
+                                <div class="c-page-info-message-block">
+                                    <div class="c-page-info-message-header-block"><div class="fa fa-plus-square-o"></div><span>Сведения</span></div>
+                                    <div class="c-page-info-message-text-container hidden">
+                                        <ul>
+                                            <li>Задания на перевозку.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <!-- /Информационный блок -->  
+
+
+                                <div id="Div3" class="c-page-form-outer-block" >
+                                    <div class="c-page-form-block">
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Название:</div>
+                                            <div class="c-page-property-input-block"><input id="Text1" type="text" placeholder=""/></div>
+                                            <div id="Div4" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>  
+                                        </div>
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Тип машины:</div>
+                                            <div class="c-page-property-input-block"><select id="Select1"></select></div>
+                                            <div  id="Div5" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>  
+                                        </div>
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Макс. вес, кг:</div>
+                                            <div class="c-page-property-input-block"><input id="Text2" type="text" placeholder=""/></div>
+                                            <div id="Div6" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                        </div>
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Макс. объём, м<sup>3</sup>:</div>
+                                            <div class="c-page-property-input-block"><input id="Text3" type="text" placeholder=""/></div>
+                                            <div id="Div7" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                        </div>
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Затраты, руб/км:</div>
+                                            <div class="c-page-property-input-block"><input id="Text5" type="text" placeholder=""/></div>
+                                            <div id="Div8" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                        </div>
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Свой тариф за кг, руб/100 км:</div>
+                                            <div class="c-page-property-input-block"><input id="Text6" type="text" placeholder=""/></div>
+                                            <div id="Div9" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                        </div>
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Свой тариф за м<sup>3</sup>, руб/100 км:</div>
+                                            <div class="c-page-property-input-block"><input id="Text7" type="text" placeholder=""/></div>
+                                            <div id="Div10" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                        </div>
+
+                                        <div class="с-page-button-set-block">
+                                            <button id="Button1"><div class="fa fa-check-square-o"></div>Сохранить</button>
+                                            <button id="Button3"><div class="fa fa-undo"></div>Отмена</button>
+                                        </div> 
+                                    </div>
+                                    <div id="Div11" class="c-page-form-overlay-container"><div class="fa fa-spinner fa-spin"></div></div>                                     
+                                </div>
+
+                                
+                            </div>
+
+                            <div id="Div12" class="hidden">
+
+                                <!-- Информационный блок -->
+                                <div class="c-page-info-message-block">
+                                    <div class="c-page-info-message-header-block"><div class="fa fa-plus-square-o"></div><span>Сведения</span></div>
+                                    <div class="c-page-info-message-text-container hidden">
+                                        <ul>
+                                            <li>Информация о работе с таблицей</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <!-- /Информационный блок -->
+
+                                <div id="Div13" class="c-page-form-outer-block" >
+
+                                    <div class="с-page-button-set-block">
+                                        <button id="Button4"><div class="fa fa-plus"></div>Добавить</button>
+                                    </div>
+
+                                    <table id="Table1" class="c-ctrl-vehicle-table">                                    
+                                        <thead>
+                                           <tr>
+                                               <th>№</th>
+                                               <th>Название</th>
+                                               <th>Тип</th>
+                                               <th>Макс. вес,<br/>кг</th>
+                                               <th>Макс объём,<br/>м<sup>3</sup></th>
+                                               <th>Затраты,<br/>руб/км</th>
+                                               <th>Свой тариф за кг,<br/>руб/100 км</th>
+                                               <th>Свой тариф за м<sup>3</sup>,<br/>руб/100 км</th>
+                                               <th>Действия</th>
+                                           </tr>
+                                            <!-- Шаблон строки таблицы -->
+                                            <tr id="Tr1" data-id="" class="hidden">
+                                               <td class="c-ctrl-vehicle-table-cell-num"></td>
+                                               <td class="c-ctrl-vehicle-table-cell-name"></td>
+                                               <td class="c-ctrl-vehicle-table-cell-type"></td>
+                                               <td class="c-ctrl-vehicle-table-cell-max-weight"></td>
+                                               <td class="c-ctrl-vehicle-table-cell-max-value"></td>
+                                               <td class="c-ctrl-vehicle-table-cell-expences"></td>
+                                               <td class="c-ctrl-vehicle-table-cell-tax-weight"></td>
+                                               <td class="c-ctrl-vehicle-table-cell-tax-value"></td>
+                                               <td class="c-ctrl-vehicle-table-cell-action"><span data-id="" class="c-ctrl-vehicle-table-cell-action-edit fa fa-pencil-square"></span><span data-id="" class="c-ctrl-vehicle-table-cell-action-delete fa fa-times"></span></td>
+                                            </tr>
+                                            <tr id="Tr2" class="hidden">
+                                                <td colspan="9">Нет записей</td>
+                                            </tr>
+                                            <tr id="Tr3" class="c-ctrl-vehicle-table-row-delete-confirm-block hidden">
+                                                <td colspan="9">
+                                                    <span class="c-ctrl-vehicle-table-row-delete-confirm-message">Подтвердить удаление?</span>
+                                                    <div class="c-ctrl-vehicle-table-row-delete-conirm-button-block с-page-button-set-block">
+                                                        <button class="c-ctrl-vehicle-table-row-delete-confirm-button"><div class="fa fa-check-square-o"></div>Подтвердить</button>
+                                                        <button class="c-ctrl-vehicle-table-row-delete-cancel-button"><div class="fa fa-undo"></div>Отмена</button>
+                                                    </div>
+                                                    <div id="Div14" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                                </td>
+                                            </tr>
+                                            <!-- /Шаблон строки таблицы -->
+                                        </thead>
+                                        <tbody>                                        
+                                        </tbody>
+                                    </table>
+                                    <div id="Div15" class="c-page-form-overlay-container"><div class="fa fa-spinner fa-spin"></div></div>
+                                </div>
+                            </div>
+                            
+                            
+
+                        </div>
+                    </div>
+                </div>
+                <!-- /List View -->
+
+            </div>
 
 
             <div id="i-ctrl-profile-vehicle-container" class="hidden">
