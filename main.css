@@ -150,6 +150,7 @@ button, input {
     border-bottom: 1px solid #e0e0e0; 
     border-bottom-left-radius: 4px;
     border-top-left-radius: 4px; 
+    vertical-align: middle;
 }
 
 .c-page-property-input-block {
@@ -157,6 +158,17 @@ button, input {
 }
 
     .c-page-property-input-block input {
+        display: table-cell;
+        margin: 0px 0px 0px 0px;
+        height: 18pt;
+        padding-left: 6px;
+        padding-right: 6px;
+        border: 1px solid #e0e0e0;
+        border-bottom-right-radius: 4px;
+        border-top-right-radius: 4px;
+    }
+
+    .c-page-property-input-block textarea {
         display: table-cell;
         margin: 0px 0px 0px 0px;
         height: 18pt;
@@ -467,4 +479,15 @@ button, input {
 .c-page-city-select-item-selected {    
     background-color: #336699;
     color: #ffffff;
+}
+
+.c-page-hspace-block {
+    display: block;
+    height: 10pt;
+}
+
+.c-page-form-button {
+    display: inline-block;
+    padding: 4px;
+    cursor: pointer;
 }

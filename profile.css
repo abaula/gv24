@@ -27,6 +27,24 @@
     width: 200pt;
 }
 
+#i-ctrl-tasks-form-block div.c-page-property-key-block {
+    width: 110pt;
+}
+
+#i-ctrl-tasks-form-block input {
+    width: 200pt;
+}
+
+#i-ctrl-tasks-form-block select {
+    width: 210pt;
+}
+
+#i-ctrl-tasks-form-block textarea {
+    height: 40pt;
+    width: 200pt;
+    resize: none;
+}
+
 .c-ctrl-info-param-name-text-block {
     background-color: #ffffff;
     font-weight: 400;
@@ -175,3 +193,4 @@
 
 .c-ctrl-vehicle-table-row-delete-cancel-button {
 }
+

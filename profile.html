@@ -564,7 +564,7 @@
                         <div id="i-ctrl-tasks-all" class="c-page-lv-view-container">
 
 
-                            <div id="Div2" class="block">
+                            <div id="i-ctrl-tasks-all-container" class="block">
 
                                 <!-- Информационный блок -->
                                 <div class="c-page-info-message-block">
@@ -578,42 +578,119 @@
                                 <!-- /Информационный блок -->  
 
 
-                                <div id="Div3" class="c-page-form-outer-block" >
+                                <div id="i-ctrl-tasks-form-block" class="c-page-form-outer-block" >
                                     <div class="c-page-form-block">
                                         <div class="c-page-property-set-block">
                                             <div class="c-page-property-key-block">Название:</div>
                                             <div class="c-page-property-input-block"><input id="Text1" type="text" placeholder=""/></div>
                                             <div id="Div4" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>  
                                         </div>
+                                        
                                         <div class="c-page-property-set-block">
-                                            <div class="c-page-property-key-block">Тип машины:</div>
+                                            <div class="c-page-property-key-block">Подробно:</div>
+                                            <div class="c-page-property-input-block"><textarea></textarea></div>
+                                            <div id="Div3" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>  
+                                        </div>
+
+                                        <div class="c-page-hspace-block"></div>
+
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Тип груза:</div>
                                             <div class="c-page-property-input-block"><select id="Select1"></select></div>
                                             <div  id="Div5" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>  
                                         </div>
                                         <div class="c-page-property-set-block">
-                                            <div class="c-page-property-key-block">Макс. вес, кг:</div>
+                                            <div class="c-page-property-key-block">Опасный груз:</div>
+                                            <div class="c-page-property-input-block"><select id="Select2"></select></div>
+                                            <div  id="Div1" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>  
+                                        </div>
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Тип кузова:</div>
+                                            <div class="c-page-property-input-block"><select id="Select6"></select></div>
+                                            <div  id="Div21" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>  
+                                        </div>
+
+                                        <div class="c-page-hspace-block"></div>
+
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Общий вес, кг:</div>
                                             <div class="c-page-property-input-block"><input id="Text2" type="text" placeholder=""/></div>
                                             <div id="Div6" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                                         </div>
                                         <div class="c-page-property-set-block">
-                                            <div class="c-page-property-key-block">Макс. объём, м<sup>3</sup>:</div>
+                                            <div class="c-page-property-key-block">Общий объём, м<sup>3</sup>:</div>
                                             <div class="c-page-property-input-block"><input id="Text3" type="text" placeholder=""/></div>
                                             <div id="Div7" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                                         </div>
+
+                                        <div class="c-page-hspace-block"></div>
+
                                         <div class="c-page-property-set-block">
-                                            <div class="c-page-property-key-block">Затраты, руб/км:</div>
+                                            <div class="c-page-property-key-block">Упаковка:</div>
+                                            <div class="c-page-property-input-block"><select id="Select3"></select></div>
+                                            <div  id="Div9" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>  
+                                        </div>
+
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Кол-во мест:</div>
+                                            <div class="c-page-property-input-block"><input id="Text6" type="text" placeholder=""/></div>
+                                            <div id="Div10" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                        </div>
+
+                                        <div class="c-page-hspace-block"></div>
+
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Откуда:</div>
+                                            <div class="c-page-property-input-block"><input id="Text7" type="text" placeholder=""/>
+                                                <div class="c-page-form-button fa fa-times"></div>
+                                            </div>
+                                            <div id="Div16" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                        </div>
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Погрузка:</div>
+                                            <div class="c-page-property-input-block"><select id="Select4"></select></div>
+                                            <div  id="Div19" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>  
+                                        </div>
+
+                                        <div class="c-page-hspace-block"></div>
+
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Куда:</div>
+                                            <div class="c-page-property-input-block"><input id="Text8" type="text" placeholder=""/>
+                                                <div class="c-page-form-button fa fa-times"></div>
+                                            </div>
+                                            <div id="Div17" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                        </div>
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Разгрузка:</div>
+                                            <div class="c-page-property-input-block"><select id="Select5"></select></div>
+                                            <div  id="Div20" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>  
+                                        </div>
+
+                                        <div class="c-page-hspace-block"></div>
+
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Дата готовности:</div>
+                                            <div class="c-page-property-input-block"><input id="Text9" type="text" placeholder=""/>
+                                                <div class="c-page-form-button fa fa-calendar"></div>
+                                            </div>                                            
+                                            <div id="Div18" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                        </div>
+
+                                        <div class="c-page-hspace-block"></div>
+
+                                        <div class="c-page-property-set-block">
+                                            <div class="c-page-property-key-block">Стоимость, руб:</div>
                                             <div class="c-page-property-input-block"><input id="Text5" type="text" placeholder=""/></div>
                                             <div id="Div8" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                                         </div>
+
+                                        <div class="c-page-hspace-block"></div>
+
                                         <div class="c-page-property-set-block">
-                                            <div class="c-page-property-key-block">Свой тариф за кг, руб/100 км:</div>
-                                            <div class="c-page-property-input-block"><input id="Text6" type="text" placeholder=""/></div>
-                                            <div id="Div9" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
-                                        </div>
-                                        <div class="c-page-property-set-block">
-                                            <div class="c-page-property-key-block">Свой тариф за м<sup>3</sup>, руб/100 км:</div>
-                                            <div class="c-page-property-input-block"><input id="Text7" type="text" placeholder=""/></div>
-                                            <div id="Div10" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                            <div class="c-page-property-key-block">Контакты:</div>
+                                            <div class="c-page-property-input-block"><input id="Text10" type="text" placeholder=""/></div>
+                                            <div id="Div2" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                                         </div>
 
                                         <div class="с-page-button-set-block">
