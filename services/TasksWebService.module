@@ -14,19 +14,27 @@ require_once("Headers.module");
 class City
 {
     public $id;
-    public $name;
-    public $latitude;
+    public $city;
+    public $district;
+    public $region;
+    public $postcode;
     public $longitude;
+    public $latitude;
 
-    function __construct($id, $name, $lat, $lon)
+    function __construct($id, $city, $district, $region, $postcode, $latitude, $longitude)
     {
+        $this->city = $city;
+        $this->district = $district;
         $this->id = $id;
-        $this->name = $name;
-        $this->latitude = $lat;
-        $this->longitude = $lon;
+        $this->latitude = $latitude;
+        $this->longitude = $longitude;
+        $this->postcode = $postcode;
+        $this->region = $region;
     }
+
 }
 
+/*
 class Task
 {
     public $id;
@@ -48,20 +56,272 @@ class Task
         $this->price = $price;
     }
 }
+*/
+
+class AjaxCargo
+{
+    public $id;
+    public $name;
+    public $description;
+
+    public $cargoTypeId;
+    public $bodyTypeId;
+    public $cargoADRTypeId;
+
+    public $weight;
+    public $value;
+
+    public $packingTypeId;
+    public $numOfPackages;
+
+    public $city1;
+    public $addr1;
+    public $loadingTypeId1;
+
+    public $city2;
+    public $addr2;
+    public $loadingTypeId2;
+
+    public $distance;
+
+    public $readyDate;
+    public $cost;
+
+    public $contacts;
+
+    function __construct($id, $name, $description, $cargoTypeId, $bodyTypeId, $cargoADRTypeId,
+                         $value, $weight, $numOfPackages, $packingTypeId,
+                         $city1, $addr1, $loadingTypeId1,
+                         $city2, $addr2, $loadingTypeId2,
+                         $distance, $readyDate, $contacts, $cost)
+    {
+        $this->addr1 = $addr1;
+        $this->addr2 = $addr2;
+        $this->bodyTypeId = $bodyTypeId;
+        $this->cargoADRTypeId = $cargoADRTypeId;
+        $this->cargoTypeId = $cargoTypeId;
+        $this->city1 = $city1;
+        $this->city2 = $city2;
+        $this->contacts = $contacts;
+        $this->cost = $cost;
+        $this->description = $description;
+        $this->distance = $distance;
+        $this->id = $id;
+        $this->loadingTypeId1 = $loadingTypeId1;
+        $this->loadingTypeId2 = $loadingTypeId2;
+        $this->name = $name;
+        $this->numOfPackages = $numOfPackages;
+        $this->packingTypeId = $packingTypeId;
+        $this->readyDate = $readyDate;
+        $this->value = $value;
+        $this->weight = $weight;
+    }
 
 
+}
 
+class AjaxCargoList
+{
+    public $cargo;
+
+    function __construct()
+    {
+        $this->cargo = null;
+    }
+}
 
 
 class TasksWebService extends WebServBase
 {
     public function onGet($args)
     {
-        $this->_getTasks();
+        //$this->_getTasks();
+
+        // проверяем авторизован ли пользователь
+        if(false == CurrentUser::isAuthenticated())
+        {
+            // HTTP/1.1 401 Unauthorized
+            $this->returnError(401, array(2));
+            return;
+        }
+
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            // получаем id органзации
+            $sql = 'select id from company where account_id=?i';
+
+            $orgId = $db->getOne($sql, CurrentUser::getUserId());
+
+            if(false == $orgId)
+            {
+                $this->returnError(500, array(1));
+            }
+            else
+            {
+                $sql = 'SELECT C.id, C.company_id, C.name, C.description, C.cargo_type_id, C.body_type_id, C.cargo_adr_type_id, C.weight, C.value, C.packing_type_id, C.num_of_packages,
+                          G1.id AS cityId1, G1.name AS city1, G1.district AS district1, G1.region AS region1, G1.postcode AS postcode1, G1.longitude AS longitude1, G1.latitude AS latitude1,
+                          C.addr1, C.loading_type_id1, G2.id AS cityId2, G2.name AS city2, G2.district AS district2, G2.region AS region2, G2.postcode AS postcode2, G2.longitude AS longitude2,
+                          G2.latitude AS latitude2, C.addr2, C.loading_type_id2, C.distance, C.ready_date, C.cost, C.contacts
+                        FROM cargo C
+                          inner join geocities G1
+		                    on G1.id = C.city1_id
+	                      inner join geocities G2
+		                    on G2.id = C.city2_id
+                        WHERE C.company_id =?i';
+
+                $result = $db->query($sql, $orgId);
+
+                if(false == $result)
+                {
+                    $this->returnError(500, array(1));
+                }
+                else
+                {
+                    $arr = array();
+
+                    while($row = $db->fetch($result))
+                    {
+                        $city1 = new City
+                        (
+                            $row['cityId1'], $row['city1'],
+                            $row['district1'], $row['region1'], $row['postcode1'],
+                            $row['latitude1'] / 10000000, $row['longitude1'] / 10000000
+                        );
+
+                        $city2 = new City
+                        (
+                            $row['cityId2'], $row['city2'],
+                            $row['district2'], $row['region2'], $row['postcode2'],
+                            $row['latitude2'] / 10000000, $row['longitude2'] / 10000000
+                        );
+
+
+                        $entry = new AjaxCargo
+                        (
+                            $row['id'], $row['name'], $row['description'], $row['cargo_type_id'], $row['body_type_id'], $row['cargo_adr_type_id'],
+                            $row['value'], $row['weight'], $row['num_of_packages'], $row['packing_type_id'],
+                            $city1, $row['addr1'], $row['loading_type_id1'], $city2, $row['addr2'], $row['loading_type_id2'],
+                            $row['distance'], $row['ready_date'], $row['contacts'], $row['cost']
+                        );
+
+
+                        array_push($arr, $entry);
+                    }
+
+                    $respData = new AjaxCargoList();
+
+                    if(0 < count($arr))
+                        $respData->cargo = $arr;
+
+                    $response = new AjaxServerResponse(200, '', '', $respData);
+                    sendHTTPStatus(200);
+                    header('Content-type: application/json');
+                    echo json_encode($response);
+                }
+
+            }
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1));
+        }
+
     }
 
     public function onPost($args, $data)
     {
+
+        // проверяем авторизован ли пользователь
+        if(false == CurrentUser::isAuthenticated())
+        {
+            // HTTP/1.1 401 Unauthorized
+            $this->returnError(401, array(2));
+            return;
+        }
+
+        // TODO делаем проверку входящих данных
+
+
+
+
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            // получаем id органзации
+            $sql = 'select id from company where account_id=?i';
+
+            $orgId = $db->getOne($sql, CurrentUser::getUserId());
+
+            if(false == $orgId)
+            {
+                $this->returnError(500, array(1));
+            }
+            else
+            {
+                ///////////////////////////////////////////
+                // получаем расстояние между городами
+                $sql = 'SELECT distance FROM georoute WHERE (cityId1=?i AND cityId2=?i) OR (cityId1=?i AND cityId2=?i)';
+                $distance = $db->getOne($sql, $data->city1->id, $data->city2->id, $data->city2->id, $data->city1->id);
+
+                if(false == $distance)
+                {
+                    $this->returnError(500, array(1));
+                }
+                else
+                {
+                    $data->distance = $distance;
+
+                    ///////////////////////////////////////////
+                    // сохраняем груз
+                    $sql = 'INSERT INTO cargo(company_id, name, description,
+                                            cargo_type_id, body_type_id, cargo_adr_type_id,
+                                            weight, value,
+                                            packing_type_id, num_of_packages,
+                                            city1_id, addr1, loading_type_id1,
+                                            city2_id, addr2, loading_type_id2,
+                                            distance, ready_date, cost, contacts)
+                                    VALUES (?i, ?s, ?s,
+                                            ?i, ?i, ?i,
+                                            ?i, ?i,
+                                            ?i, ?i,
+                                            ?i, ?s, ?i,
+                                            ?i, ?s, ?i,
+                                            ?i, ?s, ?i, ?s)';
+
+                    $result = $db->query($sql,
+                                            $orgId, $data->name, $data->description,
+                                            $data->cargoTypeId, $data->bodyTypeId, $data->cargoADRTypeId,
+                                            $data->weight, $data->value,
+                                            $data->packingTypeId, $data->numOfPackages,
+                                            $data->city1->id, $data->addr1, $data->loadingTypeId1,
+                                            $data->city2->id, $data->addr2, $data->loadingTypeId2,
+                                            $data->distance, $data->readyDate, $data->cost, $data->contacts
+                                        );
+
+                    if(false == $result)
+                    {
+                        $this->returnError(500, array(1));
+                    }
+                    else
+                    {
+                        $data->id = $db->insertId();
+                        $response = new AjaxServerResponse(200, '', '', $data);
+                        sendHTTPStatus(200);
+                        header('Content-type: application/json');
+                        echo json_encode($response);
+                    }
+                }
+            }
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1));
+        }
 
     }
 
@@ -76,7 +336,7 @@ class TasksWebService extends WebServBase
     }
 
 
-    private function _getTasks()
+    /* private function _getTasks()
     {
         // TODO переделываем! Это реализация метода только для тестирования!
         $cities_arr = array();
@@ -117,6 +377,6 @@ class TasksWebService extends WebServBase
 
 
         echo json_encode($tasks_arr);
-    }
+    }*/
 
 }
