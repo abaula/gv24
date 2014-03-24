@@ -54,6 +54,26 @@ class DictWebService extends WebServBase
         {
             $this->_getDataFromTableName($args[0], 'transport_type');
         }
+        else if('cargotype' == $args[0])
+        {
+            $this->_getDataFromTableName($args[0], 'cargo_type');
+        }
+        else if('packingtype' == $args[0])
+        {
+            $this->_getDataFromTableName($args[0], 'packing_type');
+        }
+        else if('cargoadrtype' == $args[0])
+        {
+            $this->_getDataFromTableName($args[0], 'cargo_adr_type');
+        }
+        else if('bodytype' == $args[0])
+        {
+            $this->_getDataFromTableName($args[0], 'body_type');
+        }
+        else if('loadingtype' == $args[0])
+        {
+            $this->_getDataFromTableName($args[0], 'loading_type');
+        }
         else
         {
             // HTTP/1.1 404 Not Found

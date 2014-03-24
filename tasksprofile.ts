@@ -28,7 +28,17 @@ module TasksProfile
         {
             __currentTasksProfile.application = app;
             __currentTasksProfile.parent = parent;
+            Dictionary.__currDictionary.init(app, __currentTasksProfile);
 
+            // получаем данные справочников
+            Dictionary.__currDictionary.queryDictData("transporttype");
+            Dictionary.__currDictionary.queryDictData("cargotype");
+            Dictionary.__currDictionary.queryDictData("packingtype");
+            Dictionary.__currDictionary.queryDictData("cargoadrtype");
+            Dictionary.__currDictionary.queryDictData("bodytype");
+            Dictionary.__currDictionary.queryDictData("loadingtype");
+
+            // получаем данные
             __currentTasksProfile.queryData();
         }
 
@@ -55,7 +65,33 @@ module TasksProfile
 
         // вызовы от DictController
         dictDataReady(name: string): void
-        { }
+        {
+            if ("transporttype" == name)
+            {
+
+            }
+            else if ("cargotype" == name)
+            {
+                __currentTasksProfile.drawCargoType(Dictionary.__currDictionary.cargoTypes);
+            }
+            else if ("packingtype" == name)
+            {
+
+            }
+            else if ("cargoadrtype" == name)
+            {
+
+            }
+            else if ("bodytype" == name)
+            {
+
+            }
+            else if ("loadingtype" == name)
+            {
+
+            }
+
+        }
 
 
         onCitySelected(city: Application.CityData): void
@@ -97,6 +133,31 @@ module TasksProfile
                 success: __currentOrgProfile.onAjaxGetOrgDataSuccess,
                 error: __currentOrgProfile.onAjaxGetOrgDataError
             });*/
+        }
+
+
+        drawCargoType(data: Dictionary.DictionaryEntry[]): void
+        {
+
+            var select: JQuery = $("#i-ctrl-tasks-form-cargo-type-select");
+
+            for (var i: number = 0; i < data.length; i++)
+            {
+                var entry: Dictionary.DictionaryEntry = data[i];
+                var opt: JQuery = $("<option></option>");
+                opt.val(entry.id).text(entry.name);
+                select.append(opt);
+            }
+
+            /*
+            TODO отрисовываем типы машин в таблице
+
+            if (null != __currentOrgProfile.orgData)
+            {
+                select.val(__currentOrgProfile.orgData.info.formId.toString());
+            }
+            */
+
         }
 
     }
