@@ -30,8 +30,11 @@ module TasksProfile
             __currentTasksProfile.parent = parent;
             Dictionary.__currDictionary.init(app, __currentTasksProfile);
 
+            // цепляем обработчики событий
+            $("#i-ctrl-tasks-form-submit-btn").click(__currentTasksProfile.onSubmitButtonClick);
+            $("#i-ctrl-tasks-form-cancel-btn").click(__currentTasksProfile.onCancelButtonClick);
+
             // получаем данные справочников
-            Dictionary.__currDictionary.queryDictData("transporttype");
             Dictionary.__currDictionary.queryDictData("cargotype");
             Dictionary.__currDictionary.queryDictData("packingtype");
             Dictionary.__currDictionary.queryDictData("cargoadrtype");
@@ -47,6 +50,7 @@ module TasksProfile
 
         onShow(state: Application.IState): void
         {
+            Dictionary.__currDictionary.init(__currentTasksProfile.application, __currentTasksProfile);
             __currentTasksProfile.queryData();
         }
 
@@ -66,29 +70,26 @@ module TasksProfile
         // вызовы от DictController
         dictDataReady(name: string): void
         {
-            if ("transporttype" == name)
-            {
-
-            }
-            else if ("cargotype" == name)
+            if ("cargotype" == name)
             {
                 __currentTasksProfile.drawCargoType(Dictionary.__currDictionary.cargoTypes);
             }
             else if ("packingtype" == name)
             {
-
+                __currentTasksProfile.drawPackingType(Dictionary.__currDictionary.packingTypes);
             }
             else if ("cargoadrtype" == name)
             {
-
+                __currentTasksProfile.drawCargoADRType(Dictionary.__currDictionary.cargoADRTypes);
             }
             else if ("bodytype" == name)
             {
-
+                __currentTasksProfile.drawBodyType(Dictionary.__currDictionary.bodyTypes);
             }
             else if ("loadingtype" == name)
             {
-
+                __currentTasksProfile.drawLoadingType(Dictionary.__currDictionary.loadingTypes);
+                __currentTasksProfile.drawUnloadingType(Dictionary.__currDictionary.loadingTypes);
             }
 
         }
@@ -148,16 +149,86 @@ module TasksProfile
                 opt.val(entry.id).text(entry.name);
                 select.append(opt);
             }
+        }
 
-            /*
-            TODO отрисовываем типы машин в таблице
+        drawCargoADRType(data: Dictionary.DictionaryEntry[]): void
+        {
+            var select: JQuery = $("#i-ctrl-tasks-form-cargo-adr-type-select");
 
-            if (null != __currentOrgProfile.orgData)
+            for (var i: number = 0; i < data.length; i++)
             {
-                select.val(__currentOrgProfile.orgData.info.formId.toString());
+                var entry: Dictionary.DictionaryEntry = data[i];
+                var opt: JQuery = $("<option></option>");
+                opt.val(entry.id).text(entry.name);
+                select.append(opt);
             }
-            */
+        }
 
+        drawBodyType(data: Dictionary.DictionaryEntry[]): void
+        {
+            var select: JQuery = $("#i-ctrl-tasks-form-body-type-select");
+
+            for (var i: number = 0; i < data.length; i++)
+            {
+                var entry: Dictionary.DictionaryEntry = data[i];
+                var opt: JQuery = $("<option></option>");
+                opt.val(entry.id).text(entry.name);
+                select.append(opt);
+            }
+        }
+
+        drawPackingType(data: Dictionary.DictionaryEntry[]): void
+        {
+            var select: JQuery = $("#i-ctrl-tasks-form-packing-type-select");
+
+            for (var i: number = 0; i < data.length; i++)
+            {
+                var entry: Dictionary.DictionaryEntry = data[i];
+                var opt: JQuery = $("<option></option>");
+                opt.val(entry.id).text(entry.name);
+                select.append(opt);
+            }
+        }
+
+        drawLoadingType(data: Dictionary.DictionaryEntry[]): void
+        {
+            var select: JQuery = $("#i-ctrl-tasks-form-loading-type-select");
+
+            for (var i: number = 0; i < data.length; i++)
+            {
+                var entry: Dictionary.DictionaryEntry = data[i];
+                var opt: JQuery = $("<option></option>");
+                opt.val(entry.id).text(entry.name);
+                select.append(opt);
+            }
+        }
+
+        drawUnloadingType(data: Dictionary.DictionaryEntry[]): void
+        {
+            var select: JQuery = $("#i-ctrl-tasks-form-unloading-type-select");
+
+            for (var i: number = 0; i < data.length; i++)
+            {
+                var entry: Dictionary.DictionaryEntry = data[i];
+                var opt: JQuery = $("<option></option>");
+                opt.val(entry.id).text(entry.name);
+                select.append(opt);
+            }
+        }
+
+        onSubmitButtonClick(event: JQueryEventObject): void
+        {
+            // проверка данных
+
+            // отправка данных на сервер
+
+        }
+
+        onCancelButtonClick(event: JQueryEventObject): void
+        {
+            // очистка формы
+
+            // закрытие формы
         }
 
     }

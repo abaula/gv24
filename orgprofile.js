@@ -1,4 +1,4 @@
-﻿///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
+///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
 ///<reference path="ServerAjaxData.d.ts"/>
 ///<reference path="application.ts"/>
 ///<reference path="profile.ts"/>
@@ -95,6 +95,7 @@ var OrgProfile;
 
         OrgProfileController.prototype.onShow = function (state) {
             OrgProfile.__currentOrgProfile.bindCitySelector();
+            Dictionary.__currDictionary.init(OrgProfile.__currentOrgProfile.application, OrgProfile.__currentOrgProfile);
 
             // запрашиваем данные у модели
             OrgProfile.__currentOrgProfile.queryData();

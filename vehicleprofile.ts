@@ -63,6 +63,7 @@ module VehicleProfile
 
         onShow(state: Application.IState): void
         {
+            Dictionary.__currDictionary.init(__currentVehProfile.application, __currentVehProfile);
             __currentVehProfile.queryData();
         }
 

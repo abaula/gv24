@@ -1,4 +1,4 @@
-﻿///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
+///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
 ///<reference path="ServerAjaxData.d.ts"/>
 ///<reference path="application.ts"/>
 ///<reference path="profile.ts"/>
@@ -58,6 +58,7 @@ var VehicleProfile;
         };
 
         VehicleProfileController.prototype.onShow = function (state) {
+            Dictionary.__currDictionary.init(VehicleProfile.__currentVehProfile.application, VehicleProfile.__currentVehProfile);
             VehicleProfile.__currentVehProfile.queryData();
         };
 

@@ -101,7 +101,7 @@ module OrgProfile
         onShow(state: Application.IState): void
         {
             __currentOrgProfile.bindCitySelector();
-
+            Dictionary.__currDictionary.init(__currentOrgProfile.application, __currentOrgProfile);
 
             // запрашиваем данные у модели
             __currentOrgProfile.queryData();

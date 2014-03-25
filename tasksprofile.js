@@ -25,8 +25,11 @@ var TasksProfile;
             TasksProfile.__currentTasksProfile.parent = parent;
             Dictionary.__currDictionary.init(app, TasksProfile.__currentTasksProfile);
 
+            // цепляем обработчики событий
+            $("#i-ctrl-tasks-form-submit-btn").click(TasksProfile.__currentTasksProfile.onSubmitButtonClick);
+            $("#i-ctrl-tasks-form-cancel-btn").click(TasksProfile.__currentTasksProfile.onCancelButtonClick);
+
             // получаем данные справочников
-            Dictionary.__currDictionary.queryDictData("transporttype");
             Dictionary.__currDictionary.queryDictData("cargotype");
             Dictionary.__currDictionary.queryDictData("packingtype");
             Dictionary.__currDictionary.queryDictData("cargoadrtype");
@@ -41,6 +44,7 @@ var TasksProfile;
         };
 
         TasksProfileController.prototype.onShow = function (state) {
+            Dictionary.__currDictionary.init(TasksProfile.__currentTasksProfile.application, TasksProfile.__currentTasksProfile);
             TasksProfile.__currentTasksProfile.queryData();
         };
 
@@ -59,13 +63,17 @@ var TasksProfile;
 
         // вызовы от DictController
         TasksProfileController.prototype.dictDataReady = function (name) {
-            if ("transporttype" == name) {
-            } else if ("cargotype" == name) {
+            if ("cargotype" == name) {
                 TasksProfile.__currentTasksProfile.drawCargoType(Dictionary.__currDictionary.cargoTypes);
             } else if ("packingtype" == name) {
+                TasksProfile.__currentTasksProfile.drawPackingType(Dictionary.__currDictionary.packingTypes);
             } else if ("cargoadrtype" == name) {
+                TasksProfile.__currentTasksProfile.drawCargoADRType(Dictionary.__currDictionary.cargoADRTypes);
             } else if ("bodytype" == name) {
+                TasksProfile.__currentTasksProfile.drawBodyType(Dictionary.__currDictionary.bodyTypes);
             } else if ("loadingtype" == name) {
+                TasksProfile.__currentTasksProfile.drawLoadingType(Dictionary.__currDictionary.loadingTypes);
+                TasksProfile.__currentTasksProfile.drawUnloadingType(Dictionary.__currDictionary.loadingTypes);
             }
         };
 
@@ -111,14 +119,71 @@ var TasksProfile;
                 opt.val(entry.id).text(entry.name);
                 select.append(opt);
             }
-            /*
-            TODO отрисовываем типы машин в таблице
-            
-            if (null != __currentOrgProfile.orgData)
-            {
-            select.val(__currentOrgProfile.orgData.info.formId.toString());
+        };
+
+        TasksProfileController.prototype.drawCargoADRType = function (data) {
+            var select = $("#i-ctrl-tasks-form-cargo-adr-type-select");
+
+            for (var i = 0; i < data.length; i++) {
+                var entry = data[i];
+                var opt = $("<option></option>");
+                opt.val(entry.id).text(entry.name);
+                select.append(opt);
             }
-            */
+        };
+
+        TasksProfileController.prototype.drawBodyType = function (data) {
+            var select = $("#i-ctrl-tasks-form-body-type-select");
+
+            for (var i = 0; i < data.length; i++) {
+                var entry = data[i];
+                var opt = $("<option></option>");
+                opt.val(entry.id).text(entry.name);
+                select.append(opt);
+            }
+        };
+
+        TasksProfileController.prototype.drawPackingType = function (data) {
+            var select = $("#i-ctrl-tasks-form-packing-type-select");
+
+            for (var i = 0; i < data.length; i++) {
+                var entry = data[i];
+                var opt = $("<option></option>");
+                opt.val(entry.id).text(entry.name);
+                select.append(opt);
+            }
+        };
+
+        TasksProfileController.prototype.drawLoadingType = function (data) {
+            var select = $("#i-ctrl-tasks-form-loading-type-select");
+
+            for (var i = 0; i < data.length; i++) {
+                var entry = data[i];
+                var opt = $("<option></option>");
+                opt.val(entry.id).text(entry.name);
+                select.append(opt);
+            }
+        };
+
+        TasksProfileController.prototype.drawUnloadingType = function (data) {
+            var select = $("#i-ctrl-tasks-form-unloading-type-select");
+
+            for (var i = 0; i < data.length; i++) {
+                var entry = data[i];
+                var opt = $("<option></option>");
+                opt.val(entry.id).text(entry.name);
+                select.append(opt);
+            }
+        };
+
+        TasksProfileController.prototype.onSubmitButtonClick = function (event) {
+            // проверка данных
+            // отправка данных на сервер
+        };
+
+        TasksProfileController.prototype.onCancelButtonClick = function (event) {
+            // очистка формы
+            // закрытие формы
         };
         return TasksProfileController;
     })();
