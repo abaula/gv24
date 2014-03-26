@@ -22,6 +22,10 @@ module TasksProfile
         loadsData: AjaxTasksData = null;
         errorData: ServerData.AjaxServerResponse = null;
 
+        public cityTmpData1: Application.CityData = null;
+        public cityTmpData2: Application.CityData = null;
+        public cityBound1: boolean = false;
+        public cityBound2: boolean = false;
 
         // вызовы от IApplication
         onLoad(app: Application.IApplication, parent: Application.IComponent, state: Application.IState): void
@@ -33,6 +37,12 @@ module TasksProfile
             // цепляем обработчики событий
             $("#i-ctrl-tasks-form-submit-btn").click(__currentTasksProfile.onSubmitButtonClick);
             $("#i-ctrl-tasks-form-cancel-btn").click(__currentTasksProfile.onCancelButtonClick);
+
+            $("#i-ctrl-tasks-form-from-city-txt").focus(__currentTasksProfile.onCity1Focus);
+            $("#i-ctrl-tasks-form-to-city-txt").focus(__currentTasksProfile.onCity2Focus);
+
+            $("#i-ctrl-tasks-form-from-city-delete-btn").click(__currentTasksProfile.onCity1Delete);
+            $("#i-ctrl-tasks-form-to-city-delete-btn").click(__currentTasksProfile.onCity2Delete);
 
             // получаем данные справочников
             Dictionary.__currDictionary.queryDictData("cargotype");
@@ -97,10 +107,46 @@ module TasksProfile
 
         onCitySelected(city: Application.CityData): void
         {
+            if (true == __currentTasksProfile.cityBound1)
+            {
+                __currentTasksProfile.cityTmpData1 = city;
+            }
+            else
+            {
+                __currentTasksProfile.cityTmpData2 = city;
+            }
+
+            __currentTasksProfile.applyCityData();
         }
 
         onCitySelectedAbort(): void
         {
+            __currentTasksProfile.applyCityData();
+        }
+
+
+        applyCityData(): void
+        {
+            var city: Application.CityData = null;
+            var fullName: string = "";
+
+            if (null != __currentTasksProfile.cityTmpData1)
+            {
+                city = __currentTasksProfile.cityTmpData1;
+                fullName = city.fullname;
+            }
+
+            $("#i-ctrl-tasks-form-from-city-txt").val(fullName);
+
+            fullName = "";
+
+            if (null != __currentTasksProfile.cityTmpData2)
+            {
+                city = __currentTasksProfile.cityTmpData2;
+                fullName = city.fullname;
+            }
+
+            $("#i-ctrl-tasks-form-to-city-txt").val(fullName);
         }
 
         // обновление данных с сервера
@@ -231,6 +277,36 @@ module TasksProfile
             // закрытие формы
         }
 
+        onCity1Focus(event: JQueryEventObject): void
+        {
+            __currentTasksProfile.cityBound1 = true;
+            __currentTasksProfile.cityBound2 = false;
+
+            // подключаем контрол выбора города
+            Application.__currentCitySelector.init($("#i-ctrl-tasks-form-from-city-txt"), __currentTasksProfile);
+        }
+
+
+        onCity2Focus(event: JQueryEventObject): void
+        {
+            __currentTasksProfile.cityBound1 = false;
+            __currentTasksProfile.cityBound2 = true;
+
+            // подключаем контрол выбора города
+            Application.__currentCitySelector.init($("#i-ctrl-tasks-form-to-city-txt"), __currentTasksProfile);
+        }
+
+        onCity1Delete(event: JQueryEventObject): void
+        {
+            __currentTasksProfile.cityTmpData1 = null;
+            __currentTasksProfile.applyCityData();
+        }
+
+        onCity2Delete(event: JQueryEventObject): void
+        {
+            __currentTasksProfile.cityTmpData2 = null;
+            __currentTasksProfile.applyCityData();
+        }
     }
 
     export var __currentTasksProfile = new TasksProfileController();

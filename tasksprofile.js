@@ -18,6 +18,10 @@ var TasksProfile;
             this.parent = null;
             this.loadsData = null;
             this.errorData = null;
+            this.cityTmpData1 = null;
+            this.cityTmpData2 = null;
+            this.cityBound1 = false;
+            this.cityBound2 = false;
         }
         // вызовы от IApplication
         TasksProfileController.prototype.onLoad = function (app, parent, state) {
@@ -28,6 +32,12 @@ var TasksProfile;
             // цепляем обработчики событий
             $("#i-ctrl-tasks-form-submit-btn").click(TasksProfile.__currentTasksProfile.onSubmitButtonClick);
             $("#i-ctrl-tasks-form-cancel-btn").click(TasksProfile.__currentTasksProfile.onCancelButtonClick);
+
+            $("#i-ctrl-tasks-form-from-city-txt").focus(TasksProfile.__currentTasksProfile.onCity1Focus);
+            $("#i-ctrl-tasks-form-to-city-txt").focus(TasksProfile.__currentTasksProfile.onCity2Focus);
+
+            $("#i-ctrl-tasks-form-from-city-delete-btn").click(TasksProfile.__currentTasksProfile.onCity1Delete);
+            $("#i-ctrl-tasks-form-to-city-delete-btn").click(TasksProfile.__currentTasksProfile.onCity2Delete);
 
             // получаем данные справочников
             Dictionary.__currDictionary.queryDictData("cargotype");
@@ -78,9 +88,38 @@ var TasksProfile;
         };
 
         TasksProfileController.prototype.onCitySelected = function (city) {
+            if (true == TasksProfile.__currentTasksProfile.cityBound1) {
+                TasksProfile.__currentTasksProfile.cityTmpData1 = city;
+            } else {
+                TasksProfile.__currentTasksProfile.cityTmpData2 = city;
+            }
+
+            TasksProfile.__currentTasksProfile.applyCityData();
         };
 
         TasksProfileController.prototype.onCitySelectedAbort = function () {
+            TasksProfile.__currentTasksProfile.applyCityData();
+        };
+
+        TasksProfileController.prototype.applyCityData = function () {
+            var city = null;
+            var fullName = "";
+
+            if (null != TasksProfile.__currentTasksProfile.cityTmpData1) {
+                city = TasksProfile.__currentTasksProfile.cityTmpData1;
+                fullName = city.fullname;
+            }
+
+            $("#i-ctrl-tasks-form-from-city-txt").val(fullName);
+
+            fullName = "";
+
+            if (null != TasksProfile.__currentTasksProfile.cityTmpData2) {
+                city = TasksProfile.__currentTasksProfile.cityTmpData2;
+                fullName = city.fullname;
+            }
+
+            $("#i-ctrl-tasks-form-to-city-txt").val(fullName);
         };
 
         // обновление данных с сервера
@@ -184,6 +223,32 @@ var TasksProfile;
         TasksProfileController.prototype.onCancelButtonClick = function (event) {
             // очистка формы
             // закрытие формы
+        };
+
+        TasksProfileController.prototype.onCity1Focus = function (event) {
+            TasksProfile.__currentTasksProfile.cityBound1 = true;
+            TasksProfile.__currentTasksProfile.cityBound2 = false;
+
+            // подключаем контрол выбора города
+            Application.__currentCitySelector.init($("#i-ctrl-tasks-form-from-city-txt"), TasksProfile.__currentTasksProfile);
+        };
+
+        TasksProfileController.prototype.onCity2Focus = function (event) {
+            TasksProfile.__currentTasksProfile.cityBound1 = false;
+            TasksProfile.__currentTasksProfile.cityBound2 = true;
+
+            // подключаем контрол выбора города
+            Application.__currentCitySelector.init($("#i-ctrl-tasks-form-to-city-txt"), TasksProfile.__currentTasksProfile);
+        };
+
+        TasksProfileController.prototype.onCity1Delete = function (event) {
+            TasksProfile.__currentTasksProfile.cityTmpData1 = null;
+            TasksProfile.__currentTasksProfile.applyCityData();
+        };
+
+        TasksProfileController.prototype.onCity2Delete = function (event) {
+            TasksProfile.__currentTasksProfile.cityTmpData2 = null;
+            TasksProfile.__currentTasksProfile.applyCityData();
         };
         return TasksProfileController;
     })();
