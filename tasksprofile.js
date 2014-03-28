@@ -5,12 +5,19 @@
 ///<reference path="validators.ts"/>
 var TasksProfile;
 (function (TasksProfile) {
-    var AjaxTasksData = (function () {
-        function AjaxTasksData() {
+    var AjaxCargo = (function () {
+        function AjaxCargo() {
         }
-        return AjaxTasksData;
+        return AjaxCargo;
     })();
-    TasksProfile.AjaxTasksData = AjaxTasksData;
+    TasksProfile.AjaxCargo = AjaxCargo;
+
+    var AjaxCargoList = (function () {
+        function AjaxCargoList() {
+        }
+        return AjaxCargoList;
+    })();
+    TasksProfile.AjaxCargoList = AjaxCargoList;
 
     var TasksProfileController = (function () {
         function TasksProfileController() {
@@ -158,6 +165,8 @@ var TasksProfile;
                 opt.val(entry.id).text(entry.name);
                 select.append(opt);
             }
+
+            select.val(0);
         };
 
         TasksProfileController.prototype.drawCargoADRType = function (data) {
@@ -169,6 +178,8 @@ var TasksProfile;
                 opt.val(entry.id).text(entry.name);
                 select.append(opt);
             }
+
+            select.val(0);
         };
 
         TasksProfileController.prototype.drawBodyType = function (data) {
@@ -180,6 +191,8 @@ var TasksProfile;
                 opt.val(entry.id).text(entry.name);
                 select.append(opt);
             }
+
+            select.val(0);
         };
 
         TasksProfileController.prototype.drawPackingType = function (data) {
@@ -191,6 +204,8 @@ var TasksProfile;
                 opt.val(entry.id).text(entry.name);
                 select.append(opt);
             }
+
+            select.val(0);
         };
 
         TasksProfileController.prototype.drawLoadingType = function (data) {
@@ -202,6 +217,8 @@ var TasksProfile;
                 opt.val(entry.id).text(entry.name);
                 select.append(opt);
             }
+
+            select.val(0);
         };
 
         TasksProfileController.prototype.drawUnloadingType = function (data) {
@@ -213,16 +230,135 @@ var TasksProfile;
                 opt.val(entry.id).text(entry.name);
                 select.append(opt);
             }
+
+            select.val(0);
+        };
+
+        TasksProfileController.prototype.clearFormErrors = function () {
+            TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-name-error-message", "", false);
+            TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-cargo-type-error-message", "", false);
+            TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-description-error-message", "", false);
+            TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-cargo-adr-type-error-message", "", false);
+            TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-body-type-error-message", "", false);
+            TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-weight-error-message", "", false);
+            TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-value-error-message", "", false);
+            TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-packing-type-error-message", "", false);
+            TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-num-of-packages-error-message", "", false);
+            TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-from-city-error-message", "", false);
+            TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-from-address-error-message", "", false);
+            TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-loading-type-error-message", "", false);
+            TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-to-city-error-message", "", false);
+            TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-to-address-error-message", "", false);
+            TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-unloading-type-error-message", "", false);
+            TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-ready-date-error-message", "", false);
+            TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-cost-error-message", "", false);
+            TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-contacts-error-message", "", false);
+        };
+
+        TasksProfileController.prototype.clearForm = function () {
+            TasksProfile.__currentTasksProfile.clearFormErrors();
+            $("#i-ctrl-tasks-form-block :text").val("");
+            $("#i-ctrl-tasks-form-block textarea").val("");
+            $("#i-ctrl-tasks-form-cargo-type-select").val(0);
+            $("#i-ctrl-tasks-form-cargo-adr-type-select").val(0);
+            $("#i-ctrl-tasks-form-body-type-select").val(0);
+            $("#i-ctrl-tasks-form-packing-type-select").val(0);
+            $("#i-ctrl-tasks-form-loading-type-select").val(0);
+            $("#i-ctrl-tasks-form-unloading-type-select").val(0);
+            TasksProfile.__currentTasksProfile.onCity1Delete(null);
+            TasksProfile.__currentTasksProfile.onCity2Delete(null);
+        };
+
+        TasksProfileController.prototype.createAjaxCargoFromForm = function () {
+            var cargo = new AjaxCargo();
+            var errors = false;
+
+            // название
+            cargo.name = $("#i-ctrl-tasks-form-name-txt").val().trim();
+
+            if (1 > cargo.name.length) {
+                errors = true;
+                TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-name-error-message", "Введите название груза", true);
+            }
+
+            // тип груза
+            cargo.cargoTypeId = $("#i-ctrl-tasks-form-cargo-type-select").val();
+
+            // подробно
+            cargo.description = $("#i-ctrl-tasks-form-description-txt").val().trim();
+
+            // опасный груз
+            cargo.cargoADRTypeId = $("#i-ctrl-tasks-form-cargo-adr-type-select").val();
+
+            // тип кузова
+            cargo.bodyTypeId = $("#i-ctrl-tasks-form-body-type-select").val();
+
+            // вес
+            cargo.weight = parseInt($("#i-ctrl-tasks-form-weight-txt").val().trim());
+
+            // объём
+            cargo.value = parseInt($("#i-ctrl-tasks-form-value-txt").val().trim());
+
+            // упаковка
+            cargo.packingTypeId = $("#i-ctrl-tasks-form-packing-type-select").val();
+
+            // кол-во мест
+            cargo.numOfPackages = parseInt($("#i-ctrl-tasks-form-num-of-packages-txt").val().trim());
+
+            if (null == TasksProfile.__currentTasksProfile.cityTmpData1) {
+                errors = true;
+                TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-from-city-error-message", "Укажите город отправки груза", true);
+            } else {
+                cargo.city1 = TasksProfile.__currentTasksProfile.cityTmpData1.id;
+            }
+
+            // адрес 1
+            cargo.addr1 = $("#i-ctrl-tasks-form-from-address-txt").val().trim();
+
+            // погрузка 1
+            cargo.loadingTypeId1 = $("#i-ctrl-tasks-form-loading-type-select").val();
+
+            if (null == TasksProfile.__currentTasksProfile.cityTmpData2) {
+                errors = true;
+                TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-to-city-error-message", "Укажите город прибытия груза", true);
+            } else {
+                cargo.city2 = TasksProfile.__currentTasksProfile.cityTmpData2.id;
+            }
+
+            // адрес 2
+            cargo.addr2 = $("#i-ctrl-tasks-form-to-address-txt").val().trim();
+
+            // погрузка
+            cargo.loadingTypeId2 = $("#i-ctrl-tasks-form-unloading-type-select").val();
+
+            // дата готовности
+            cargo.readyDate = $("#i-ctrl-tasks-form-ready-date-txt").val().trim();
+
+            // стоимость
+            cargo.cost = parseInt($("#i-ctrl-tasks-form-cost-txt").val().trim());
+
+            // контакты
+            cargo.contacts = $("#i-ctrl-tasks-form-contacts-txt").val().trim();
+
+            return errors ? null : cargo;
         };
 
         TasksProfileController.prototype.onSubmitButtonClick = function (event) {
+            // чистим ошибки на форме
+            TasksProfile.__currentTasksProfile.clearFormErrors();
+
             // проверка данных
-            // отправка данных на сервер
+            var cargo = TasksProfile.__currentTasksProfile.createAjaxCargoFromForm();
+
+            if (null != cargo) {
+                // TODO отправка данных на сервер
+            }
         };
 
         TasksProfileController.prototype.onCancelButtonClick = function (event) {
             // очистка формы
-            // закрытие формы
+            TasksProfile.__currentTasksProfile.clearForm();
+            // TODO закрытие формы
         };
 
         TasksProfileController.prototype.onCity1Focus = function (event) {

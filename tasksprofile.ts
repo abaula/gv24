@@ -7,8 +7,44 @@
 module TasksProfile
 {
 
-    export class AjaxTasksData
+    export class AjaxCargo
     {
+        id: number;
+        name: string;
+        description: string;
+
+        cargoTypeId: number;
+        bodyTypeId: number;
+        cargoADRTypeId: number;
+
+        weight: number;
+        value: number;
+
+        packingTypeId: number;
+        numOfPackages: number;
+
+        city1: number;
+        addr1: string;
+        loadingTypeId1: number;
+
+        city2: number;
+        addr2: string;
+        loadingTypeId2: number;
+
+        distance: number;
+
+        readyDate: string;
+        cost: number;
+
+        contacts: string;
+
+
+    }
+
+
+    export class AjaxCargoList
+    {
+        cargo: AjaxCargo[]; 
     }
 
 
@@ -19,13 +55,13 @@ module TasksProfile
         application: Application.IApplication = null;
         parent: Application.IComponent = null
 
-        loadsData: AjaxTasksData = null;
+        loadsData: AjaxCargoList = null;
         errorData: ServerData.AjaxServerResponse = null;
 
-        public cityTmpData1: Application.CityData = null;
-        public cityTmpData2: Application.CityData = null;
-        public cityBound1: boolean = false;
-        public cityBound2: boolean = false;
+        cityTmpData1: Application.CityData = null;
+        cityTmpData2: Application.CityData = null;
+        cityBound1: boolean = false;
+        cityBound2: boolean = false;
 
         // вызовы от IApplication
         onLoad(app: Application.IApplication, parent: Application.IComponent, state: Application.IState): void
@@ -160,6 +196,7 @@ module TasksProfile
 
         queryData(): void
         {
+
             if (false == __currentTasksProfile.isComponentLoaded)
             {
                 __currentTasksProfile.isComponentLoaded = true;
@@ -195,6 +232,8 @@ module TasksProfile
                 opt.val(entry.id).text(entry.name);
                 select.append(opt);
             }
+
+            select.val(0);
         }
 
         drawCargoADRType(data: Dictionary.DictionaryEntry[]): void
@@ -208,6 +247,8 @@ module TasksProfile
                 opt.val(entry.id).text(entry.name);
                 select.append(opt);
             }
+
+            select.val(0);
         }
 
         drawBodyType(data: Dictionary.DictionaryEntry[]): void
@@ -221,6 +262,8 @@ module TasksProfile
                 opt.val(entry.id).text(entry.name);
                 select.append(opt);
             }
+
+            select.val(0);
         }
 
         drawPackingType(data: Dictionary.DictionaryEntry[]): void
@@ -234,6 +277,8 @@ module TasksProfile
                 opt.val(entry.id).text(entry.name);
                 select.append(opt);
             }
+
+            select.val(0);
         }
 
         drawLoadingType(data: Dictionary.DictionaryEntry[]): void
@@ -247,6 +292,8 @@ module TasksProfile
                 opt.val(entry.id).text(entry.name);
                 select.append(opt);
             }
+
+            select.val(0);
         }
 
         drawUnloadingType(data: Dictionary.DictionaryEntry[]): void
@@ -260,21 +307,157 @@ module TasksProfile
                 opt.val(entry.id).text(entry.name);
                 select.append(opt);
             }
+
+            select.val(0);
+        }
+
+        clearFormErrors(): void
+        {
+            __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-name-error-message", "", false);
+            __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-cargo-type-error-message", "", false);
+            __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-description-error-message", "", false);
+            __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-cargo-adr-type-error-message", "", false);
+            __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-body-type-error-message", "", false);
+            __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-weight-error-message", "", false);
+            __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-value-error-message", "", false);
+            __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-packing-type-error-message", "", false);
+            __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-num-of-packages-error-message", "", false);
+            __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-from-city-error-message", "", false);
+            __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-from-address-error-message", "", false);
+            __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-loading-type-error-message", "", false);
+            __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-to-city-error-message", "", false);
+            __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-to-address-error-message", "", false);
+            __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-unloading-type-error-message", "", false);
+            __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-ready-date-error-message", "", false);
+            __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-cost-error-message", "", false);
+            __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-contacts-error-message", "", false);
+        }
+
+        clearForm(): void
+        {
+            __currentTasksProfile.clearFormErrors();
+            $("#i-ctrl-tasks-form-block :text").val("");
+            $("#i-ctrl-tasks-form-block textarea").val("");
+            $("#i-ctrl-tasks-form-cargo-type-select").val(0);
+            $("#i-ctrl-tasks-form-cargo-adr-type-select").val(0);
+            $("#i-ctrl-tasks-form-body-type-select").val(0);
+            $("#i-ctrl-tasks-form-packing-type-select").val(0);
+            $("#i-ctrl-tasks-form-loading-type-select").val(0);
+            $("#i-ctrl-tasks-form-unloading-type-select").val(0);
+            __currentTasksProfile.onCity1Delete(null);
+            __currentTasksProfile.onCity2Delete(null);
+        }
+
+        createAjaxCargoFromForm(): AjaxCargo
+        {
+            var cargo: AjaxCargo = new AjaxCargo();
+            var errors: boolean = false;
+
+            // название
+            cargo.name = $("#i-ctrl-tasks-form-name-txt").val().trim();
+
+            if (1 > cargo.name.length)
+            {
+                errors = true;
+                __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-name-error-message", "Введите название груза", true);
+            }
+
+
+            // тип груза
+            cargo.cargoTypeId = $("#i-ctrl-tasks-form-cargo-type-select").val();
+
+            // подробно
+            cargo.description = $("#i-ctrl-tasks-form-description-txt").val().trim();
+
+            // опасный груз
+            cargo.cargoADRTypeId = $("#i-ctrl-tasks-form-cargo-adr-type-select").val();
+
+            // тип кузова
+            cargo.bodyTypeId = $("#i-ctrl-tasks-form-body-type-select").val();
+
+            // вес
+            cargo.weight = parseInt($("#i-ctrl-tasks-form-weight-txt").val().trim());
+
+            // объём
+            cargo.value = parseInt($("#i-ctrl-tasks-form-value-txt").val().trim());
+
+            // упаковка 
+            cargo.packingTypeId = $("#i-ctrl-tasks-form-packing-type-select").val();
+
+            // кол-во мест
+            cargo.numOfPackages = parseInt($("#i-ctrl-tasks-form-num-of-packages-txt").val().trim());
+
+            // откуда
+            if (null == __currentTasksProfile.cityTmpData1)
+            {
+                errors = true;
+                __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-from-city-error-message", "Укажите город отправки груза", true);
+            }
+            else
+            {
+                cargo.city1 = __currentTasksProfile.cityTmpData1.id;
+            }
+
+            // адрес 1
+            cargo.addr1 = $("#i-ctrl-tasks-form-from-address-txt").val().trim();
+
+            // погрузка 1
+            cargo.loadingTypeId1 = $("#i-ctrl-tasks-form-loading-type-select").val();
+
+            // куда 
+            if (null == __currentTasksProfile.cityTmpData2)
+            {
+                errors = true;
+                __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-to-city-error-message", "Укажите город прибытия груза", true);
+            }
+            else
+            {
+                cargo.city2 = __currentTasksProfile.cityTmpData2.id;
+            }
+
+            // адрес 2
+            cargo.addr2 = $("#i-ctrl-tasks-form-to-address-txt").val().trim();
+
+            // погрузка
+            cargo.loadingTypeId2 = $("#i-ctrl-tasks-form-unloading-type-select").val();
+
+            // дата готовности
+            cargo.readyDate = $("#i-ctrl-tasks-form-ready-date-txt").val().trim();
+
+            // стоимость
+            cargo.cost = parseInt($("#i-ctrl-tasks-form-cost-txt").val().trim());
+
+            // контакты
+            cargo.contacts = $("#i-ctrl-tasks-form-contacts-txt").val().trim();
+
+
+
+            return errors ? null : cargo;
         }
 
         onSubmitButtonClick(event: JQueryEventObject): void
         {
+            // чистим ошибки на форме
+            __currentTasksProfile.clearFormErrors();
+
             // проверка данных
+            var cargo: AjaxCargo = __currentTasksProfile.createAjaxCargoFromForm();
 
-            // отправка данных на сервер
+            if (null != cargo)
+            {
+                // TODO отправка данных на сервер
 
+
+            }
         }
 
         onCancelButtonClick(event: JQueryEventObject): void
         {
             // очистка формы
+            __currentTasksProfile.clearForm();
 
-            // закрытие формы
+
+            // TODO закрытие формы
         }
 
         onCity1Focus(event: JQueryEventObject): void
