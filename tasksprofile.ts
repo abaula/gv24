@@ -366,23 +366,61 @@ module TasksProfile
             // тип груза
             cargo.cargoTypeId = $("#i-ctrl-tasks-form-cargo-type-select").val();
 
+            if (1 > cargo.cargoTypeId)
+            {
+                errors = true;
+                __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-cargo-type-error-message", "Укажите тип груза", true);
+            }
+
             // подробно
             cargo.description = $("#i-ctrl-tasks-form-description-txt").val().trim();
 
             // опасный груз
             cargo.cargoADRTypeId = $("#i-ctrl-tasks-form-cargo-adr-type-select").val();
 
+            if (1 > cargo.cargoADRTypeId)
+            {
+                errors = true;
+                __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-cargo-adr-type-error-message", "Укажите класс опасного груза", true);
+            }
+              
             // тип кузова
             cargo.bodyTypeId = $("#i-ctrl-tasks-form-body-type-select").val();
+
+            if (1 > cargo.bodyTypeId)
+            {
+                errors = true;
+                __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-body-type-error-message", "Укажите тип кузова", true);
+            }
+                
 
             // вес
             cargo.weight = parseInt($("#i-ctrl-tasks-form-weight-txt").val().trim());
 
+            if (isNaN(cargo.weight) || 1 > cargo.weight)
+            {
+                errors = true;
+                __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-weight-error-message", "Укажите вес груза", true);
+            }
+
             // объём
             cargo.value = parseInt($("#i-ctrl-tasks-form-value-txt").val().trim());
 
+            if (isNaN(cargo.value) || 1 > cargo.value)
+            {
+                errors = true;
+                __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-value-error-message", "Укажите объём груза", true);
+            }
+
             // упаковка 
             cargo.packingTypeId = $("#i-ctrl-tasks-form-packing-type-select").val();
+
+            if (1 > cargo.packingTypeId)
+            {
+                errors = true;
+                __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-packing-type-error-message", "Укажите тип упаковки", true);
+            }
+
 
             // кол-во мест
             cargo.numOfPackages = parseInt($("#i-ctrl-tasks-form-num-of-packages-txt").val().trim());
@@ -404,6 +442,12 @@ module TasksProfile
             // погрузка 1
             cargo.loadingTypeId1 = $("#i-ctrl-tasks-form-loading-type-select").val();
 
+            if (1 > cargo.loadingTypeId1)
+            {
+                errors = true;
+                __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-loading-type-error-message", "Укажите способ погрузки", true);
+            }
+
             // куда 
             if (null == __currentTasksProfile.cityTmpData2)
             {
@@ -418,14 +462,33 @@ module TasksProfile
             // адрес 2
             cargo.addr2 = $("#i-ctrl-tasks-form-to-address-txt").val().trim();
 
-            // погрузка
+            // разгрузка
             cargo.loadingTypeId2 = $("#i-ctrl-tasks-form-unloading-type-select").val();
+
+            if (1 > cargo.loadingTypeId2)
+            {
+                errors = true;
+                __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-unloading-type-error-message", "Укажите способ разгрузки", true);
+            }
+
 
             // дата готовности
             cargo.readyDate = $("#i-ctrl-tasks-form-ready-date-txt").val().trim();
 
+            if (false == Validators.Validator.prototype.validateDate(cargo.readyDate))
+            {
+                errors = true;
+                __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-ready-date-error-message", "Укажите дату готовности груза", true);
+            }
+
             // стоимость
             cargo.cost = parseInt($("#i-ctrl-tasks-form-cost-txt").val().trim());
+
+            if (isNaN(cargo.cost) || 1 > cargo.cost)
+            {
+                errors = true;
+                __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-cost-error-message", "Укажите стоимость за перевозку", true);
+            }
 
             // контакты
             cargo.contacts = $("#i-ctrl-tasks-form-contacts-txt").val().trim();
@@ -434,6 +497,7 @@ module TasksProfile
 
             return errors ? null : cargo;
         }
+
 
         onSubmitButtonClick(event: JQueryEventObject): void
         {

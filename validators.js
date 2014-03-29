@@ -50,6 +50,34 @@ var Validators;
             return false;
         };
 
+        Validator.prototype.validateDate = function (date) {
+            var reg = new RegExp("[0-9]{2}-[0-9]{2}-[0-9]{4}");
+
+            if (reg.test(date)) {
+                var dates = date.split("-");
+                var day = parseInt(dates[0]);
+                var month = parseInt(dates[1]);
+                var year = parseInt(dates[2]);
+
+                if (month < 1 || month > 12)
+                    return false;
+else if (day < 1 || day > 31)
+                    return false;
+else if ((month == 4 || month == 6 || month == 9 || month == 11) && day == 31)
+                    return false;
+else if (month == 2) {
+                    var isleap = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
+
+                    if (day > 29 || (day == 29 && !isleap))
+                        return false;
+                }
+
+                return true;
+            }
+
+            return false;
+        };
+
         Validator.prototype.getPassStrength = function (password) {
             var strength = 0;
 

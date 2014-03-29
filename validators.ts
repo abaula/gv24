@@ -71,6 +71,37 @@ module Validators
             return false;
         }
 
+        validateDate(date: string): boolean
+        {
+            var reg: RegExp = new RegExp("[0-9]{2}-[0-9]{2}-[0-9]{4}");
+
+            if (reg.test(date))
+            {
+                var dates: string[] = date.split("-");
+                var day: number = parseInt(dates[0]);
+                var month: number = parseInt(dates[1]);
+                var year: number = parseInt(dates[2]);
+
+                if (month < 1 || month > 12)
+                    return false;
+                else if (day < 1 || day > 31)
+                    return false;
+                else if ((month == 4 || month == 6 || month == 9 || month == 11) && day == 31)
+                    return false;
+                else if (month == 2) 
+                {
+                    var isleap: boolean = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
+
+                    if (day > 29 || (day == 29 && !isleap))
+                        return false;
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
         getPassStrength(password: string): number
         {
             var strength: number = 0;
