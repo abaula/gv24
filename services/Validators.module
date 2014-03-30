@@ -44,4 +44,18 @@ class Validators
 
         return $errors;
     }
+
+    public static function convertRusDate2MySqlDate($rusDate)
+    {
+        $arr = explode('-', $rusDate);
+        $arr = array_reverse($arr);
+        return implode('-', $arr);
+    }
+
+    public static function convertMySqlDate2RusDate($sqlDate)
+    {
+        $arr = explode('-', $sqlDate);
+        $arr = array_reverse($arr);
+        return implode('-', $arr);
+    }
 }

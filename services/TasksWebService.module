@@ -10,7 +10,7 @@
 require_once("WebServBase.module");
 require_once("Headers.module");
 
-
+/*
 class City
 {
     public $id;
@@ -33,6 +33,8 @@ class City
     }
 
 }
+
+*/
 
 /*
 class Task
@@ -161,8 +163,8 @@ class TasksWebService extends WebServBase
             else
             {
                 $sql = 'SELECT C.id, C.company_id, C.name, C.description, C.cargo_type_id, C.body_type_id, C.cargo_adr_type_id, C.weight, C.value, C.packing_type_id, C.num_of_packages,
-                          G1.id AS cityId1, G1.name AS city1, G1.district AS district1, G1.region AS region1, G1.postcode AS postcode1, G1.longitude AS longitude1, G1.latitude AS latitude1,
-                          C.addr1, C.loading_type_id1, G2.id AS cityId2, G2.name AS city2, G2.district AS district2, G2.region AS region2, G2.postcode AS postcode2, G2.longitude AS longitude2,
+                          G1.id AS cityId1, G1.name AS city1, G1.district AS district1, G1.region AS region1, G1.postcode AS postcode1, G1.longitude AS longitude1, G1.latitude AS latitude1, G1.fullname AS cityfullname1, G1.suffix AS suffix1, G1.cladr_code AS cladrcode1,
+                          C.addr1, C.loading_type_id1, G2.id AS cityId2, G2.name AS city2, G2.district AS district2, G2.region AS region2, G2.postcode AS postcode2, G2.longitude AS longitude2, G2.fullname AS cityfullname2, G2.suffix AS suffix2, G2.cladr_code AS cladrcode2,
                           G2.latitude AS latitude2, C.addr2, C.loading_type_id2, C.distance, C.ready_date, C.cost, C.contacts
                         FROM cargo C
                           inner join geocities G1
@@ -183,27 +185,30 @@ class TasksWebService extends WebServBase
 
                     while($row = $db->fetch($result))
                     {
-                        $city1 = new City
+                        $city1 = new CityData
                         (
-                            $row['cityId1'], $row['city1'],
-                            $row['district1'], $row['region1'], $row['postcode1'],
-                            $row['latitude1'] / 10000000, $row['longitude1'] / 10000000
+                            $row['cityId1'],
+                            $row['latitude1'] / 10000000, $row['longitude1'] / 10000000,
+                            $row['city1'], $row['cityfullname1'], $row['district1'], $row['region1'],
+                            $row['suffix1'],  $row['cladrcode1'], $row['postcode1']
                         );
 
-                        $city2 = new City
+                        $city2 = new CityData
                         (
-                            $row['cityId2'], $row['city2'],
-                            $row['district2'], $row['region2'], $row['postcode2'],
-                            $row['latitude2'] / 10000000, $row['longitude2'] / 10000000
+                            $row['cityId2'],
+                            $row['latitude2'] / 10000000, $row['longitude2'] / 10000000,
+                            $row['city2'], $row['cityfullname2'], $row['district2'], $row['region2'],
+                            $row['suffix2'],  $row['cladrcode2'], $row['postcode2']
                         );
 
+                        $rusDate = Validators::convertMySqlDate2RusDate($row['ready_date']);
 
                         $entry = new AjaxCargo
                         (
                             $row['id'], $row['name'], $row['description'], $row['cargo_type_id'], $row['body_type_id'], $row['cargo_adr_type_id'],
                             $row['value'], $row['weight'], $row['num_of_packages'], $row['packing_type_id'],
                             $city1, $row['addr1'], $row['loading_type_id1'], $city2, $row['addr2'], $row['loading_type_id2'],
-                            $row['distance'], $row['ready_date'], $row['contacts'], $row['cost']
+                            $row['distance'], $rusDate, $row['contacts'], $row['cost']
                         );
 
 
@@ -292,6 +297,8 @@ class TasksWebService extends WebServBase
                                             ?i, ?s, ?i,
                                             ?i, ?s, ?i, ?s)';
 
+                    $rusDate = Validators::convertRusDate2MySqlDate($data->readyDate);
+
                     $result = $db->query($sql,
                                             $orgId, $data->name, $data->description,
                                             $data->cargoTypeId, $data->bodyTypeId, $data->cargoADRTypeId,
@@ -299,7 +306,7 @@ class TasksWebService extends WebServBase
                                             $data->packingTypeId, $data->numOfPackages,
                                             $data->city1->id, $data->addr1, $data->loadingTypeId1,
                                             $data->city2->id, $data->addr2, $data->loadingTypeId2,
-                                            $data->distance, $data->readyDate, $data->cost, $data->contacts
+                                            $data->distance, $rusDate, $data->cost, $data->contacts
                                         );
 
                     if(false == $result)

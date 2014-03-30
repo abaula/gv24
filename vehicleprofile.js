@@ -1,4 +1,4 @@
-///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
+﻿///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
 ///<reference path="ServerAjaxData.d.ts"/>
 ///<reference path="application.ts"/>
 ///<reference path="profile.ts"/>
@@ -160,15 +160,15 @@ var VehicleProfile;
         VehicleProfileController.prototype.clearVehicleList = function () {
             VehicleProfile.__currentVehProfile.currentDeleteId = 0;
 
-            // удаляем все строки таблицы
-            $("#i-ctrl-vehicle-table > tbody > tr").remove();
-
             // удаляем все обработчики событий
             $("#i-ctrl-vehicle-table span.c-ctrl-vehicle-table-cell-action-edit").unbind(VehicleProfile.__currentVehProfile.onVehicleEditClick);
             $("#i-ctrl-vehicle-table span.c-ctrl-vehicle-table-cell-action-delete").unbind(VehicleProfile.__currentVehProfile.onVehicleDeleteClick);
 
             $("#i-ctrl-vehicle-table button.c-ctrl-vehicle-table-row-delete-confirm-button").unbind(VehicleProfile.__currentVehProfile.onVehicleDeleteConfirmClick);
             $("#i-ctrl-vehicle-table button.c-ctrl-vehicle-table-row-delete-cancel-button").unbind(VehicleProfile.__currentVehProfile.onVehicleDeleteCancelClick);
+
+            // удаляем все строки таблицы
+            $("#i-ctrl-vehicle-table > tbody > tr").remove();
         };
 
         VehicleProfileController.prototype.drawVehicleList = function () {

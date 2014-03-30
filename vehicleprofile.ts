@@ -195,14 +195,15 @@ module VehicleProfile
         {
             __currentVehProfile.currentDeleteId = 0;
 
-            // удаляем все строки таблицы
-            $("#i-ctrl-vehicle-table > tbody > tr").remove();
             // удаляем все обработчики событий
             $("#i-ctrl-vehicle-table span.c-ctrl-vehicle-table-cell-action-edit").unbind(__currentVehProfile.onVehicleEditClick);
             $("#i-ctrl-vehicle-table span.c-ctrl-vehicle-table-cell-action-delete").unbind(__currentVehProfile.onVehicleDeleteClick);
 
             $("#i-ctrl-vehicle-table button.c-ctrl-vehicle-table-row-delete-confirm-button").unbind(__currentVehProfile.onVehicleDeleteConfirmClick);
             $("#i-ctrl-vehicle-table button.c-ctrl-vehicle-table-row-delete-cancel-button").unbind(__currentVehProfile.onVehicleDeleteCancelClick);
+
+            // удаляем все строки таблицы
+            $("#i-ctrl-vehicle-table > tbody > tr").remove();
         }
 
         drawVehicleList(): void

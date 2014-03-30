@@ -27,19 +27,19 @@
     width: 200pt;
 }
 
-#i-ctrl-tasks-form-block div.c-page-property-key-block {
+#i-ctrl-tasks-edit-form div.c-page-property-key-block {
     width: 110pt;
 }
 
-#i-ctrl-tasks-form-block input {
+#i-ctrl-tasks-edit-form input {
     width: 200pt;
 }
 
-#i-ctrl-tasks-form-block select {
+#i-ctrl-tasks-edit-form select {
     width: 210pt;
 }
 
-#i-ctrl-tasks-form-block textarea {
+#i-ctrl-tasks-edit-form textarea {
     height: 40pt;
     width: 200pt;
     resize: none;
@@ -194,3 +194,65 @@
 .c-ctrl-vehicle-table-row-delete-cancel-button {
 }
 
+
+
+
+.c-ctrl-tasks-table {
+    border-collapse: collapse;
+    font-size: 8pt;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.c-ctrl-tasks-table > TBODY {
+    background-color: #ffffff;
+}
+
+.c-ctrl-tasks-table > THEAD {
+    background-color:#73aeea;
+}
+
+.c-ctrl-tasks-table TH {
+    padding: 2px;
+    box-shadow: inset 1px 1px 4px #61a6ed;
+    border: 1px solid #336699;
+    color: #ffffff;
+    font-weight: normal;
+}
+
+.c-ctrl-tasks-table TD {
+    padding: 4px;
+    border: 1px solid #c0c0c0;
+}
+
+
+
+
+.c-ctrl-tasks-table-cell-action {
+}
+
+    .c-ctrl-tasks-table-cell-action span {
+        margin-right: 10px;
+        cursor: pointer;
+        font-size: 11pt;
+    }
+
+.c-ctrl-tasks-table-row-delete-confirm-message {
+    display: block;
+    text-align: center;
+    font-size: 10pt;
+}
+
+.c-ctrl-tasks-table-row-delete-confirm-block {
+}
+
+.c-ctrl-tasks-table-row-delete-conirm-button-block {
+    display: block;
+    text-align: center;
+}
+
+.c-ctrl-tasks-table-row-delete-confirm-button {
+}
+
+.c-ctrl-tasks-table-row-delete-cancel-button {
+}

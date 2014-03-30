@@ -23,8 +23,9 @@ var TasksProfile;
         function TasksProfileController() {
             this.application = null;
             this.parent = null;
-            this.loadsData = null;
+            this.cargoData = null;
             this.errorData = null;
+            this.currentCargo = null;
             this.cityTmpData1 = null;
             this.cityTmpData2 = null;
             this.cityBound1 = false;
@@ -45,6 +46,8 @@ var TasksProfile;
 
             $("#i-ctrl-tasks-form-from-city-delete-btn").click(TasksProfile.__currentTasksProfile.onCity1Delete);
             $("#i-ctrl-tasks-form-to-city-delete-btn").click(TasksProfile.__currentTasksProfile.onCity2Delete);
+
+            $("#i-ctrl-tasks-list-add-btn").click(TasksProfile.__currentTasksProfile.onAddButtonClick);
 
             // получаем данные справочников
             Dictionary.__currDictionary.queryDictData("cargotype");
@@ -108,6 +111,43 @@ var TasksProfile;
             TasksProfile.__currentTasksProfile.applyCityData();
         };
 
+        TasksProfileController.prototype.onAddButtonClick = function (event) {
+            TasksProfile.__currentTasksProfile.showEditForm(true);
+        };
+
+        TasksProfileController.prototype.showEditForm = function (visible) {
+            if (visible) {
+                if (null != TasksProfile.__currentTasksProfile.currentCargo) {
+                    // TODO заполняем форму данными
+                    /*
+                    var v: AjaxVehicle = __currentVehProfile.currentVehicle;
+                    $("#i-ctrl-vehicle-form-name-txt").val(v.name);
+                    $("#i-ctrl-vehicle-form-type-select").val(v.typeId);
+                    $("#i-ctrl-vehicle-form-max-weight-txt").val(v.maxWeight);
+                    $("#i-ctrl-vehicle-form-max-value-txt").val(v.maxValue);
+                    $("#i-ctrl-vehicle-form-expences-txt").val(v.expences);
+                    $("#i-ctrl-vehicle-form-tax-weight-txt").val(v.taxWeight);
+                    $("#i-ctrl-vehicle-form-tax-value-txt").val(v.taxValue);
+                    */
+                }
+            } else {
+                TasksProfile.__currentTasksProfile.currentCargo = null;
+                TasksProfile.__currentTasksProfile.clearForm();
+            }
+
+            TasksProfile.__currentTasksProfile.switchFormVisibility(visible);
+        };
+
+        TasksProfileController.prototype.switchFormVisibility = function (visible) {
+            if (visible) {
+                $("#i-ctrl-tasks-edit-form-container").removeClass("hidden").addClass("block");
+                $("#i-ctrl-tasks-list-container").removeClass("block").addClass("hidden");
+            } else {
+                $("#i-ctrl-tasks-edit-form-container").removeClass("block").addClass("hidden");
+                $("#i-ctrl-tasks-list-container").removeClass("hidden").addClass("block");
+            }
+        };
+
         TasksProfileController.prototype.applyCityData = function () {
             var city = null;
             var fullName = "";
@@ -131,14 +171,48 @@ var TasksProfile;
 
         // обновление данных с сервера
         TasksProfileController.prototype.uploadData = function () {
-            TasksProfile.__currentTasksProfile.loadsData = null;
+            TasksProfile.__currentTasksProfile.cargoData = null;
             TasksProfile.__currentTasksProfile.errorData = null;
-
-            //__currentLoadsProfile.getData();
-            TasksProfile.__currentTasksProfile.queryData();
+            TasksProfile.__currentTasksProfile.getData();
+            //__currentTasksProfile.queryData();
         };
 
         TasksProfileController.prototype.queryData = function () {
+            if (null == TasksProfile.__currentTasksProfile.cargoData && null == TasksProfile.__currentTasksProfile.errorData) {
+                TasksProfile.__currentTasksProfile.getData();
+            } else if (null != TasksProfile.__currentTasksProfile.errorData) {
+                TasksProfile.__currentTasksProfile.parent.dataError(TasksProfile.__currentTasksProfile, TasksProfile.__currentTasksProfile.errorData);
+            } else {
+                TasksProfile.__currentTasksProfile.parent.dataReady(TasksProfile.__currentTasksProfile);
+            }
+        };
+
+        TasksProfileController.prototype.getData = function () {
+            $.ajax({
+                type: "GET",
+                url: TasksProfile.__currentTasksProfile.application.getFullUri("api/tasks"),
+                success: TasksProfile.__currentTasksProfile.onAjaxGetTasksDataSuccess,
+                error: TasksProfile.__currentTasksProfile.onAjaxGetTasksDataError
+            });
+        };
+
+        TasksProfileController.prototype.onAjaxGetTasksDataError = function (jqXHR, status, message) {
+            //window.console.log("_onAjaxError");
+            TasksProfile.__currentTasksProfile.errorData = JSON.parse(jqXHR.responseText);
+            TasksProfile.__currentTasksProfile.parent.dataError(TasksProfile.__currentTasksProfile, TasksProfile.__currentTasksProfile.errorData);
+
+            if (2 == parseInt(TasksProfile.__currentTasksProfile.errorData.code))
+                TasksProfile.__currentTasksProfile.application.checkAuthStatus();
+        };
+
+        TasksProfileController.prototype.onAjaxGetTasksDataSuccess = function (data, status, jqXHR) {
+            //window.console.log("_onAjaxGetAccountDataSuccess");
+            // загрузка компонента произведена успешно
+            TasksProfile.__currentTasksProfile.cargoData = data.data;
+
+            // помещаем данные в контролы
+            TasksProfile.__currentTasksProfile.drawTasksList();
+
             if (false == TasksProfile.__currentTasksProfile.isComponentLoaded) {
                 TasksProfile.__currentTasksProfile.isComponentLoaded = true;
                 TasksProfile.__currentTasksProfile.parent.dataLoaded(TasksProfile.__currentTasksProfile);
@@ -147,13 +221,68 @@ var TasksProfile;
             }
         };
 
-        TasksProfileController.prototype.getData = function () {
-            /*$.ajax({
-            type: "GET",
-            url: __currentOrgProfile.application.getFullUri("api/org"),
-            success: __currentOrgProfile.onAjaxGetOrgDataSuccess,
-            error: __currentOrgProfile.onAjaxGetOrgDataError
-            });*/
+        TasksProfileController.prototype.drawTasksList = function () {
+            TasksProfile.__currentTasksProfile.clearTasksList();
+            /*
+            var tbody: JQuery = $("#i-ctrl-vehicle-table > tbody");
+            
+            if (1 > __currentVehProfile.vehicleData.vehicles.length)
+            {
+            var rowEmpty: JQuery = $("#i-ctrl-vehicle-table-row-empty-template").clone();
+            rowEmpty.removeAttr("id").removeClass("hidden").appendTo(tbody);
+            }
+            else
+            {
+            var rowTempl: JQuery = $("#i-ctrl-vehicle-table-row-template");
+            
+            for (var i: number = 0; i < __currentVehProfile.vehicleData.vehicles.length; i++)
+            {
+            var vehicle: AjaxVehicle = __currentVehProfile.vehicleData.vehicles[i];
+            var row: JQuery = rowTempl.clone();
+            row.removeAttr("id").removeClass("hidden");
+            
+            row.attr("data-id", vehicle.id);
+            $("td.c-ctrl-vehicle-table-cell-num", row).text(vehicle.id);
+            $("td.c-ctrl-vehicle-table-cell-name", row).text(vehicle.name);
+            
+            if (null != Dictionary.__currDictionary.transportTypes)
+            {
+            var typeName: string = Dictionary.__currDictionary.getNameById("transporttype", vehicle.typeId);
+            $("td.c-ctrl-vehicle-table-cell-type", row).text(typeName);
+            }
+            
+            $("td.c-ctrl-vehicle-table-cell-max-weight", row).text(vehicle.maxWeight);
+            $("td.c-ctrl-vehicle-table-cell-max-value", row).text(vehicle.maxValue);
+            $("td.c-ctrl-vehicle-table-cell-expences", row).text(vehicle.expences);
+            $("td.c-ctrl-vehicle-table-cell-tax-weight", row).text(vehicle.taxWeight);
+            $("td.c-ctrl-vehicle-table-cell-tax-value", row).text(vehicle.taxValue);
+            
+            // привязываем обработчики на кнопки
+            $("td.c-ctrl-vehicle-table-cell-action > span.c-ctrl-vehicle-table-cell-action-edit", row).attr("data-id", vehicle.id).click(__currentVehProfile.onVehicleEditClick);
+            $("td.c-ctrl-vehicle-table-cell-action > span.c-ctrl-vehicle-table-cell-action-delete", row).attr("data-id", vehicle.id).click(__currentVehProfile.onVehicleDeleteClick);
+            
+            row.appendTo(tbody);
+            }
+            
+            }
+            
+            */
+        };
+
+        TasksProfileController.prototype.clearTasksList = function () {
+            /*
+            __currentVehProfile.currentDeleteId = 0;
+            
+            // удаляем все обработчики событий
+            $("#i-ctrl-vehicle-table span.c-ctrl-vehicle-table-cell-action-edit").unbind(__currentVehProfile.onVehicleEditClick);
+            $("#i-ctrl-vehicle-table span.c-ctrl-vehicle-table-cell-action-delete").unbind(__currentVehProfile.onVehicleDeleteClick);
+            
+            $("#i-ctrl-vehicle-table button.c-ctrl-vehicle-table-row-delete-confirm-button").unbind(__currentVehProfile.onVehicleDeleteConfirmClick);
+            $("#i-ctrl-vehicle-table button.c-ctrl-vehicle-table-row-delete-cancel-button").unbind(__currentVehProfile.onVehicleDeleteCancelClick);
+            
+            // удаляем все строки таблицы
+            $("#i-ctrl-vehicle-table > tbody > tr").remove();
+            */
         };
 
         TasksProfileController.prototype.drawCargoType = function (data) {
@@ -257,8 +386,8 @@ var TasksProfile;
 
         TasksProfileController.prototype.clearForm = function () {
             TasksProfile.__currentTasksProfile.clearFormErrors();
-            $("#i-ctrl-tasks-form-block :text").val("");
-            $("#i-ctrl-tasks-form-block textarea").val("");
+            $("#i-ctrl-tasks-edit-form :text").val("");
+            $("#i-ctrl-tasks-edit-form textarea").val("");
             $("#i-ctrl-tasks-form-cargo-type-select").val(0);
             $("#i-ctrl-tasks-form-cargo-adr-type-select").val(0);
             $("#i-ctrl-tasks-form-body-type-select").val(0);
@@ -339,7 +468,7 @@ var TasksProfile;
                 errors = true;
                 TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-from-city-error-message", "Укажите город отправки груза", true);
             } else {
-                cargo.city1 = TasksProfile.__currentTasksProfile.cityTmpData1.id;
+                cargo.city1 = TasksProfile.__currentTasksProfile.cityTmpData1;
             }
 
             // адрес 1
@@ -357,7 +486,7 @@ var TasksProfile;
                 errors = true;
                 TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-to-city-error-message", "Укажите город прибытия груза", true);
             } else {
-                cargo.city2 = TasksProfile.__currentTasksProfile.cityTmpData2.id;
+                cargo.city2 = TasksProfile.__currentTasksProfile.cityTmpData2;
             }
 
             // адрес 2
@@ -401,14 +530,65 @@ var TasksProfile;
             var cargo = TasksProfile.__currentTasksProfile.createAjaxCargoFromForm();
 
             if (null != cargo) {
-                // TODO отправка данных на сервер
+                // отправка данных на сервер
+                TasksProfile.__currentTasksProfile.application.showOverlay("#i-ctrl-tasks-form-overlay", "#i-ctrl-tasks-edit-form");
+
+                if (null == TasksProfile.__currentTasksProfile.currentCargo)
+                    TasksProfile.__currentTasksProfile.createNewCargo(cargo);
+else
+                    TasksProfile.__currentTasksProfile.updateCargo(cargo);
             }
         };
 
+        TasksProfileController.prototype.createNewCargo = function (data) {
+            $.ajax({
+                type: "POST",
+                url: TasksProfile.__currentTasksProfile.application.getFullUri("api/tasks"),
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                dataType: "json",
+                success: TasksProfile.__currentTasksProfile.onAjaxCreateTasksSuccess,
+                error: TasksProfile.__currentTasksProfile.onAjaxCreateTasksError
+            });
+        };
+
+        TasksProfileController.prototype.onAjaxCreateTasksError = function (jqXHR, status, message) {
+            TasksProfile.__currentTasksProfile.application.hideOverlay("#i-ctrl-tasks-form-overlay");
+
+            var response = JSON.parse(jqXHR.responseText);
+            var data = response.data;
+
+            var errCode = response.code.split(";");
+            var errMsg = response.userMessage.split(";");
+
+            for (var i = 0; i < errCode.length; i++) {
+                var code = parseInt(errCode[i]);
+
+                if (2 == code)
+                    TasksProfile.__currentTasksProfile.application.checkAuthStatus();
+else
+                    TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-name-error-message", errMsg[i], true);
+            }
+        };
+
+        TasksProfileController.prototype.onAjaxCreateTasksSuccess = function (data, status, jqXHR) {
+            TasksProfile.__currentTasksProfile.application.hideOverlay("#i-ctrl-tasks-form-overlay");
+
+            var vehicle = data.data;
+            // запоминаем данные о задании
+            //__currentVehProfile.addVehicleToList(vehicle);
+            // обновляем таблицу
+            //__currentVehProfile.drawVehicleList();
+            // прячем форму
+            //__currentVehProfile.showEditForm(false);
+        };
+
+        TasksProfileController.prototype.updateCargo = function (data) {
+        };
+
         TasksProfileController.prototype.onCancelButtonClick = function (event) {
-            // очистка формы
-            TasksProfile.__currentTasksProfile.clearForm();
-            // TODO закрытие формы
+            // закрытие формы
+            TasksProfile.__currentTasksProfile.showEditForm(false);
         };
 
         TasksProfileController.prototype.onCity1Focus = function (event) {

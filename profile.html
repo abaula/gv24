@@ -564,7 +564,7 @@
                         <div id="i-ctrl-tasks-all" class="c-page-lv-view-container">
 
 
-                            <div id="i-ctrl-tasks-all-container" class="block">
+                            <div id="i-ctrl-tasks-edit-form-container" class="hidden">
 
                                 <!-- Информационный блок -->
                                 <div class="c-page-info-message-block">
@@ -578,7 +578,7 @@
                                 <!-- /Информационный блок -->  
 
 
-                                <div id="i-ctrl-tasks-form-block" class="c-page-form-outer-block" >
+                                <div id="i-ctrl-tasks-edit-form" class="c-page-form-outer-block" >
                                     <div class="c-page-form-block">
                                         <div class="c-page-property-set-block">
                                             <div class="c-page-property-key-block">Название:</div>
@@ -715,7 +715,7 @@
                                 
                             </div>
 
-                            <div id="Div12" class="hidden">
+                            <div id="i-ctrl-tasks-list-container" class="block">
 
                                 <!-- Информационный блок -->
                                 <div class="c-page-info-message-block">
@@ -728,48 +728,55 @@
                                 </div>
                                 <!-- /Информационный блок -->
 
-                                <div id="Div13" class="c-page-form-outer-block" >
+                                <div id="i-ctrl-tasks-table-block" class="c-page-form-outer-block" >
 
                                     <div class="с-page-button-set-block">
-                                        <button id="Button4"><div class="fa fa-plus"></div>Добавить</button>
+                                        <button id="i-ctrl-tasks-list-add-btn"><div class="fa fa-plus"></div>Добавить</button>
                                     </div>
 
-                                    <table id="Table1" class="c-ctrl-vehicle-table">                                    
+                                    <table id="i-ctrl-tasks-table" class="c-ctrl-tasks-table">                                    
                                         <thead>
                                            <tr>
                                                <th>№</th>
                                                <th>Название</th>
-                                               <th>Тип</th>
-                                               <th>Макс. вес,<br/>кг</th>
-                                               <th>Макс объём,<br/>м<sup>3</sup></th>
-                                               <th>Затраты,<br/>руб/км</th>
-                                               <th>Свой тариф за кг,<br/>руб/100 км</th>
-                                               <th>Свой тариф за м<sup>3</sup>,<br/>руб/100 км</th>
+                                               <th>Тип груза</th>
+                                               <th>Вес,<br/>кг</th>
+                                               <th>Объём,<br/>м<sup>3</sup></th>
+                                               <th>Откуда</th>
+                                               <th>Куда</th>
+                                               <th>Дистанция,<br/>км</th>
+                                               <th>Дата готовности</th>
+                                               <th>Стоимость</th>
                                                <th>Действия</th>
                                            </tr>
                                             <!-- Шаблон строки таблицы -->
-                                            <tr id="Tr1" data-id="" class="hidden">
-                                               <td class="c-ctrl-vehicle-table-cell-num"></td>
-                                               <td class="c-ctrl-vehicle-table-cell-name"></td>
-                                               <td class="c-ctrl-vehicle-table-cell-type"></td>
-                                               <td class="c-ctrl-vehicle-table-cell-max-weight"></td>
-                                               <td class="c-ctrl-vehicle-table-cell-max-value"></td>
-                                               <td class="c-ctrl-vehicle-table-cell-expences"></td>
-                                               <td class="c-ctrl-vehicle-table-cell-tax-weight"></td>
-                                               <td class="c-ctrl-vehicle-table-cell-tax-value"></td>
-                                               <td class="c-ctrl-vehicle-table-cell-action"><span data-id="" class="c-ctrl-vehicle-table-cell-action-edit fa fa-pencil-square"></span><span data-id="" class="c-ctrl-vehicle-table-cell-action-delete fa fa-times"></span></td>
+                                            <tr id="i-ctrl-tasks-table-row-template" data-id="" class="hidden">
+                                               <td class="c-ctrl-tasks-table-cell-num"></td>
+                                               <td class="c-ctrl-tasks-table-cell-name"></td>
+                                               <td class="c-ctrl-tasks-table-cell-type"></td>
+                                               <td class="c-ctrl-tasks-table-cell-weight"></td>
+                                               <td class="c-ctrl-tasks-table-cell-value"></td>
+                                               <td class="c-ctrl-tasks-table-cell-from"></td>
+                                               <td class="c-ctrl-tasks-table-cell-to"></td>
+                                               <td class="c-ctrl-tasks-table-cell-distance"></td>
+                                               <td class="c-ctrl-tasks-table-cell-ready-date"></td>
+                                               <td class="c-ctrl-tasks-table-cell-cost"></td>
+                                               <td class="c-ctrl-tasks-table-cell-action">
+                                                   <span data-id="" class="c-ctrl-tasks-table-cell-action-edit fa fa-pencil-square"></span>
+                                                   <span data-id="" class="c-ctrl-tasks-table-cell-action-delete fa fa-times"></span>
+                                               </td>
                                             </tr>
-                                            <tr id="Tr2" class="hidden">
-                                                <td colspan="9">Нет записей</td>
+                                            <tr id="i-ctrl-tasks-table-row-empty-template" class="hidden">
+                                                <td colspan="11">Нет записей</td>
                                             </tr>
-                                            <tr id="Tr3" class="c-ctrl-vehicle-table-row-delete-confirm-block hidden">
-                                                <td colspan="9">
-                                                    <span class="c-ctrl-vehicle-table-row-delete-confirm-message">Подтвердить удаление?</span>
-                                                    <div class="c-ctrl-vehicle-table-row-delete-conirm-button-block с-page-button-set-block">
-                                                        <button class="c-ctrl-vehicle-table-row-delete-confirm-button"><div class="fa fa-check-square-o"></div>Подтвердить</button>
-                                                        <button class="c-ctrl-vehicle-table-row-delete-cancel-button"><div class="fa fa-undo"></div>Отмена</button>
+                                            <tr id="i-ctrl-tasks-table-row-confirm-template" class="c-ctrl-tasks-table-row-delete-confirm-block hidden">
+                                                <td colspan="11">
+                                                    <span class="c-ctrl-tasks-table-row-delete-confirm-message">Подтвердить удаление?</span>
+                                                    <div class="c-ctrl-tasks-table-row-delete-conirm-button-block с-page-button-set-block">
+                                                        <button class="c-ctrl-tasks-table-row-delete-confirm-button"><div class="fa fa-check-square-o"></div>Подтвердить</button>
+                                                        <button class="c-ctrl-tasks-table-row-delete-cancel-button"><div class="fa fa-undo"></div>Отмена</button>
                                                     </div>
-                                                    <div id="Div14" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                                                    <div id="i-ctrl-tasks-table-row-confirm-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                                                 </td>
                                             </tr>
                                             <!-- /Шаблон строки таблицы -->

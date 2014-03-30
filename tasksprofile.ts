@@ -23,11 +23,11 @@ module TasksProfile
         packingTypeId: number;
         numOfPackages: number;
 
-        city1: number;
+        city1: Application.CityData;
         addr1: string;
         loadingTypeId1: number;
 
-        city2: number;
+        city2: Application.CityData;
         addr2: string;
         loadingTypeId2: number;
 
@@ -55,9 +55,10 @@ module TasksProfile
         application: Application.IApplication = null;
         parent: Application.IComponent = null
 
-        loadsData: AjaxCargoList = null;
+        cargoData: AjaxCargoList = null;
         errorData: ServerData.AjaxServerResponse = null;
 
+        currentCargo: AjaxCargo = null;
         cityTmpData1: Application.CityData = null;
         cityTmpData2: Application.CityData = null;
         cityBound1: boolean = false;
@@ -79,6 +80,8 @@ module TasksProfile
 
             $("#i-ctrl-tasks-form-from-city-delete-btn").click(__currentTasksProfile.onCity1Delete);
             $("#i-ctrl-tasks-form-to-city-delete-btn").click(__currentTasksProfile.onCity2Delete);
+
+            $("#i-ctrl-tasks-list-add-btn").click(__currentTasksProfile.onAddButtonClick);
 
             // получаем данные справочников
             Dictionary.__currDictionary.queryDictData("cargotype");
@@ -160,6 +163,55 @@ module TasksProfile
             __currentTasksProfile.applyCityData();
         }
 
+        onAddButtonClick(event: JQueryEventObject): void
+        {
+            __currentTasksProfile.showEditForm(true);
+        }
+
+
+        showEditForm(visible: boolean): void
+        {
+            if (visible)
+            {
+                if (null != __currentTasksProfile.currentCargo)
+                {
+                    // TODO заполняем форму данными
+
+                    /*
+                    var v: AjaxVehicle = __currentVehProfile.currentVehicle;
+                    $("#i-ctrl-vehicle-form-name-txt").val(v.name);
+                    $("#i-ctrl-vehicle-form-type-select").val(v.typeId);
+                    $("#i-ctrl-vehicle-form-max-weight-txt").val(v.maxWeight);
+                    $("#i-ctrl-vehicle-form-max-value-txt").val(v.maxValue);
+                    $("#i-ctrl-vehicle-form-expences-txt").val(v.expences);
+                    $("#i-ctrl-vehicle-form-tax-weight-txt").val(v.taxWeight);
+                    $("#i-ctrl-vehicle-form-tax-value-txt").val(v.taxValue);
+                    */
+                }
+            }
+            else
+            {
+                __currentTasksProfile.currentCargo = null;
+                __currentTasksProfile.clearForm();
+            }
+
+            __currentTasksProfile.switchFormVisibility(visible);
+        }
+
+        switchFormVisibility(visible: boolean): void
+        {
+            if (visible)
+            {
+                $("#i-ctrl-tasks-edit-form-container").removeClass("hidden").addClass("block");
+                $("#i-ctrl-tasks-list-container").removeClass("block").addClass("hidden");
+            }
+            else
+            {
+                $("#i-ctrl-tasks-edit-form-container").removeClass("block").addClass("hidden");
+                $("#i-ctrl-tasks-list-container").removeClass("hidden").addClass("block");
+            }
+        }
+
 
         applyCityData(): void
         {
@@ -188,14 +240,60 @@ module TasksProfile
         // обновление данных с сервера
         uploadData()
         {
-            __currentTasksProfile.loadsData = null;
+            __currentTasksProfile.cargoData = null;
             __currentTasksProfile.errorData = null;
-            //__currentLoadsProfile.getData();
-            __currentTasksProfile.queryData();
+            __currentTasksProfile.getData();
+            //__currentTasksProfile.queryData();
         }
 
         queryData(): void
         {
+            if (null == __currentTasksProfile.cargoData && null == __currentTasksProfile.errorData)
+            {
+                __currentTasksProfile.getData();
+            }
+            else if (null != __currentTasksProfile.errorData)
+            {
+                __currentTasksProfile.parent.dataError(__currentTasksProfile, __currentTasksProfile.errorData);
+            }
+            else
+            {
+                __currentTasksProfile.parent.dataReady(__currentTasksProfile);
+            }
+        }
+
+
+        getData(): void
+        {
+            $.ajax({
+                type: "GET",
+                url: __currentTasksProfile.application.getFullUri("api/tasks"),
+                success: __currentTasksProfile.onAjaxGetTasksDataSuccess,
+                error: __currentTasksProfile.onAjaxGetTasksDataError
+            });
+        }
+
+        onAjaxGetTasksDataError(jqXHR: JQueryXHR, status: string, message: string): void
+        {
+            //window.console.log("_onAjaxError");
+
+            __currentTasksProfile.errorData = <ServerData.AjaxServerResponse>JSON.parse(jqXHR.responseText);
+            __currentTasksProfile.parent.dataError(__currentTasksProfile, __currentTasksProfile.errorData);
+
+            // если ошибка "Требуется авторизация", то требуем у Application проверить текущий статус авторизации
+            if (2 == parseInt(__currentTasksProfile.errorData.code))
+                __currentTasksProfile.application.checkAuthStatus();
+        }
+
+        onAjaxGetTasksDataSuccess(data: ServerData.AjaxServerResponse, status: string, jqXHR: JQueryXHR): void
+        {
+            //window.console.log("_onAjaxGetAccountDataSuccess");
+
+            // загрузка компонента произведена успешно
+            __currentTasksProfile.cargoData = <AjaxCargoList>data.data;
+
+            // помещаем данные в контролы
+            __currentTasksProfile.drawTasksList();
 
             if (false == __currentTasksProfile.isComponentLoaded)
             {
@@ -208,17 +306,72 @@ module TasksProfile
             }
         }
 
-
-        getData(): void
+        drawTasksList(): void
         {
-            /*$.ajax({
-                type: "GET",
-                url: __currentOrgProfile.application.getFullUri("api/org"),
-                success: __currentOrgProfile.onAjaxGetOrgDataSuccess,
-                error: __currentOrgProfile.onAjaxGetOrgDataError
-            });*/
+            __currentTasksProfile.clearTasksList();
+
+            /*
+            var tbody: JQuery = $("#i-ctrl-vehicle-table > tbody");
+
+            if (1 > __currentVehProfile.vehicleData.vehicles.length)
+            {
+                var rowEmpty: JQuery = $("#i-ctrl-vehicle-table-row-empty-template").clone();
+                rowEmpty.removeAttr("id").removeClass("hidden").appendTo(tbody);
+            }
+            else
+            {
+                var rowTempl: JQuery = $("#i-ctrl-vehicle-table-row-template");
+
+                for (var i: number = 0; i < __currentVehProfile.vehicleData.vehicles.length; i++)
+                {
+                    var vehicle: AjaxVehicle = __currentVehProfile.vehicleData.vehicles[i];
+                    var row: JQuery = rowTempl.clone();
+                    row.removeAttr("id").removeClass("hidden");
+
+                    row.attr("data-id", vehicle.id);
+                    $("td.c-ctrl-vehicle-table-cell-num", row).text(vehicle.id);
+                    $("td.c-ctrl-vehicle-table-cell-name", row).text(vehicle.name);
+
+                    if (null != Dictionary.__currDictionary.transportTypes)
+                    {
+                        var typeName: string = Dictionary.__currDictionary.getNameById("transporttype", vehicle.typeId);
+                        $("td.c-ctrl-vehicle-table-cell-type", row).text(typeName);
+                    }
+
+                    $("td.c-ctrl-vehicle-table-cell-max-weight", row).text(vehicle.maxWeight);
+                    $("td.c-ctrl-vehicle-table-cell-max-value", row).text(vehicle.maxValue);
+                    $("td.c-ctrl-vehicle-table-cell-expences", row).text(vehicle.expences);
+                    $("td.c-ctrl-vehicle-table-cell-tax-weight", row).text(vehicle.taxWeight);
+                    $("td.c-ctrl-vehicle-table-cell-tax-value", row).text(vehicle.taxValue);
+
+                    // привязываем обработчики на кнопки
+                    $("td.c-ctrl-vehicle-table-cell-action > span.c-ctrl-vehicle-table-cell-action-edit", row).attr("data-id", vehicle.id).click(__currentVehProfile.onVehicleEditClick);
+                    $("td.c-ctrl-vehicle-table-cell-action > span.c-ctrl-vehicle-table-cell-action-delete", row).attr("data-id", vehicle.id).click(__currentVehProfile.onVehicleDeleteClick);
+
+                    row.appendTo(tbody);
+                }
+
+            }            
+            
+            */
         }
 
+        clearTasksList(): void
+        {
+            /*
+            __currentVehProfile.currentDeleteId = 0;
+
+            // удаляем все обработчики событий
+            $("#i-ctrl-vehicle-table span.c-ctrl-vehicle-table-cell-action-edit").unbind(__currentVehProfile.onVehicleEditClick);
+            $("#i-ctrl-vehicle-table span.c-ctrl-vehicle-table-cell-action-delete").unbind(__currentVehProfile.onVehicleDeleteClick);
+
+            $("#i-ctrl-vehicle-table button.c-ctrl-vehicle-table-row-delete-confirm-button").unbind(__currentVehProfile.onVehicleDeleteConfirmClick);
+            $("#i-ctrl-vehicle-table button.c-ctrl-vehicle-table-row-delete-cancel-button").unbind(__currentVehProfile.onVehicleDeleteCancelClick);
+
+            // удаляем все строки таблицы
+            $("#i-ctrl-vehicle-table > tbody > tr").remove();
+            */
+        }
 
         drawCargoType(data: Dictionary.DictionaryEntry[]): void
         {
@@ -336,8 +489,8 @@ module TasksProfile
         clearForm(): void
         {
             __currentTasksProfile.clearFormErrors();
-            $("#i-ctrl-tasks-form-block :text").val("");
-            $("#i-ctrl-tasks-form-block textarea").val("");
+            $("#i-ctrl-tasks-edit-form :text").val("");
+            $("#i-ctrl-tasks-edit-form textarea").val("");
             $("#i-ctrl-tasks-form-cargo-type-select").val(0);
             $("#i-ctrl-tasks-form-cargo-adr-type-select").val(0);
             $("#i-ctrl-tasks-form-body-type-select").val(0);
@@ -433,7 +586,7 @@ module TasksProfile
             }
             else
             {
-                cargo.city1 = __currentTasksProfile.cityTmpData1.id;
+                cargo.city1 = __currentTasksProfile.cityTmpData1;
             }
 
             // адрес 1
@@ -456,7 +609,7 @@ module TasksProfile
             }
             else
             {
-                cargo.city2 = __currentTasksProfile.cityTmpData2.id;
+                cargo.city2 = __currentTasksProfile.cityTmpData2;
             }
 
             // адрес 2
@@ -509,19 +662,81 @@ module TasksProfile
 
             if (null != cargo)
             {
-                // TODO отправка данных на сервер
+                // отправка данных на сервер
+                __currentTasksProfile.application.showOverlay("#i-ctrl-tasks-form-overlay", "#i-ctrl-tasks-edit-form");
 
-
+                if (null == __currentTasksProfile.currentCargo)
+                    __currentTasksProfile.createNewCargo(cargo);
+                else
+                    __currentTasksProfile.updateCargo(cargo);
             }
+        }
+
+        createNewCargo(data: AjaxCargo): void
+        {
+            $.ajax({
+                type: "POST",
+                url: __currentTasksProfile.application.getFullUri("api/tasks"),
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                dataType: "json",
+                success: __currentTasksProfile.onAjaxCreateTasksSuccess,
+                error: __currentTasksProfile.onAjaxCreateTasksError
+            });
+        }
+
+        onAjaxCreateTasksError(jqXHR: JQueryXHR, status: string, message: string): void
+        {
+            __currentTasksProfile.application.hideOverlay("#i-ctrl-tasks-form-overlay");
+
+            
+            var response: ServerData.AjaxServerResponse = <ServerData.AjaxServerResponse>JSON.parse(jqXHR.responseText);
+            var data: AjaxCargo = <AjaxCargo>response.data;
+
+            var errCode: string[] = response.code.split(";");
+            var errMsg: string[] = response.userMessage.split(";");
+
+            for (var i: number = 0; i < errCode.length; i++)
+            {
+                var code: number = parseInt(errCode[i]);
+
+                if (2 == code)
+                    __currentTasksProfile.application.checkAuthStatus();
+                else
+                    __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-name-error-message", errMsg[i], true);
+            }
+            
+        }
+
+        onAjaxCreateTasksSuccess(data: ServerData.AjaxServerResponse, status: string, jqXHR: JQueryXHR): void
+        {
+            __currentTasksProfile.application.hideOverlay("#i-ctrl-tasks-form-overlay");
+
+            
+            var vehicle: AjaxCargo = <AjaxCargo>data.data;
+
+            // запоминаем данные о задании
+            //__currentVehProfile.addVehicleToList(vehicle);
+
+            // обновляем таблицу
+            //__currentVehProfile.drawVehicleList();
+
+            // прячем форму
+            //__currentVehProfile.showEditForm(false);
+            
+        }
+
+
+
+
+        updateCargo(data: AjaxCargo): void
+        {
         }
 
         onCancelButtonClick(event: JQueryEventObject): void
         {
-            // очистка формы
-            __currentTasksProfile.clearForm();
-
-
-            // TODO закрытие формы
+            // закрытие формы
+            __currentTasksProfile.showEditForm(false);
         }
 
         onCity1Focus(event: JQueryEventObject): void
