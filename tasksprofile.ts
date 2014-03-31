@@ -59,6 +59,7 @@ module TasksProfile
         errorData: ServerData.AjaxServerResponse = null;
 
         currentCargo: AjaxCargo = null;
+        currentDeleteId: number = 0;
         cityTmpData1: Application.CityData = null;
         cityTmpData2: Application.CityData = null;
         cityBound1: boolean = false;
@@ -175,18 +176,29 @@ module TasksProfile
             {
                 if (null != __currentTasksProfile.currentCargo)
                 {
-                    // TODO заполняем форму данными
+                    // заполняем форму данными
+                    var c: AjaxCargo = __currentTasksProfile.currentCargo;
 
-                    /*
-                    var v: AjaxVehicle = __currentVehProfile.currentVehicle;
-                    $("#i-ctrl-vehicle-form-name-txt").val(v.name);
-                    $("#i-ctrl-vehicle-form-type-select").val(v.typeId);
-                    $("#i-ctrl-vehicle-form-max-weight-txt").val(v.maxWeight);
-                    $("#i-ctrl-vehicle-form-max-value-txt").val(v.maxValue);
-                    $("#i-ctrl-vehicle-form-expences-txt").val(v.expences);
-                    $("#i-ctrl-vehicle-form-tax-weight-txt").val(v.taxWeight);
-                    $("#i-ctrl-vehicle-form-tax-value-txt").val(v.taxValue);
-                    */
+                    $("#i-ctrl-tasks-form-name-txt").val(c.name);
+                    $("#i-ctrl-tasks-form-cargo-type-select").val(c.cargoTypeId);
+                    $("#i-ctrl-tasks-form-description-txt").val(c.description);
+                    $("#i-ctrl-tasks-form-cargo-adr-type-select").val(c.cargoADRTypeId);
+                    $("#i-ctrl-tasks-form-body-type-select").val(c.bodyTypeId);
+                    $("#i-ctrl-tasks-form-weight-txt").val(c.weight);
+                    $("#i-ctrl-tasks-form-value-txt").val(c.value);
+                    $("#i-ctrl-tasks-form-packing-type-select").val(c.packingTypeId);
+                    $("#i-ctrl-tasks-form-num-of-packages-txt").val(c.numOfPackages);                    
+                    $("#i-ctrl-tasks-form-from-address-txt").val(c.addr1);
+                    $("#i-ctrl-tasks-form-loading-type-select").val(c.loadingTypeId1);                    
+                    $("#i-ctrl-tasks-form-to-address-txt").val(c.addr2);
+                    $("#i-ctrl-tasks-form-unloading-type-select").val(c.loadingTypeId2);
+                    $("#i-ctrl-tasks-form-ready-date-txt").val(c.readyDate);
+                    $("#i-ctrl-tasks-form-cost-txt").val(c.cost);
+                    $("#i-ctrl-tasks-form-contacts-txt").val(c.contacts); 
+
+                    __currentTasksProfile.cityTmpData1 = c.city1;
+                    __currentTasksProfile.cityTmpData2 = c.city2;
+                    __currentTasksProfile.applyCityData();                  
                 }
             }
             else
@@ -309,69 +321,206 @@ module TasksProfile
         drawTasksList(): void
         {
             __currentTasksProfile.clearTasksList();
+            
+            var tbody: JQuery = $("#i-ctrl-tasks-table > tbody");
 
-            /*
-            var tbody: JQuery = $("#i-ctrl-vehicle-table > tbody");
-
-            if (1 > __currentVehProfile.vehicleData.vehicles.length)
+            if (1 > __currentTasksProfile.cargoData.cargo.length)
             {
-                var rowEmpty: JQuery = $("#i-ctrl-vehicle-table-row-empty-template").clone();
+                var rowEmpty: JQuery = $("#i-ctrl-tasks-table-row-empty-template").clone();
                 rowEmpty.removeAttr("id").removeClass("hidden").appendTo(tbody);
             }
             else
             {
-                var rowTempl: JQuery = $("#i-ctrl-vehicle-table-row-template");
+                var rowTempl: JQuery = $("#i-ctrl-tasks-table-row-template");
 
-                for (var i: number = 0; i < __currentVehProfile.vehicleData.vehicles.length; i++)
+                for (var i: number = 0; i < __currentTasksProfile.cargoData.cargo.length; i++)
                 {
-                    var vehicle: AjaxVehicle = __currentVehProfile.vehicleData.vehicles[i];
+                    var cargo: AjaxCargo = __currentTasksProfile.cargoData.cargo[i];
                     var row: JQuery = rowTempl.clone();
                     row.removeAttr("id").removeClass("hidden");
 
-                    row.attr("data-id", vehicle.id);
-                    $("td.c-ctrl-vehicle-table-cell-num", row).text(vehicle.id);
-                    $("td.c-ctrl-vehicle-table-cell-name", row).text(vehicle.name);
+                    row.attr("data-id", cargo.id);
+                    $("td.c-ctrl-tasks-table-cell-num", row).text(cargo.id);
+                    $("td.c-ctrl-tasks-table-cell-name", row).text(cargo.name);
 
-                    if (null != Dictionary.__currDictionary.transportTypes)
+                    if (null != Dictionary.__currDictionary.cargoTypes)
                     {
-                        var typeName: string = Dictionary.__currDictionary.getNameById("transporttype", vehicle.typeId);
-                        $("td.c-ctrl-vehicle-table-cell-type", row).text(typeName);
+                        var typeName: string = Dictionary.__currDictionary.getNameById("cargotype", cargo.cargoTypeId);
+                        $("td.c-ctrl-tasks-table-cell-type", row).text(typeName);
                     }
 
-                    $("td.c-ctrl-vehicle-table-cell-max-weight", row).text(vehicle.maxWeight);
-                    $("td.c-ctrl-vehicle-table-cell-max-value", row).text(vehicle.maxValue);
-                    $("td.c-ctrl-vehicle-table-cell-expences", row).text(vehicle.expences);
-                    $("td.c-ctrl-vehicle-table-cell-tax-weight", row).text(vehicle.taxWeight);
-                    $("td.c-ctrl-vehicle-table-cell-tax-value", row).text(vehicle.taxValue);
+                    $("td.c-ctrl-tasks-table-cell-weight", row).text(cargo.weight);
+                    $("td.c-ctrl-tasks-table-cell-value", row).text(cargo.value);
+                    $("td.c-ctrl-tasks-table-cell-from", row).text(cargo.city1.name);
+                    $("td.c-ctrl-tasks-table-cell-to", row).text(cargo.city2.name);
+                    $("td.c-ctrl-tasks-table-cell-distance", row).text(cargo.distance);
+                    $("td.c-ctrl-tasks-table-cell-ready-date", row).text(cargo.readyDate);
+                    $("td.c-ctrl-tasks-table-cell-cost", row).text(cargo.cost);
 
                     // привязываем обработчики на кнопки
-                    $("td.c-ctrl-vehicle-table-cell-action > span.c-ctrl-vehicle-table-cell-action-edit", row).attr("data-id", vehicle.id).click(__currentVehProfile.onVehicleEditClick);
-                    $("td.c-ctrl-vehicle-table-cell-action > span.c-ctrl-vehicle-table-cell-action-delete", row).attr("data-id", vehicle.id).click(__currentVehProfile.onVehicleDeleteClick);
+                    $("td.c-ctrl-tasks-table-cell-action > span.c-ctrl-tasks-table-cell-action-edit", row).attr("data-id", cargo.id).click(__currentTasksProfile.onTaskEditClick);
+                    $("td.c-ctrl-tasks-table-cell-action > span.c-ctrl-tasks-table-cell-action-delete", row).attr("data-id", cargo.id).click(__currentTasksProfile.onTaskDeleteClick);
 
                     row.appendTo(tbody);
                 }
 
             }            
             
-            */
+            
         }
 
         clearTasksList(): void
         {
-            /*
-            __currentVehProfile.currentDeleteId = 0;
+            __currentTasksProfile.currentDeleteId = 0;
 
             // удаляем все обработчики событий
-            $("#i-ctrl-vehicle-table span.c-ctrl-vehicle-table-cell-action-edit").unbind(__currentVehProfile.onVehicleEditClick);
-            $("#i-ctrl-vehicle-table span.c-ctrl-vehicle-table-cell-action-delete").unbind(__currentVehProfile.onVehicleDeleteClick);
-
-            $("#i-ctrl-vehicle-table button.c-ctrl-vehicle-table-row-delete-confirm-button").unbind(__currentVehProfile.onVehicleDeleteConfirmClick);
-            $("#i-ctrl-vehicle-table button.c-ctrl-vehicle-table-row-delete-cancel-button").unbind(__currentVehProfile.onVehicleDeleteCancelClick);
-
+            $("#i-ctrl-tasks-table span.c-ctrl-tasks-table-cell-action-edit").unbind(__currentTasksProfile.onTaskEditClick);
+            $("#i-ctrl-tasks-table span.c-ctrl-tasks-table-cell-action-delete").unbind(__currentTasksProfile.onTaskDeleteClick);            
+            $("#i-ctrl-tasks-table button.c-ctrl-tasks-table-row-delete-confirm-button").unbind(__currentTasksProfile.onTaskDeleteConfirmClick);
+            $("#i-ctrl-tasks-table button.c-ctrl-tasks-table-row-delete-cancel-button").unbind(__currentTasksProfile.onTaskDeleteCancelClick);
+            
             // удаляем все строки таблицы
-            $("#i-ctrl-vehicle-table > tbody > tr").remove();
-            */
+            $("#i-ctrl-tasks-table > tbody > tr").remove();
+            
         }
+
+        onTaskEditClick(event: JQueryEventObject): void
+        {
+            __currentTasksProfile.removeDeleteConfirmRow();
+
+            var ctrl: JQuery = $(event.delegateTarget);
+            //window.console.log("onTaskEditClick " + ctrl.attr("data-id"));
+
+            var id: number = parseInt(ctrl.attr("data-id"));
+            __currentTasksProfile.currentCargo = __currentTasksProfile.getCargoById(id);
+            __currentTasksProfile.showEditForm(true);
+        }
+
+        onTaskDeleteClick(event: JQueryEventObject): void
+        {
+            __currentTasksProfile.removeDeleteConfirmRow();
+
+            var ctrl: JQuery = $(event.delegateTarget);
+            var curRow: JQuery = ctrl.parent().parent();
+            var id: number = parseInt(ctrl.attr("data-id"));
+            __currentTasksProfile.currentDeleteId = id;
+
+            var rowConfirm: JQuery = $("#i-ctrl-tasks-table-row-confirm-template").clone();
+            rowConfirm.removeAttr("id").removeClass("hidden");
+
+            $("button.c-ctrl-tasks-table-row-delete-confirm-button", rowConfirm).click(__currentTasksProfile.onTaskDeleteConfirmClick);
+            $("button.c-ctrl-tasks-table-row-delete-cancel-button", rowConfirm).click(__currentTasksProfile.onTaskDeleteCancelClick);
+
+            rowConfirm.insertAfter(curRow);
+        }
+
+
+        getCargoById(id: number): AjaxCargo
+        {
+            var v: AjaxCargo = null;
+
+            if (null != __currentTasksProfile.cargoData)
+            {
+                for (var i: number = 0; i < __currentTasksProfile.cargoData.cargo.length; i++)
+                {
+                    var cargo: AjaxCargo = __currentTasksProfile.cargoData.cargo[i];
+
+                    if (id == cargo.id)
+                    {
+                        v = cargo;
+                        break;
+                    }
+                }
+            }
+
+            return v;
+        }
+
+        onTaskDeleteConfirmClick(event: JQueryEventObject): void
+        {
+            var vehicle: AjaxCargo = __currentTasksProfile.getCargoById(__currentTasksProfile.currentDeleteId);
+            // прячем сообщение об ошибке
+            __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-table-row-confirm-error-message", "", false);
+            // показываем иконку загрузки
+            __currentTasksProfile.application.showOverlay("#i-ctrl-tasks-table-block-overlay", "#i-ctrl-tasks-table-block");
+
+            $.ajax({
+                type: "DELETE",
+                url: __currentTasksProfile.application.getFullUri("api/tasks"),
+                data: JSON.stringify(vehicle),
+                contentType: "application/json",
+                dataType: "json",
+                success: __currentTasksProfile.onAjaxDeleteTaskSuccess,
+                error: __currentTasksProfile.onAjaxDeleteTaskError
+            });
+
+        }
+
+        onAjaxDeleteTaskError(jqXHR: JQueryXHR, status: string, message: string): void
+        {
+            __currentTasksProfile.application.hideOverlay("#i-ctrl-tasks-table-block-overlay");
+
+            var response: ServerData.AjaxServerResponse = <ServerData.AjaxServerResponse>JSON.parse(jqXHR.responseText);
+            var data: AjaxCargo = <AjaxCargo>response.data;
+
+            var errCode: string[] = response.code.split(";");
+            var errMsg: string[] = response.userMessage.split(";");
+
+            for (var i: number = 0; i < errCode.length; i++)
+            {
+                var code: number = parseInt(errCode[i]);
+
+                if (2 == code)
+                    __currentTasksProfile.application.checkAuthStatus();
+                else
+                    __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-table-row-confirm-error-message", errMsg[i], true);
+            }
+
+        }
+
+        onAjaxDeleteTaskSuccess(data: ServerData.AjaxServerResponse, status: string, jqXHR: JQueryXHR): void
+        {
+            __currentTasksProfile.application.hideOverlay("#i-ctrl-tasks-table-block-overlay");
+
+            var vehicle: AjaxCargo = <AjaxCargo>data.data;
+            // чистим данные об автомобиле
+            __currentTasksProfile.removeLocalVehicleById(vehicle.id);
+
+            // удаляем строку подтверждения удаления
+            __currentTasksProfile.removeDeleteConfirmRow();
+
+            // убираем из таблицы строку
+            $("#i-ctrl-tasks-table > tbody > tr[data-id=" + vehicle.id + "]").remove();
+        }
+
+        removeLocalVehicleById(id: number): void
+        {
+            if (null != __currentTasksProfile.cargoData)
+            {
+                for (var i: number = 0; i < __currentTasksProfile.cargoData.cargo.length; i++)
+                {
+                    var c: AjaxCargo = __currentTasksProfile.cargoData.cargo[i];
+
+                    if (c.id == id)
+                    {
+                        __currentTasksProfile.cargoData.cargo.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+        }
+
+        onTaskDeleteCancelClick(event: JQueryEventObject): void
+        {
+            __currentTasksProfile.removeDeleteConfirmRow();
+        }
+
+        removeDeleteConfirmRow(): void
+        {
+            __currentTasksProfile.currentDeleteId = 0;
+            $("#i-ctrl-tasks-table > tbody > tr.c-ctrl-tasks-table-row-delete-confirm-block").remove();
+        }
+
 
         drawCargoType(data: Dictionary.DictionaryEntry[]): void
         {
