@@ -334,12 +334,142 @@ class TasksWebService extends WebServBase
 
     public function onPut($args, $data)
     {
+        // проверяем авторизован ли пользователь
+        if(false == CurrentUser::isAuthenticated())
+        {
+            // HTTP/1.1 401 Unauthorized
+            $this->returnError(401, array(2));
+            return;
+        }
 
+        // TODO делаем проверку входящих данных
+
+
+
+
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            // получаем id органзации
+            $sql = 'select id from company where account_id=?i';
+
+            $orgId = $db->getOne($sql, CurrentUser::getUserId());
+
+            if(false == $orgId)
+            {
+                $this->returnError(500, array(1));
+            }
+            else
+            {
+                ///////////////////////////////////////////
+                // получаем расстояние между городами
+                $sql = 'SELECT distance FROM georoute WHERE (cityId1=?i AND cityId2=?i) OR (cityId1=?i AND cityId2=?i)';
+                $distance = $db->getOne($sql, $data->city1->id, $data->city2->id, $data->city2->id, $data->city1->id);
+
+                if(false == $distance)
+                {
+                    $this->returnError(500, array(1));
+                }
+                else
+                {
+                    $data->distance = $distance;
+
+                    ///////////////////////////////////////////
+                    // обновляем груз
+                    $sql = 'UPDATE cargo
+                            SET name=?s, description=?s,
+                                cargo_type_id=?i, body_type_id=?i, cargo_adr_type_id=?i,
+                                weight=?i, value=?i,
+                                packing_type_id=?i, num_of_packages=?i,
+                                city1_id=?i, addr1=?s, loading_type_id1=?i,
+                                city2_id=?i, addr2=?s, loading_type_id2=?i,
+                                distance=?i, ready_date=?s, cost=?i, contacts=?s
+                            WHERE company_id=?i AND id=?i';
+
+                    $rusDate = Validators::convertRusDate2MySqlDate($data->readyDate);
+
+                    $result = $db->query($sql,
+                        $data->name, $data->description,
+                        $data->cargoTypeId, $data->bodyTypeId, $data->cargoADRTypeId,
+                        $data->weight, $data->value,
+                        $data->packingTypeId, $data->numOfPackages,
+                        $data->city1->id, $data->addr1, $data->loadingTypeId1,
+                        $data->city2->id, $data->addr2, $data->loadingTypeId2,
+                        $data->distance, $rusDate, $data->cost, $data->contacts,
+                        $orgId, $data->id
+                    );
+
+                    if(false == $result)
+                    {
+                        $this->returnError(500, array(1));
+                    }
+                    else
+                    {
+                        $data->id = $db->insertId();
+                        $response = new AjaxServerResponse(200, '', '', $data);
+                        sendHTTPStatus(200);
+                        header('Content-type: application/json');
+                        echo json_encode($response);
+                    }
+                }
+            }
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1));
+        }
     }
 
     public function onDelete($args, $data)
     {
+        // проверяем авторизован ли пользователь
+        if(false == CurrentUser::isAuthenticated())
+        {
+            // HTTP/1.1 401 Unauthorized
+            $this->returnError(401, array(2));
+            return;
+        }
 
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            // получаем id органзации
+            $sql = 'select id from company where account_id=?i';
+
+            $orgId = $db->getOne($sql, CurrentUser::getUserId());
+
+            if(false == $orgId)
+            {
+                $this->returnError(500, array(1));
+            }
+            else
+            {
+                ///////////////////////////////////////////
+                // удаляем груз
+                $sql = 'DELETE FROM cargo WHERE id=?i AND company_id=?i';
+                $result = $db->query($sql, $data->id, $orgId);
+
+                if(false == $result)
+                {
+                    $this->returnError(500, array(1));
+                }
+                else
+                {
+                    $response = new AjaxServerResponse(200, '', '', $data);
+                    sendHTTPStatus(200);
+                    header('Content-type: application/json');
+                    echo json_encode($response);
+                }
+            }
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1));
+        }
     }
 
 
