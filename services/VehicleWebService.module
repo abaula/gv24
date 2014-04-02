@@ -101,9 +101,7 @@ class VehicleWebService extends WebServBase
                     }
 
                     $respData = new AjaxVehicleList();
-
-                    if(0 < count($arr))
-                        $respData->vehicles = $arr;
+                    $respData->vehicles = $arr;
 
                     $response = new AjaxServerResponse(200, '', '', $respData);
                     sendHTTPStatus(200);

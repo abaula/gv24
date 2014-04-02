@@ -369,18 +369,28 @@ module TasksProfile
             
         }
 
+        /*safeUnbindEvent(id: string, handler: any): void
+        {
+            var coll: JQuery = $(id);
+
+            if (0 < coll.length)
+                coll.unbind(handler);
+        }*/
+
         clearTasksList(): void
         {
             __currentTasksProfile.currentDeleteId = 0;
 
+            var row: JQuery = $("#i-ctrl-tasks-table > tbody > tr");
+
             // удаляем все обработчики событий
-            $("#i-ctrl-tasks-table span.c-ctrl-tasks-table-cell-action-edit").unbind(__currentTasksProfile.onTaskEditClick);
-            $("#i-ctrl-tasks-table span.c-ctrl-tasks-table-cell-action-delete").unbind(__currentTasksProfile.onTaskDeleteClick);            
-            $("#i-ctrl-tasks-table button.c-ctrl-tasks-table-row-delete-confirm-button").unbind(__currentTasksProfile.onTaskDeleteConfirmClick);
-            $("#i-ctrl-tasks-table button.c-ctrl-tasks-table-row-delete-cancel-button").unbind(__currentTasksProfile.onTaskDeleteCancelClick);
+            $("td.c-ctrl-tasks-table-cell-action > span.c-ctrl-tasks-table-cell-action-edit", row).unbind("click", __currentTasksProfile.onTaskEditClick);
+            $("td.c-ctrl-tasks-table-cell-action > span.c-ctrl-tasks-table-cell-action-delete", row).unbind("click", __currentTasksProfile.onTaskDeleteClick);            
+            $("#i-ctrl-tasks-table tbody button.c-ctrl-tasks-table-row-delete-confirm-button").unbind("click", __currentTasksProfile.onTaskDeleteConfirmClick);
+            $("#i-ctrl-tasks-table tbody button.c-ctrl-tasks-table-row-delete-cancel-button").unbind("click", __currentTasksProfile.onTaskDeleteCancelClick);
             
             // удаляем все строки таблицы
-            $("#i-ctrl-tasks-table > tbody > tr").remove();
+            row.remove();
             
         }
 
@@ -438,7 +448,7 @@ module TasksProfile
 
         onTaskDeleteConfirmClick(event: JQueryEventObject): void
         {
-            var vehicle: AjaxCargo = __currentTasksProfile.getCargoById(__currentTasksProfile.currentDeleteId);
+            var cargo: AjaxCargo = __currentTasksProfile.getCargoById(__currentTasksProfile.currentDeleteId);
             // прячем сообщение об ошибке
             __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-table-row-confirm-error-message", "", false);
             // показываем иконку загрузки
@@ -447,7 +457,7 @@ module TasksProfile
             $.ajax({
                 type: "DELETE",
                 url: __currentTasksProfile.application.getFullUri("api/tasks"),
-                data: JSON.stringify(vehicle),
+                data: JSON.stringify(cargo),
                 contentType: "application/json",
                 dataType: "json",
                 success: __currentTasksProfile.onAjaxDeleteTaskSuccess,
@@ -484,7 +494,7 @@ module TasksProfile
 
             var vehicle: AjaxCargo = <AjaxCargo>data.data;
             // чистим данные об автомобиле
-            __currentTasksProfile.removeLocalVehicleById(vehicle.id);
+            __currentTasksProfile.removeLocalCargoById(vehicle.id);
 
             // удаляем строку подтверждения удаления
             __currentTasksProfile.removeDeleteConfirmRow();
@@ -493,7 +503,7 @@ module TasksProfile
             $("#i-ctrl-tasks-table > tbody > tr[data-id=" + vehicle.id + "]").remove();
         }
 
-        removeLocalVehicleById(id: number): void
+        removeLocalCargoById(id: number): void
         {
             if (null != __currentTasksProfile.cargoData)
             {
@@ -508,6 +518,24 @@ module TasksProfile
                     }
                 }
             }
+        }
+
+        updateLocalCargoData(cargo: AjaxCargo): void
+        {
+            if (null != __currentTasksProfile.cargoData)
+            {
+                for (var i: number = 0; i < __currentTasksProfile.cargoData.cargo.length; i++)
+                {
+                    var c: AjaxCargo = __currentTasksProfile.cargoData.cargo[i];
+
+                    if (c.id == cargo.id)
+                    {
+                        __currentTasksProfile.cargoData.cargo[i] = cargo;
+                        break;
+                    }
+                }
+            }
+
         }
 
         onTaskDeleteCancelClick(event: JQueryEventObject): void
@@ -817,7 +845,10 @@ module TasksProfile
                 if (null == __currentTasksProfile.currentCargo)
                     __currentTasksProfile.createNewCargo(cargo);
                 else
+                {
+                    cargo.id = __currentTasksProfile.currentCargo.id;
                     __currentTasksProfile.updateCargo(cargo);
+                }
             }
         }
 
@@ -862,25 +893,93 @@ module TasksProfile
             __currentTasksProfile.application.hideOverlay("#i-ctrl-tasks-form-overlay");
 
             
-            var vehicle: AjaxCargo = <AjaxCargo>data.data;
+            var cargo: AjaxCargo = <AjaxCargo>data.data;
 
             // запоминаем данные о задании
-            //__currentVehProfile.addVehicleToList(vehicle);
+            __currentTasksProfile.addCargoToList(cargo);
 
             // обновляем таблицу
-            //__currentVehProfile.drawVehicleList();
+            __currentTasksProfile.drawTasksList();
 
             // прячем форму
-            //__currentVehProfile.showEditForm(false);
+            __currentTasksProfile.showEditForm(false);
             
         }
 
+        addCargoToList(cargo: AjaxCargo): void
+        {
+            if (null == __currentTasksProfile.cargoData)
+            {
+                __currentTasksProfile.cargoData = new AjaxCargoList();
+                __currentTasksProfile.cargoData.cargo = [];
+            }
 
+            __currentTasksProfile.cargoData.cargo.push(cargo);
+        }
 
 
         updateCargo(data: AjaxCargo): void
         {
+            $.ajax({
+                type: "PUT",
+                url: __currentTasksProfile.application.getFullUri("api/tasks"),
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                dataType: "json",
+                success: __currentTasksProfile.onAjaxUpdateTasksSuccess,
+                error: __currentTasksProfile.onAjaxUpdateTasksError
+            });
         }
+
+        onAjaxUpdateTasksError(jqXHR: JQueryXHR, status: string, message: string): void
+        {
+            __currentTasksProfile.application.hideOverlay("#i-ctrl-tasks-form-overlay");
+
+
+            var response: ServerData.AjaxServerResponse = <ServerData.AjaxServerResponse>JSON.parse(jqXHR.responseText);
+            var data: AjaxCargo = <AjaxCargo>response.data;
+
+            var errCode: string[] = response.code.split(";");
+            var errMsg: string[] = response.userMessage.split(";");
+
+            for (var i: number = 0; i < errCode.length; i++)
+            {
+                var code: number = parseInt(errCode[i]);
+
+                if (2 == code)
+                    __currentTasksProfile.application.checkAuthStatus();
+                else
+                    __currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-name-error-message", errMsg[i], true);
+            }
+
+        }
+
+        onAjaxUpdateTasksSuccess(data: ServerData.AjaxServerResponse, status: string, jqXHR: JQueryXHR): void
+        {
+            __currentTasksProfile.application.hideOverlay("#i-ctrl-tasks-form-overlay");
+
+
+            var cargo: AjaxCargo = <AjaxCargo>data.data;
+
+            // обновляем данные о задании
+            __currentTasksProfile.updateLocalCargoData(cargo);
+
+            // обновляем таблицу
+            __currentTasksProfile.drawTasksList();
+
+            // прячем форму
+            __currentTasksProfile.showEditForm(false);
+
+        }
+
+
+
+
+
+
+
+
+
 
         onCancelButtonClick(event: JQueryEventObject): void
         {

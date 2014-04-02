@@ -216,9 +216,7 @@ class TasksWebService extends WebServBase
                     }
 
                     $respData = new AjaxCargoList();
-
-                    if(0 < count($arr))
-                        $respData->cargo = $arr;
+                    $respData->cargo = $arr;
 
                     $response = new AjaxServerResponse(200, '', '', $respData);
                     sendHTTPStatus(200);
@@ -406,7 +404,6 @@ class TasksWebService extends WebServBase
                     }
                     else
                     {
-                        $data->id = $db->insertId();
                         $response = new AjaxServerResponse(200, '', '', $data);
                         sendHTTPStatus(200);
                         header('Content-type: application/json');

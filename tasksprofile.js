@@ -276,17 +276,26 @@ var TasksProfile;
             }
         };
 
+        /*safeUnbindEvent(id: string, handler: any): void
+        {
+        var coll: JQuery = $(id);
+        
+        if (0 < coll.length)
+        coll.unbind(handler);
+        }*/
         TasksProfileController.prototype.clearTasksList = function () {
             TasksProfile.__currentTasksProfile.currentDeleteId = 0;
 
+            var row = $("#i-ctrl-tasks-table > tbody > tr");
+
             // удаляем все обработчики событий
-            $("#i-ctrl-tasks-table span.c-ctrl-tasks-table-cell-action-edit").unbind(TasksProfile.__currentTasksProfile.onTaskEditClick);
-            $("#i-ctrl-tasks-table span.c-ctrl-tasks-table-cell-action-delete").unbind(TasksProfile.__currentTasksProfile.onTaskDeleteClick);
-            $("#i-ctrl-tasks-table button.c-ctrl-tasks-table-row-delete-confirm-button").unbind(TasksProfile.__currentTasksProfile.onTaskDeleteConfirmClick);
-            $("#i-ctrl-tasks-table button.c-ctrl-tasks-table-row-delete-cancel-button").unbind(TasksProfile.__currentTasksProfile.onTaskDeleteCancelClick);
+            $("td.c-ctrl-tasks-table-cell-action > span.c-ctrl-tasks-table-cell-action-edit", row).unbind("click", TasksProfile.__currentTasksProfile.onTaskEditClick);
+            $("td.c-ctrl-tasks-table-cell-action > span.c-ctrl-tasks-table-cell-action-delete", row).unbind("click", TasksProfile.__currentTasksProfile.onTaskDeleteClick);
+            $("#i-ctrl-tasks-table tbody button.c-ctrl-tasks-table-row-delete-confirm-button").unbind("click", TasksProfile.__currentTasksProfile.onTaskDeleteConfirmClick);
+            $("#i-ctrl-tasks-table tbody button.c-ctrl-tasks-table-row-delete-cancel-button").unbind("click", TasksProfile.__currentTasksProfile.onTaskDeleteCancelClick);
 
             // удаляем все строки таблицы
-            $("#i-ctrl-tasks-table > tbody > tr").remove();
+            row.remove();
         };
 
         TasksProfileController.prototype.onTaskEditClick = function (event) {
@@ -335,7 +344,7 @@ var TasksProfile;
         };
 
         TasksProfileController.prototype.onTaskDeleteConfirmClick = function (event) {
-            var vehicle = TasksProfile.__currentTasksProfile.getCargoById(TasksProfile.__currentTasksProfile.currentDeleteId);
+            var cargo = TasksProfile.__currentTasksProfile.getCargoById(TasksProfile.__currentTasksProfile.currentDeleteId);
 
             // прячем сообщение об ошибке
             TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-table-row-confirm-error-message", "", false);
@@ -346,7 +355,7 @@ var TasksProfile;
             $.ajax({
                 type: "DELETE",
                 url: TasksProfile.__currentTasksProfile.application.getFullUri("api/tasks"),
-                data: JSON.stringify(vehicle),
+                data: JSON.stringify(cargo),
                 contentType: "application/json",
                 dataType: "json",
                 success: TasksProfile.__currentTasksProfile.onAjaxDeleteTaskSuccess,
@@ -379,7 +388,7 @@ else
             var vehicle = data.data;
 
             // чистим данные об автомобиле
-            TasksProfile.__currentTasksProfile.removeLocalVehicleById(vehicle.id);
+            TasksProfile.__currentTasksProfile.removeLocalCargoById(vehicle.id);
 
             // удаляем строку подтверждения удаления
             TasksProfile.__currentTasksProfile.removeDeleteConfirmRow();
@@ -388,13 +397,26 @@ else
             $("#i-ctrl-tasks-table > tbody > tr[data-id=" + vehicle.id + "]").remove();
         };
 
-        TasksProfileController.prototype.removeLocalVehicleById = function (id) {
+        TasksProfileController.prototype.removeLocalCargoById = function (id) {
             if (null != TasksProfile.__currentTasksProfile.cargoData) {
                 for (var i = 0; i < TasksProfile.__currentTasksProfile.cargoData.cargo.length; i++) {
                     var c = TasksProfile.__currentTasksProfile.cargoData.cargo[i];
 
                     if (c.id == id) {
                         TasksProfile.__currentTasksProfile.cargoData.cargo.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+        };
+
+        TasksProfileController.prototype.updateLocalCargoData = function (cargo) {
+            if (null != TasksProfile.__currentTasksProfile.cargoData) {
+                for (var i = 0; i < TasksProfile.__currentTasksProfile.cargoData.cargo.length; i++) {
+                    var c = TasksProfile.__currentTasksProfile.cargoData.cargo[i];
+
+                    if (c.id == cargo.id) {
+                        TasksProfile.__currentTasksProfile.cargoData.cargo[i] = cargo;
                         break;
                     }
                 }
@@ -660,8 +682,10 @@ else
 
                 if (null == TasksProfile.__currentTasksProfile.currentCargo)
                     TasksProfile.__currentTasksProfile.createNewCargo(cargo);
-else
+else {
+                    cargo.id = TasksProfile.__currentTasksProfile.currentCargo.id;
                     TasksProfile.__currentTasksProfile.updateCargo(cargo);
+                }
             }
         };
 
@@ -699,16 +723,71 @@ else
         TasksProfileController.prototype.onAjaxCreateTasksSuccess = function (data, status, jqXHR) {
             TasksProfile.__currentTasksProfile.application.hideOverlay("#i-ctrl-tasks-form-overlay");
 
-            var vehicle = data.data;
+            var cargo = data.data;
+
             // запоминаем данные о задании
-            //__currentVehProfile.addVehicleToList(vehicle);
+            TasksProfile.__currentTasksProfile.addCargoToList(cargo);
+
             // обновляем таблицу
-            //__currentVehProfile.drawVehicleList();
+            TasksProfile.__currentTasksProfile.drawTasksList();
+
             // прячем форму
-            //__currentVehProfile.showEditForm(false);
+            TasksProfile.__currentTasksProfile.showEditForm(false);
+        };
+
+        TasksProfileController.prototype.addCargoToList = function (cargo) {
+            if (null == TasksProfile.__currentTasksProfile.cargoData) {
+                TasksProfile.__currentTasksProfile.cargoData = new AjaxCargoList();
+                TasksProfile.__currentTasksProfile.cargoData.cargo = [];
+            }
+
+            TasksProfile.__currentTasksProfile.cargoData.cargo.push(cargo);
         };
 
         TasksProfileController.prototype.updateCargo = function (data) {
+            $.ajax({
+                type: "PUT",
+                url: TasksProfile.__currentTasksProfile.application.getFullUri("api/tasks"),
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                dataType: "json",
+                success: TasksProfile.__currentTasksProfile.onAjaxUpdateTasksSuccess,
+                error: TasksProfile.__currentTasksProfile.onAjaxUpdateTasksError
+            });
+        };
+
+        TasksProfileController.prototype.onAjaxUpdateTasksError = function (jqXHR, status, message) {
+            TasksProfile.__currentTasksProfile.application.hideOverlay("#i-ctrl-tasks-form-overlay");
+
+            var response = JSON.parse(jqXHR.responseText);
+            var data = response.data;
+
+            var errCode = response.code.split(";");
+            var errMsg = response.userMessage.split(";");
+
+            for (var i = 0; i < errCode.length; i++) {
+                var code = parseInt(errCode[i]);
+
+                if (2 == code)
+                    TasksProfile.__currentTasksProfile.application.checkAuthStatus();
+else
+                    TasksProfile.__currentTasksProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-tasks-form-name-error-message", errMsg[i], true);
+            }
+        };
+
+        TasksProfileController.prototype.onAjaxUpdateTasksSuccess = function (data, status, jqXHR) {
+            TasksProfile.__currentTasksProfile.application.hideOverlay("#i-ctrl-tasks-form-overlay");
+
+            var cargo = data.data;
+
+            // обновляем данные о задании
+            TasksProfile.__currentTasksProfile.updateLocalCargoData(cargo);
+
+            // обновляем таблицу
+            TasksProfile.__currentTasksProfile.drawTasksList();
+
+            // прячем форму
+            TasksProfile.__currentTasksProfile.showEditForm(false);
         };
 
         TasksProfileController.prototype.onCancelButtonClick = function (event) {
