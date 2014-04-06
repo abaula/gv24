@@ -161,11 +161,11 @@ var VehicleProfile;
             VehicleProfile.__currentVehProfile.currentDeleteId = 0;
 
             // удаляем все обработчики событий
-            $("#i-ctrl-vehicle-table span.c-ctrl-vehicle-table-cell-action-edit").unbind(VehicleProfile.__currentVehProfile.onVehicleEditClick);
-            $("#i-ctrl-vehicle-table span.c-ctrl-vehicle-table-cell-action-delete").unbind(VehicleProfile.__currentVehProfile.onVehicleDeleteClick);
+            $("#i-ctrl-vehicle-table span.c-ctrl-vehicle-table-cell-action-edit").unbind("click", VehicleProfile.__currentVehProfile.onVehicleEditClick);
+            $("#i-ctrl-vehicle-table span.c-ctrl-vehicle-table-cell-action-delete").unbind("click", VehicleProfile.__currentVehProfile.onVehicleDeleteClick);
 
-            $("#i-ctrl-vehicle-table button.c-ctrl-vehicle-table-row-delete-confirm-button").unbind(VehicleProfile.__currentVehProfile.onVehicleDeleteConfirmClick);
-            $("#i-ctrl-vehicle-table button.c-ctrl-vehicle-table-row-delete-cancel-button").unbind(VehicleProfile.__currentVehProfile.onVehicleDeleteCancelClick);
+            $("#i-ctrl-vehicle-table button.c-ctrl-vehicle-table-row-delete-confirm-button").unbind("click", VehicleProfile.__currentVehProfile.onVehicleDeleteConfirmClick);
+            $("#i-ctrl-vehicle-table button.c-ctrl-vehicle-table-row-delete-cancel-button").unbind("click", VehicleProfile.__currentVehProfile.onVehicleDeleteCancelClick);
 
             // удаляем все строки таблицы
             $("#i-ctrl-vehicle-table > tbody > tr").remove();

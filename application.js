@@ -1,8 +1,37 @@
-﻿///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
+///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
 ///<reference path="ServerAjaxData.d.ts"/>
 ///<reference path="Dictionary.ts"/>
 var Application;
 (function (Application) {
+    var CalendarControl = (function () {
+        function CalendarControl() {
+            this.control = null;
+            this.selectedDate = Date.now();
+        }
+        CalendarControl.prototype.init = function (control, date) {
+            Application.__currentCalendarControl.control = control;
+            Application.__currentCalendarControl.setDate(date);
+        };
+
+        CalendarControl.prototype.setToday = function () {
+            Application.__currentCalendarControl.selectedDate = Date.now();
+        };
+
+        CalendarControl.prototype.setDate = function (date) {
+            if (null == date || 1 > date.length)
+                Application.__currentCalendarControl.setToday();
+else
+                Application.__currentCalendarControl.selectedDate = Date.parse(date);
+        };
+
+        CalendarControl.prototype.showCalendar = function () {
+        };
+        return CalendarControl;
+    })();
+    Application.CalendarControl = CalendarControl;
+
+    Application.__currentCalendarControl = new CalendarControl();
+
     var CityData = (function () {
         function CityData() {
         }

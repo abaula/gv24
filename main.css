@@ -391,6 +391,7 @@ button, input {
 .c-page-auth-container {
     width: 1200px; /* Ширина макета */
     margin: 0 auto; /* Выравниваем макет по центру */
+    margin-bottom: 20px;
 }
 
 .c-page-auth-panel-container {

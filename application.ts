@@ -4,6 +4,41 @@
 
 module Application
 {
+    export class CalendarControl
+    {
+        control: JQuery = null;
+        selectedDate: number = Date.now();
+
+        init(control: JQuery, date: string): void
+        {
+            __currentCalendarControl.control = control;
+            __currentCalendarControl.setDate(date);
+        }
+
+        setToday(): void
+        {
+            __currentCalendarControl.selectedDate = Date.now();
+        }
+
+        setDate(date: string): void
+        {
+            if (null == date || 1 > date.length)
+                __currentCalendarControl.setToday()
+            else
+                __currentCalendarControl.selectedDate = Date.parse(date);            
+        }
+
+        showCalendar(): void
+        {
+
+        }
+
+    }
+
+    export var __currentCalendarControl = new CalendarControl();
+
+
+
     export class CityData
     {
         id: number;
