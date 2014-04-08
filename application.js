@@ -1,4 +1,4 @@
-///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
+﻿///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
 ///<reference path="ServerAjaxData.d.ts"/>
 ///<reference path="Dictionary.ts"/>
 var Application;
@@ -25,6 +25,15 @@ else
         };
 
         CalendarControl.prototype.showCalendar = function () {
+            var dp = $("#i-page-datepicker");
+
+            // вычисляем положение списка на экране
+            var top = Application.__currentCalendarControl.control.offset().top;
+            top += Application.__currentCalendarControl.control.height();
+            var left = Application.__currentCalendarControl.control.offset().left;
+
+            dp.css({ top: top, left: left });
+            dp.removeClass("hidden").addClass("block");
         };
         return CalendarControl;
     })();

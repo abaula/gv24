@@ -30,7 +30,15 @@ module Application
 
         showCalendar(): void
         {
+            var dp: JQuery = $("#i-page-datepicker");
+            
+            // вычисляем положение списка на экране
+            var top: number = __currentCalendarControl.control.offset().top;
+            top += __currentCalendarControl.control.height();
+            var left: number = __currentCalendarControl.control.offset().left;
 
+            dp.css({ top: top, left: left });
+            dp.removeClass("hidden").addClass("block");
         }
 
     }

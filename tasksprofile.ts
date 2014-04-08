@@ -82,6 +82,7 @@ module TasksProfile
             $("#i-ctrl-tasks-form-from-city-delete-btn").click(__currentTasksProfile.onCity1Delete);
             $("#i-ctrl-tasks-form-to-city-delete-btn").click(__currentTasksProfile.onCity2Delete);
 
+            $("#i-ctrl-tasks-form-ready-date-select-btn").click(__currentTasksProfile.onReadyDateSelectClick);
             $("#i-ctrl-tasks-list-add-btn").click(__currentTasksProfile.onAddButtonClick);
 
             // получаем данные справочников
@@ -974,11 +975,19 @@ module TasksProfile
 
 
 
+        onReadyDateSelectClick(event: JQueryEventObject): void
+        {
+            var readyDate: string = "";
 
+            if (null == __currentTasksProfile.currentCargo)
+                readyDate = new Date().toDateString();
+            else
+                readyDate = __currentTasksProfile.currentCargo.readyDate;
 
+            Application.__currentCalendarControl.init($("#i-ctrl-tasks-form-ready-date-txt"), readyDate);
+            Application.__currentCalendarControl.showCalendar();
 
-
-
+        }
 
 
         onCancelButtonClick(event: JQueryEventObject): void

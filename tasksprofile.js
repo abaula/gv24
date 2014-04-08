@@ -48,6 +48,7 @@ var TasksProfile;
             $("#i-ctrl-tasks-form-from-city-delete-btn").click(TasksProfile.__currentTasksProfile.onCity1Delete);
             $("#i-ctrl-tasks-form-to-city-delete-btn").click(TasksProfile.__currentTasksProfile.onCity2Delete);
 
+            $("#i-ctrl-tasks-form-ready-date-select-btn").click(TasksProfile.__currentTasksProfile.onReadyDateSelectClick);
             $("#i-ctrl-tasks-list-add-btn").click(TasksProfile.__currentTasksProfile.onAddButtonClick);
 
             // получаем данные справочников
@@ -788,6 +789,18 @@ else
 
             // прячем форму
             TasksProfile.__currentTasksProfile.showEditForm(false);
+        };
+
+        TasksProfileController.prototype.onReadyDateSelectClick = function (event) {
+            var readyDate = "";
+
+            if (null == TasksProfile.__currentTasksProfile.currentCargo)
+                readyDate = new Date().toDateString();
+else
+                readyDate = TasksProfile.__currentTasksProfile.currentCargo.readyDate;
+
+            Application.__currentCalendarControl.init($("#i-ctrl-tasks-form-ready-date-txt"), readyDate);
+            Application.__currentCalendarControl.showCalendar();
         };
 
         TasksProfileController.prototype.onCancelButtonClick = function (event) {

@@ -18,6 +18,23 @@
 </head>
 <body>
 
+    <div id="i-page-datepicker" class="c-page-datepicker hidden">
+        <div id="i-page-datepicker-year-block" class="c-page-datepicker-year">
+            <select id="i-page-datepicker-year-select"></select>
+        </div>
+        <div id="i-page-datepicker-month-block" class="c-page-datepicker-month">
+            <select id="i-page-datepicker-month-select"></select>
+        </div>
+        <div id="i-page-datepicker-templates-container" class="hidden">
+            <div id="i-page-datepicker-calendar-row-template">
+                <div id="i-page-datepicker-calendar-cell-template" class="c-page-datepicker-cell"></div>
+            </div>
+        </div>
+        <div id="i-page-datepicker-calendar-block">
+                
+        </div>
+    </div>
+
     <div class="c-page-top-section-block">
         <div class="c-page-top-panel-block">
             <div class="c-page-top-logo">gv24.ru</div>
@@ -683,7 +700,7 @@
                                         <div class="c-page-property-set-block">
                                             <div class="c-page-property-key-block">Дата готовности:</div>
                                             <div class="c-page-property-input-block"><input id="i-ctrl-tasks-form-ready-date-txt" type="text" placeholder=""/>
-                                                <div class="c-page-form-button fa fa-calendar"></div>
+                                                <div id="i-ctrl-tasks-form-ready-date-select-btn" class="c-page-form-button fa fa-calendar"></div>
                                             </div>                                            
                                             <div id="i-ctrl-tasks-form-ready-date-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                                         </div>

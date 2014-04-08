@@ -492,3 +492,27 @@ button, input {
     padding: 4px;
     cursor: pointer;
 }
+
+.c-page-datepicker {
+    background-color: #ffffff;
+    padding: 4px;
+    border: 1px solid #000000;
+    position: absolute;
+    z-index: 10000;
+}
+
+.c-page-datepicker-year {
+    display: block;    
+}
+
+.c-page-datepicker-month {
+    display: block;
+}
+
+.c-page-datepicker-cell {
+    display: inline-block;
+}
+
+.c-page-datepicker-cell-selected {
+    font-weight: bold;
+}
