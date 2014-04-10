@@ -4,48 +4,6 @@
 
 module Application
 {
-    export class CalendarControl
-    {
-        control: JQuery = null;
-        selectedDate: number = Date.now();
-
-        init(control: JQuery, date: string): void
-        {
-            __currentCalendarControl.control = control;
-            __currentCalendarControl.setDate(date);
-        }
-
-        setToday(): void
-        {
-            __currentCalendarControl.selectedDate = Date.now();
-        }
-
-        setDate(date: string): void
-        {
-            if (null == date || 1 > date.length)
-                __currentCalendarControl.setToday()
-            else
-                __currentCalendarControl.selectedDate = Date.parse(date);            
-        }
-
-        showCalendar(): void
-        {
-            var dp: JQuery = $("#i-page-datepicker");
-            
-            // вычисляем положение списка на экране
-            var top: number = __currentCalendarControl.control.offset().top;
-            top += __currentCalendarControl.control.height();
-            var left: number = __currentCalendarControl.control.offset().left;
-
-            dp.css({ top: top, left: left });
-            dp.removeClass("hidden").addClass("block");
-        }
-
-    }
-
-    export var __currentCalendarControl = new CalendarControl();
-
-
 
     export class CityData
     {

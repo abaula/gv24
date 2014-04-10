@@ -35,9 +35,6 @@
     width: 200pt;
 }
 
-#i-ctrl-tasks-edit-form select {
-    width: 210pt;
-}
 
 #i-ctrl-tasks-edit-form textarea {
     height: 40pt;
@@ -255,4 +252,20 @@
 }
 
 .c-ctrl-tasks-table-row-delete-cancel-button {
+}
+
+.c-ctrl-tasks-edit-form-select-standart {
+    width: 210pt;
+}
+
+.c-ctrl-tasks-form-ready-date-day {
+    width: 40pt;
+}
+
+.c-ctrl-tasks-form-ready-date-month {
+    width: 100pt;
+}
+
+.c-ctrl-tasks-form-ready-date-year {
+    width: 70pt;
 }

@@ -82,7 +82,6 @@ module TasksProfile
             $("#i-ctrl-tasks-form-from-city-delete-btn").click(__currentTasksProfile.onCity1Delete);
             $("#i-ctrl-tasks-form-to-city-delete-btn").click(__currentTasksProfile.onCity2Delete);
 
-            $("#i-ctrl-tasks-form-ready-date-select-btn").click(__currentTasksProfile.onReadyDateSelectClick);
             $("#i-ctrl-tasks-list-add-btn").click(__currentTasksProfile.onAddButtonClick);
 
             // получаем данные справочников
@@ -188,18 +187,22 @@ module TasksProfile
                     $("#i-ctrl-tasks-form-weight-txt").val(c.weight);
                     $("#i-ctrl-tasks-form-value-txt").val(c.value);
                     $("#i-ctrl-tasks-form-packing-type-select").val(c.packingTypeId);
-                    $("#i-ctrl-tasks-form-num-of-packages-txt").val(c.numOfPackages);                    
+                    $("#i-ctrl-tasks-form-num-of-packages-txt").val(c.numOfPackages);
                     $("#i-ctrl-tasks-form-from-address-txt").val(c.addr1);
-                    $("#i-ctrl-tasks-form-loading-type-select").val(c.loadingTypeId1);                    
+                    $("#i-ctrl-tasks-form-loading-type-select").val(c.loadingTypeId1);
                     $("#i-ctrl-tasks-form-to-address-txt").val(c.addr2);
                     $("#i-ctrl-tasks-form-unloading-type-select").val(c.loadingTypeId2);
-                    $("#i-ctrl-tasks-form-ready-date-txt").val(c.readyDate);
+                    __currentTasksProfile.setCargoDate(c.readyDate);
                     $("#i-ctrl-tasks-form-cost-txt").val(c.cost);
-                    $("#i-ctrl-tasks-form-contacts-txt").val(c.contacts); 
+                    $("#i-ctrl-tasks-form-contacts-txt").val(c.contacts);
 
                     __currentTasksProfile.cityTmpData1 = c.city1;
                     __currentTasksProfile.cityTmpData2 = c.city2;
-                    __currentTasksProfile.applyCityData();                  
+                    __currentTasksProfile.applyCityData();
+                }
+                else
+                {
+                    __currentTasksProfile.setDefaultCargoDate();
                 }
             }
             else
@@ -677,7 +680,92 @@ module TasksProfile
             $("#i-ctrl-tasks-form-unloading-type-select").val(0);
             __currentTasksProfile.onCity1Delete(null);
             __currentTasksProfile.onCity2Delete(null);
+            __currentTasksProfile.clearCargoDate();
         }
+
+        clearCargoDate(): void
+        {
+            $("#i-ctrl-tasks-form-ready-date-day-select option").remove();
+            $("#i-ctrl-tasks-form-ready-date-month-select option").remove();
+            $("#i-ctrl-tasks-form-ready-date-year-select option").remove();
+        }
+
+        setDefaultCargoDate(): void
+        {
+            var date: Date = new Date();
+            //window.console.log(date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear());
+            var dateString: string = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
+            //__currentTasksProfile.setCargoDate("12-06-1997");
+            __currentTasksProfile.setCargoDate(dateString);
+        }
+
+        getCargoDate(): string
+        {
+            var day: string = $("#i-ctrl-tasks-form-ready-date-day-select").val();
+            var month: string = $("#i-ctrl-tasks-form-ready-date-month-select").val();
+            var year: string = $("#i-ctrl-tasks-form-ready-date-year-select").val();
+
+            return day + "-" + (parseInt(month) < 10 ? ("0" + month) : month) + "-" + year;
+        }
+
+        setCargoDate(date: string): void
+        {
+            var arr: string[] = date.split("-");
+            var day: number = parseInt(arr[0]);
+            var month: number = parseInt(arr[1]);
+            var year: number = parseInt(arr[2]);
+
+            var opt: JQuery = null;
+            var select: JQuery = null;
+
+            // заполняем дни
+            select = $("#i-ctrl-tasks-form-ready-date-day-select");
+
+            for (var i: number = 1; i <= 31; i++)
+            {
+                opt = $("<option></option>");
+                opt.val(i).text(i);
+                select.append(opt);
+            } 
+
+            select.val(day);
+
+            // заполняем месяца
+            var monthArr: string[] = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+            select = $("#i-ctrl-tasks-form-ready-date-month-select");
+
+            for (var i: number = 0; i < 12; i++)
+            {
+                opt = $("<option></option>");
+                opt.val(i + 1).text(monthArr[i]);
+                select.append(opt);
+            }
+
+            select.val(month);
+
+            // заполняем года
+            select = $("#i-ctrl-tasks-form-ready-date-year-select");
+
+            var d: Date = new Date();
+            var currentYear: number = d.getFullYear();
+
+            if (year != currentYear)
+            {
+                opt = $("<option></option>");
+                opt.val(year).text(year);
+                select.append(opt);
+            }
+
+            for (var i: number = 0; i < 2; i++)
+            {
+                opt = $("<option></option>");
+                opt.val(currentYear + i).text(currentYear + i);
+                select.append(opt);
+            }
+
+        }
+
+        
 
         createAjaxCargoFromForm(): AjaxCargo
         {
@@ -804,7 +892,7 @@ module TasksProfile
 
 
             // дата готовности
-            cargo.readyDate = $("#i-ctrl-tasks-form-ready-date-txt").val().trim();
+            cargo.readyDate = __currentTasksProfile.getCargoDate();
 
             if (false == Validators.Validator.prototype.validateDate(cargo.readyDate))
             {
@@ -970,22 +1058,6 @@ module TasksProfile
 
             // прячем форму
             __currentTasksProfile.showEditForm(false);
-
-        }
-
-
-
-        onReadyDateSelectClick(event: JQueryEventObject): void
-        {
-            var readyDate: string = "";
-
-            if (null == __currentTasksProfile.currentCargo)
-                readyDate = new Date().toDateString();
-            else
-                readyDate = __currentTasksProfile.currentCargo.readyDate;
-
-            Application.__currentCalendarControl.init($("#i-ctrl-tasks-form-ready-date-txt"), readyDate);
-            Application.__currentCalendarControl.showCalendar();
 
         }
 

@@ -48,7 +48,6 @@ var TasksProfile;
             $("#i-ctrl-tasks-form-from-city-delete-btn").click(TasksProfile.__currentTasksProfile.onCity1Delete);
             $("#i-ctrl-tasks-form-to-city-delete-btn").click(TasksProfile.__currentTasksProfile.onCity2Delete);
 
-            $("#i-ctrl-tasks-form-ready-date-select-btn").click(TasksProfile.__currentTasksProfile.onReadyDateSelectClick);
             $("#i-ctrl-tasks-list-add-btn").click(TasksProfile.__currentTasksProfile.onAddButtonClick);
 
             // получаем данные справочников
@@ -136,13 +135,15 @@ var TasksProfile;
                     $("#i-ctrl-tasks-form-loading-type-select").val(c.loadingTypeId1);
                     $("#i-ctrl-tasks-form-to-address-txt").val(c.addr2);
                     $("#i-ctrl-tasks-form-unloading-type-select").val(c.loadingTypeId2);
-                    $("#i-ctrl-tasks-form-ready-date-txt").val(c.readyDate);
+                    TasksProfile.__currentTasksProfile.setCargoDate(c.readyDate);
                     $("#i-ctrl-tasks-form-cost-txt").val(c.cost);
                     $("#i-ctrl-tasks-form-contacts-txt").val(c.contacts);
 
                     TasksProfile.__currentTasksProfile.cityTmpData1 = c.city1;
                     TasksProfile.__currentTasksProfile.cityTmpData2 = c.city2;
                     TasksProfile.__currentTasksProfile.applyCityData();
+                } else {
+                    TasksProfile.__currentTasksProfile.setDefaultCargoDate();
                 }
             } else {
                 TasksProfile.__currentTasksProfile.currentCargo = null;
@@ -544,6 +545,82 @@ else
             $("#i-ctrl-tasks-form-unloading-type-select").val(0);
             TasksProfile.__currentTasksProfile.onCity1Delete(null);
             TasksProfile.__currentTasksProfile.onCity2Delete(null);
+            TasksProfile.__currentTasksProfile.clearCargoDate();
+        };
+
+        TasksProfileController.prototype.clearCargoDate = function () {
+            $("#i-ctrl-tasks-form-ready-date-day-select option").remove();
+            $("#i-ctrl-tasks-form-ready-date-month-select option").remove();
+            $("#i-ctrl-tasks-form-ready-date-year-select option").remove();
+        };
+
+        TasksProfileController.prototype.setDefaultCargoDate = function () {
+            var date = new Date();
+
+            //window.console.log(date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear());
+            var dateString = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
+
+            //__currentTasksProfile.setCargoDate("12-06-1997");
+            TasksProfile.__currentTasksProfile.setCargoDate(dateString);
+        };
+
+        TasksProfileController.prototype.getCargoDate = function () {
+            var day = $("#i-ctrl-tasks-form-ready-date-day-select").val();
+            var month = $("#i-ctrl-tasks-form-ready-date-month-select").val();
+            var year = $("#i-ctrl-tasks-form-ready-date-year-select").val();
+
+            return day + "-" + (parseInt(month) < 10 ? ("0" + month) : month) + "-" + year;
+        };
+
+        TasksProfileController.prototype.setCargoDate = function (date) {
+            var arr = date.split("-");
+            var day = parseInt(arr[0]);
+            var month = parseInt(arr[1]);
+            var year = parseInt(arr[2]);
+
+            var opt = null;
+            var select = null;
+
+            // заполняем дни
+            select = $("#i-ctrl-tasks-form-ready-date-day-select");
+
+            for (var i = 1; i <= 31; i++) {
+                opt = $("<option></option>");
+                opt.val(i).text(i);
+                select.append(opt);
+            }
+
+            select.val(day);
+
+            // заполняем месяца
+            var monthArr = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+            select = $("#i-ctrl-tasks-form-ready-date-month-select");
+
+            for (var i = 0; i < 12; i++) {
+                opt = $("<option></option>");
+                opt.val(i + 1).text(monthArr[i]);
+                select.append(opt);
+            }
+
+            select.val(month);
+
+            // заполняем года
+            select = $("#i-ctrl-tasks-form-ready-date-year-select");
+
+            var d = new Date();
+            var currentYear = d.getFullYear();
+
+            if (year != currentYear) {
+                opt = $("<option></option>");
+                opt.val(year).text(year);
+                select.append(opt);
+            }
+
+            for (var i = 0; i < 2; i++) {
+                opt = $("<option></option>");
+                opt.val(currentYear + i).text(currentYear + i);
+                select.append(opt);
+            }
         };
 
         TasksProfileController.prototype.createAjaxCargoFromForm = function () {
@@ -649,7 +726,7 @@ else
             }
 
             // дата готовности
-            cargo.readyDate = $("#i-ctrl-tasks-form-ready-date-txt").val().trim();
+            cargo.readyDate = TasksProfile.__currentTasksProfile.getCargoDate();
 
             if (false == Validators.Validator.prototype.validateDate(cargo.readyDate)) {
                 errors = true;
@@ -789,18 +866,6 @@ else
 
             // прячем форму
             TasksProfile.__currentTasksProfile.showEditForm(false);
-        };
-
-        TasksProfileController.prototype.onReadyDateSelectClick = function (event) {
-            var readyDate = "";
-
-            if (null == TasksProfile.__currentTasksProfile.currentCargo)
-                readyDate = new Date().toDateString();
-else
-                readyDate = TasksProfile.__currentTasksProfile.currentCargo.readyDate;
-
-            Application.__currentCalendarControl.init($("#i-ctrl-tasks-form-ready-date-txt"), readyDate);
-            Application.__currentCalendarControl.showCalendar();
         };
 
         TasksProfileController.prototype.onCancelButtonClick = function (event) {
