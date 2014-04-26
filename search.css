@@ -1,1 +1,7 @@
-﻿
+﻿#i-ctrl-search-form div.c-page-property-key-block {
+    width: 110pt;
+}
+
+#i-ctrl-search-form input {
+    width: 200pt;
+}
