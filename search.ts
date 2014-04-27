@@ -15,10 +15,14 @@ module Search
         {
             __currentComp.application = app;
             __currentComp.state = state;
+            Dictionary.__currDictionary.init(app, __currentComp);
 
-            // TODO загружаем словари
+            // загружаем словари
+            Dictionary.__currDictionary.queryDictData("cargotype");
+            Dictionary.__currDictionary.queryDictData("cargoadrtype");
+            Dictionary.__currDictionary.queryDictData("loadingtype");
 
-
+            __currentComp.setDefaultCargoDate();
 
             __currentComp.onComponentLoaded();
         }
@@ -58,6 +62,19 @@ module Search
 
         dictDataReady(name: string): void
         {
+            if ("cargotype" == name)
+            {
+                __currentComp.drawCargoType(Dictionary.__currDictionary.cargoTypes);
+            }
+            else if ("cargoadrtype" == name)
+            {
+                __currentComp.drawCargoADRType(Dictionary.__currDictionary.cargoADRTypes);
+            }
+            else if ("loadingtype" == name)
+            {
+                __currentComp.drawLoadingType(Dictionary.__currDictionary.loadingTypes);
+                __currentComp.drawUnloadingType(Dictionary.__currDictionary.loadingTypes);
+            }
         }
 
         onComponentLoaded(): void
@@ -66,7 +83,168 @@ module Search
             __currentComp.application.componentReady();
         }
 
-        
+        drawCargoType(data: Dictionary.DictionaryEntry[]): void
+        {
+
+            var select: JQuery = $("#i-ctrl-search-form-cargo-type-select");
+
+            for (var i: number = 0; i < data.length; i++)
+            {
+                var entry: Dictionary.DictionaryEntry = data[i];
+                var opt: JQuery = $("<option></option>");
+                opt.val(entry.id).text(entry.name);
+                select.append(opt);
+            }
+
+            select.val(0);
+        }
+
+        drawCargoADRType(data: Dictionary.DictionaryEntry[]): void
+        {
+            var select: JQuery = $("#i-ctrl-search-form-cargo-adr-type-select");
+
+            for (var i: number = 0; i < data.length; i++)
+            {
+                var entry: Dictionary.DictionaryEntry = data[i];
+                var opt: JQuery = $("<option></option>");
+                opt.val(entry.id).text(entry.name);
+                select.append(opt);
+            }
+
+            select.val(0);
+        }
+
+        drawLoadingType(data: Dictionary.DictionaryEntry[]): void
+        {
+            var select: JQuery = $("#i-ctrl-search-form-loading-type-select");
+
+            for (var i: number = 0; i < data.length; i++)
+            {
+                var entry: Dictionary.DictionaryEntry = data[i];
+                var opt: JQuery = $("<option></option>");
+                opt.val(entry.id).text(entry.name);
+                select.append(opt);
+            }
+
+            select.val(0);
+        }
+
+        drawUnloadingType(data: Dictionary.DictionaryEntry[]): void
+        {
+            var select: JQuery = $("#i-ctrl-search-form-unloading-type-select");
+
+            for (var i: number = 0; i < data.length; i++)
+            {
+                var entry: Dictionary.DictionaryEntry = data[i];
+                var opt: JQuery = $("<option></option>");
+                opt.val(entry.id).text(entry.name);
+                select.append(opt);
+            }
+
+            select.val(0);
+        }
+
+
+        clearCargoDate(): void
+        {
+            $("#i-ctrl-search-form-ready-date-day-select option").remove();
+            $("#i-ctrl-search-form-ready-date-month-select option").remove();
+            $("#i-ctrl-search-form-ready-date-year-select option").remove();
+        }
+
+        setDefaultCargoDate(): void
+        {
+            var date: Date = new Date();
+            //window.console.log(date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear());
+            var dateString: string = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
+            //__currentTasksProfile.setCargoDate("12-06-1997");
+            __currentComp.setCargoDate(dateString);
+        }
+
+        getCargoDate(): string
+        {
+            var day: string = $("#i-ctrl-search-form-ready-date-day-select").val();
+            var month: string = $("#i-ctrl-search-form-ready-date-month-select").val();
+            var year: string = $("#i-ctrl-search-form-ready-date-year-select").val();
+
+            return day + "-" + (parseInt(month) < 10 ? ("0" + month) : month) + "-" + year;
+        }
+
+        setCargoDate(date: string): void
+        {
+            var arr: string[] = date.split("-");
+            var day: number = parseInt(arr[0]);
+            var month: number = parseInt(arr[1]);
+            var year: number = parseInt(arr[2]);
+
+            var opt: JQuery = null;
+            var select: JQuery = null;
+
+            // заполняем дни
+            select = $("#i-ctrl-search-form-ready-date-day-select");
+
+            for (var i: number = 1; i <= 31; i++)
+            {
+                opt = $("<option></option>");
+                opt.val(i).text(i);
+                select.append(opt);
+            }
+
+            select.val(day);
+
+            // заполняем месяца
+            var monthArr: string[] = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+            select = $("#i-ctrl-search-form-ready-date-month-select");
+
+            for (var i: number = 0; i < 12; i++)
+            {
+                opt = $("<option></option>");
+                opt.val(i + 1).text(monthArr[i]);
+                select.append(opt);
+            }
+
+            select.val(month);
+
+            // заполняем года
+            select = $("#i-ctrl-search-form-ready-date-year-select");
+
+            var d: Date = new Date();
+            var currentYear: number = d.getFullYear();
+
+            if (year != currentYear)
+            {
+                opt = $("<option></option>");
+                opt.val(year).text(year);
+                select.append(opt);
+            }
+
+            for (var i: number = 0; i < 2; i++)
+            {
+                opt = $("<option></option>");
+                opt.val(currentYear + i).text(currentYear + i);
+                select.append(opt);
+            }
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         onDocumentReady(): void
         {
@@ -77,6 +255,10 @@ module Search
             // настраиваем Application
             Application.__currentApp.init(__currentComp, false);
         }
+
+
+
+
 
     }
 

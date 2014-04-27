@@ -12,8 +12,15 @@ var Search;
         SearchController.prototype.onLoad = function (app, parent, state) {
             Search.__currentComp.application = app;
             Search.__currentComp.state = state;
+            Dictionary.__currDictionary.init(app, Search.__currentComp);
 
-            // TODO загружаем словари
+            // загружаем словари
+            Dictionary.__currDictionary.queryDictData("cargotype");
+            Dictionary.__currDictionary.queryDictData("cargoadrtype");
+            Dictionary.__currDictionary.queryDictData("loadingtype");
+
+            Search.__currentComp.setDefaultCargoDate();
+
             Search.__currentComp.onComponentLoaded();
         };
 
@@ -43,11 +50,146 @@ var Search;
         };
 
         SearchController.prototype.dictDataReady = function (name) {
+            if ("cargotype" == name) {
+                Search.__currentComp.drawCargoType(Dictionary.__currDictionary.cargoTypes);
+            } else if ("cargoadrtype" == name) {
+                Search.__currentComp.drawCargoADRType(Dictionary.__currDictionary.cargoADRTypes);
+            } else if ("loadingtype" == name) {
+                Search.__currentComp.drawLoadingType(Dictionary.__currDictionary.loadingTypes);
+                Search.__currentComp.drawUnloadingType(Dictionary.__currDictionary.loadingTypes);
+            }
         };
 
         SearchController.prototype.onComponentLoaded = function () {
             Search.__currentComp.isComponentLoaded = true;
             Search.__currentComp.application.componentReady();
+        };
+
+        SearchController.prototype.drawCargoType = function (data) {
+            var select = $("#i-ctrl-search-form-cargo-type-select");
+
+            for (var i = 0; i < data.length; i++) {
+                var entry = data[i];
+                var opt = $("<option></option>");
+                opt.val(entry.id).text(entry.name);
+                select.append(opt);
+            }
+
+            select.val(0);
+        };
+
+        SearchController.prototype.drawCargoADRType = function (data) {
+            var select = $("#i-ctrl-search-form-cargo-adr-type-select");
+
+            for (var i = 0; i < data.length; i++) {
+                var entry = data[i];
+                var opt = $("<option></option>");
+                opt.val(entry.id).text(entry.name);
+                select.append(opt);
+            }
+
+            select.val(0);
+        };
+
+        SearchController.prototype.drawLoadingType = function (data) {
+            var select = $("#i-ctrl-search-form-loading-type-select");
+
+            for (var i = 0; i < data.length; i++) {
+                var entry = data[i];
+                var opt = $("<option></option>");
+                opt.val(entry.id).text(entry.name);
+                select.append(opt);
+            }
+
+            select.val(0);
+        };
+
+        SearchController.prototype.drawUnloadingType = function (data) {
+            var select = $("#i-ctrl-search-form-unloading-type-select");
+
+            for (var i = 0; i < data.length; i++) {
+                var entry = data[i];
+                var opt = $("<option></option>");
+                opt.val(entry.id).text(entry.name);
+                select.append(opt);
+            }
+
+            select.val(0);
+        };
+
+        SearchController.prototype.clearCargoDate = function () {
+            $("#i-ctrl-search-form-ready-date-day-select option").remove();
+            $("#i-ctrl-search-form-ready-date-month-select option").remove();
+            $("#i-ctrl-search-form-ready-date-year-select option").remove();
+        };
+
+        SearchController.prototype.setDefaultCargoDate = function () {
+            var date = new Date();
+
+            //window.console.log(date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear());
+            var dateString = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
+
+            //__currentTasksProfile.setCargoDate("12-06-1997");
+            Search.__currentComp.setCargoDate(dateString);
+        };
+
+        SearchController.prototype.getCargoDate = function () {
+            var day = $("#i-ctrl-search-form-ready-date-day-select").val();
+            var month = $("#i-ctrl-search-form-ready-date-month-select").val();
+            var year = $("#i-ctrl-search-form-ready-date-year-select").val();
+
+            return day + "-" + (parseInt(month) < 10 ? ("0" + month) : month) + "-" + year;
+        };
+
+        SearchController.prototype.setCargoDate = function (date) {
+            var arr = date.split("-");
+            var day = parseInt(arr[0]);
+            var month = parseInt(arr[1]);
+            var year = parseInt(arr[2]);
+
+            var opt = null;
+            var select = null;
+
+            // заполняем дни
+            select = $("#i-ctrl-search-form-ready-date-day-select");
+
+            for (var i = 1; i <= 31; i++) {
+                opt = $("<option></option>");
+                opt.val(i).text(i);
+                select.append(opt);
+            }
+
+            select.val(day);
+
+            // заполняем месяца
+            var monthArr = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+            select = $("#i-ctrl-search-form-ready-date-month-select");
+
+            for (var i = 0; i < 12; i++) {
+                opt = $("<option></option>");
+                opt.val(i + 1).text(monthArr[i]);
+                select.append(opt);
+            }
+
+            select.val(month);
+
+            // заполняем года
+            select = $("#i-ctrl-search-form-ready-date-year-select");
+
+            var d = new Date();
+            var currentYear = d.getFullYear();
+
+            if (year != currentYear) {
+                opt = $("<option></option>");
+                opt.val(year).text(year);
+                select.append(opt);
+            }
+
+            for (var i = 0; i < 2; i++) {
+                opt = $("<option></option>");
+                opt.val(currentYear + i).text(currentYear + i);
+                select.append(opt);
+            }
         };
 
         SearchController.prototype.onDocumentReady = function () {

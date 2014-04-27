@@ -5,3 +5,16 @@
 #i-ctrl-search-form input {
     width: 200pt;
 }
+
+
+.c-ctrl-search-form-ready-date-day {
+    width: 40pt;
+}
+
+.c-ctrl-search-form-ready-date-month {
+    width: 100pt;
+}
+
+.c-ctrl-search-form-ready-date-year {
+    width: 70pt;
+}
