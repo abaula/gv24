@@ -66,55 +66,67 @@ var Search;
         };
 
         SearchController.prototype.drawCargoType = function (data) {
-            var select = $("#i-ctrl-search-form-cargo-type-select");
+            var container = $("#i-ctrl-search-form-cargo-type");
+            var tmp = $("#i-ctrl-search-form-cargo-type-template");
 
             for (var i = 0; i < data.length; i++) {
                 var entry = data[i];
-                var opt = $("<option></option>");
-                opt.val(entry.id).text(entry.name);
-                select.append(opt);
-            }
+                var opt = tmp.clone();
+                opt.removeAttr("id").removeClass("hidden").addClass("c-ctrl-search-form-checkbox-element");
+                $(":checkbox", opt).attr("data-id", entry.id);
+                $("label", opt).text(entry.name);
 
-            select.val(0);
+                container.append(opt);
+            }
         };
 
         SearchController.prototype.drawCargoADRType = function (data) {
-            var select = $("#i-ctrl-search-form-cargo-adr-type-select");
+            var container = $("#i-ctrl-search-form-cargo-adr-type");
+            var tmp = $("#i-ctrl-search-form-cargo-adr-type-template");
 
             for (var i = 0; i < data.length; i++) {
                 var entry = data[i];
-                var opt = $("<option></option>");
-                opt.val(entry.id).text(entry.name);
-                select.append(opt);
-            }
 
-            select.val(0);
+                if ("нет" == entry.name)
+                    continue;
+
+                var opt = tmp.clone();
+                opt.removeAttr("id").removeClass("hidden").addClass("c-ctrl-search-form-checkbox-element");
+                $(":checkbox", opt).attr("data-id", entry.id);
+                $("label", opt).text(entry.name);
+
+                container.append(opt);
+            }
         };
 
         SearchController.prototype.drawLoadingType = function (data) {
-            var select = $("#i-ctrl-search-form-loading-type-select");
+            var container = $("#i-ctrl-search-form-loading-type");
+            var tmp = $("#i-ctrl-search-form-loading-type-template");
 
             for (var i = 0; i < data.length; i++) {
                 var entry = data[i];
-                var opt = $("<option></option>");
-                opt.val(entry.id).text(entry.name);
-                select.append(opt);
-            }
+                var opt = tmp.clone();
+                opt.removeAttr("id").removeClass("hidden").addClass("c-ctrl-search-form-checkbox-element");
+                $(":checkbox", opt).attr("data-id", entry.id);
+                $("label", opt).text(entry.name);
 
-            select.val(0);
+                container.append(opt);
+            }
         };
 
         SearchController.prototype.drawUnloadingType = function (data) {
-            var select = $("#i-ctrl-search-form-unloading-type-select");
+            var container = $("#i-ctrl-search-form-unloading-type");
+            var tmp = $("#i-ctrl-search-form-unloading-type-template");
 
             for (var i = 0; i < data.length; i++) {
                 var entry = data[i];
-                var opt = $("<option></option>");
-                opt.val(entry.id).text(entry.name);
-                select.append(opt);
-            }
+                var opt = tmp.clone();
+                opt.removeAttr("id").removeClass("hidden").addClass("c-ctrl-search-form-checkbox-element");
+                $(":checkbox", opt).attr("data-id", entry.id);
+                $("label", opt).text(entry.name);
 
-            select.val(0);
+                container.append(opt);
+            }
         };
 
         SearchController.prototype.clearCargoDate = function () {

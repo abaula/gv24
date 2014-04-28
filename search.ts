@@ -85,63 +85,74 @@ module Search
 
         drawCargoType(data: Dictionary.DictionaryEntry[]): void
         {
-
-            var select: JQuery = $("#i-ctrl-search-form-cargo-type-select");
+            var container: JQuery = $("#i-ctrl-search-form-cargo-type");
+            var tmp: JQuery = $("#i-ctrl-search-form-cargo-type-template");
 
             for (var i: number = 0; i < data.length; i++)
             {
                 var entry: Dictionary.DictionaryEntry = data[i];
-                var opt: JQuery = $("<option></option>");
-                opt.val(entry.id).text(entry.name);
-                select.append(opt);
-            }
+                var opt: JQuery = tmp.clone();
+                opt.removeAttr("id").removeClass("hidden").addClass("c-ctrl-search-form-checkbox-element");
+                $(":checkbox", opt).attr("data-id", entry.id);
+                $("label", opt).text(entry.name);
 
-            select.val(0);
+                container.append(opt);
+            }
         }
 
         drawCargoADRType(data: Dictionary.DictionaryEntry[]): void
         {
-            var select: JQuery = $("#i-ctrl-search-form-cargo-adr-type-select");
+            var container: JQuery = $("#i-ctrl-search-form-cargo-adr-type");
+            var tmp: JQuery = $("#i-ctrl-search-form-cargo-adr-type-template");
 
             for (var i: number = 0; i < data.length; i++)
             {
                 var entry: Dictionary.DictionaryEntry = data[i];
-                var opt: JQuery = $("<option></option>");
-                opt.val(entry.id).text(entry.name);
-                select.append(opt);
-            }
 
-            select.val(0);
+                if ("нет" == entry.name)
+                    continue;
+
+                var opt: JQuery = tmp.clone();
+                opt.removeAttr("id").removeClass("hidden").addClass("c-ctrl-search-form-checkbox-element");
+                $(":checkbox", opt).attr("data-id", entry.id);
+                $("label", opt).text(entry.name);
+
+                container.append(opt);
+            }
         }
 
         drawLoadingType(data: Dictionary.DictionaryEntry[]): void
         {
-            var select: JQuery = $("#i-ctrl-search-form-loading-type-select");
+            var container: JQuery = $("#i-ctrl-search-form-loading-type");
+            var tmp: JQuery = $("#i-ctrl-search-form-loading-type-template");
 
             for (var i: number = 0; i < data.length; i++)
             {
                 var entry: Dictionary.DictionaryEntry = data[i];
-                var opt: JQuery = $("<option></option>");
-                opt.val(entry.id).text(entry.name);
-                select.append(opt);
-            }
+                var opt: JQuery = tmp.clone();
+                opt.removeAttr("id").removeClass("hidden").addClass("c-ctrl-search-form-checkbox-element");
+                $(":checkbox", opt).attr("data-id", entry.id);
+                $("label", opt).text(entry.name);
 
-            select.val(0);
+                container.append(opt);
+            }
         }
 
         drawUnloadingType(data: Dictionary.DictionaryEntry[]): void
         {
-            var select: JQuery = $("#i-ctrl-search-form-unloading-type-select");
+            var container: JQuery = $("#i-ctrl-search-form-unloading-type");
+            var tmp: JQuery = $("#i-ctrl-search-form-unloading-type-template");
 
             for (var i: number = 0; i < data.length; i++)
             {
                 var entry: Dictionary.DictionaryEntry = data[i];
-                var opt: JQuery = $("<option></option>");
-                opt.val(entry.id).text(entry.name);
-                select.append(opt);
-            }
+                var opt: JQuery = tmp.clone();
+                opt.removeAttr("id").removeClass("hidden").addClass("c-ctrl-search-form-checkbox-element");
+                $(":checkbox", opt).attr("data-id", entry.id);
+                $("label", opt).text(entry.name);
 
-            select.val(0);
+                container.append(opt);
+            }
         }
 
 

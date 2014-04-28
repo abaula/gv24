@@ -2,10 +2,60 @@
     width: 110pt;
 }
 
+
 #i-ctrl-search-form input {
     width: 200pt;
 }
 
+
+#i-ctrl-search-form-cargo-type {
+    border: 1px solid #e0e0e0;
+}
+
+#i-ctrl-search-form-cargo-adr-type {
+    border: 1px solid #e0e0e0;
+}
+
+#i-ctrl-search-form-loading-type {
+    border: 1px solid #e0e0e0;
+}
+
+#i-ctrl-search-form-unloading-type {
+    border: 1px solid #e0e0e0;
+}
+
+#i-ctrl-search-form-cargo-type input {
+    width: 1pt;
+    margin-right: 2px;
+    vertical-align: middle;
+}
+
+#i-ctrl-search-form-cargo-adr-type input {
+    width: 1pt;
+    margin-right: 2px;
+    vertical-align: middle;
+}
+
+#i-ctrl-search-form-loading-type input {
+    width: 1pt;
+    margin-right: 2px;
+    vertical-align: middle;
+}
+
+#i-ctrl-search-form-unloading-type input {
+    width: 1pt;
+    margin-right: 2px;
+    vertical-align: middle;
+}
+
+
+.c-ctrl-search-form-checkbox-element {
+    display: inline-block;
+    margin-bottom: 4px;
+    margin-right: 10px;    
+    padding: 2px;
+
+}
 
 .c-ctrl-search-form-ready-date-day {
     width: 40pt;
