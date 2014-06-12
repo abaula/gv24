@@ -8,6 +8,10 @@ var Search;
             this.isComponentLoaded = false;
             this.application = null;
             this.state = null;
+            this.cityTmpData1 = null;
+            this.cityTmpData2 = null;
+            this.cityBound1 = false;
+            this.cityBound2 = false;
         }
         SearchController.prototype.onLoad = function (app, parent, state) {
             Search.__currentComp.application = app;
@@ -20,6 +24,21 @@ var Search;
             Dictionary.__currDictionary.queryDictData("loadingtype");
 
             Search.__currentComp.setDefaultCargoDate();
+
+            // настраиваем обработчики событий
+            $("#i-ctrl-search-form-cargo-type-up-down-button").click(Search.__currentComp.onCargoTypeUpDownButtonClick);
+            $("#i-ctrl-search-form-cargo-adr-type-up-down-button").click(Search.__currentComp.onCargoAdrTypeUpDownButtonClick);
+            $("#i-ctrl-search-form-loading-type-up-down-button").click(Search.__currentComp.onLoadingTypeUpDownButtonClick);
+            $("#i-ctrl-search-form-unloading-type-up-down-button").click(Search.__currentComp.onUnloadingTypeUpDownButtonClick);
+
+            $("#i-ctrl-search-form-load-city-txt").focus(Search.__currentComp.onCity1Focus);
+            $("#i-ctrl-search-form-unload-city-txt").focus(Search.__currentComp.onCity2Focus);
+
+            $("#i-ctrl-search-form-load-city-delete-btn").click(Search.__currentComp.onCity1Delete);
+            $("#i-ctrl-search-form-unload-city-delete-btn").click(Search.__currentComp.onCity2Delete);
+
+            $("#i-ctrl-search-form-cancel-btn").click(Search.__currentComp.onClearButtonClick);
+            $("#i-ctrl-search-form-submit-btn").click(Search.__currentComp.onSubmitButtonClick);
 
             Search.__currentComp.onComponentLoaded();
         };
@@ -65,15 +84,29 @@ var Search;
             Search.__currentComp.application.componentReady();
         };
 
+        SearchController.prototype.onCitySelected = function (city) {
+            if (true == Search.__currentComp.cityBound1) {
+                Search.__currentComp.cityTmpData1 = city;
+            } else {
+                Search.__currentComp.cityTmpData2 = city;
+            }
+
+            Search.__currentComp.applyCityData();
+        };
+
+        SearchController.prototype.onCitySelectedAbort = function () {
+            Search.__currentComp.applyCityData();
+        };
+
         SearchController.prototype.drawCargoType = function (data) {
-            var container = $("#i-ctrl-search-form-cargo-type");
+            var container = $("#i-ctrl-search-form-cargo-type-checkbox-container");
             var tmp = $("#i-ctrl-search-form-cargo-type-template");
 
             for (var i = 0; i < data.length; i++) {
                 var entry = data[i];
                 var opt = tmp.clone();
                 opt.removeAttr("id").removeClass("hidden").addClass("c-ctrl-search-form-checkbox-element");
-                $(":checkbox", opt).attr("data-id", entry.id);
+                $(":checkbox", opt).attr("data-id", entry.id).change(Search.__currentComp.onCheckboxStateChanged);
                 $("label", opt).text(entry.name);
 
                 container.append(opt);
@@ -81,7 +114,7 @@ var Search;
         };
 
         SearchController.prototype.drawCargoADRType = function (data) {
-            var container = $("#i-ctrl-search-form-cargo-adr-type");
+            var container = $("#i-ctrl-search-form-cargo-adr-type-checkbox-container");
             var tmp = $("#i-ctrl-search-form-cargo-adr-type-template");
 
             for (var i = 0; i < data.length; i++) {
@@ -92,7 +125,7 @@ var Search;
 
                 var opt = tmp.clone();
                 opt.removeAttr("id").removeClass("hidden").addClass("c-ctrl-search-form-checkbox-element");
-                $(":checkbox", opt).attr("data-id", entry.id);
+                $(":checkbox", opt).attr("data-id", entry.id).change(Search.__currentComp.onCheckboxStateChanged);
                 $("label", opt).text(entry.name);
 
                 container.append(opt);
@@ -100,14 +133,14 @@ var Search;
         };
 
         SearchController.prototype.drawLoadingType = function (data) {
-            var container = $("#i-ctrl-search-form-loading-type");
+            var container = $("#i-ctrl-search-form-loading-type-checkbox-container");
             var tmp = $("#i-ctrl-search-form-loading-type-template");
 
             for (var i = 0; i < data.length; i++) {
                 var entry = data[i];
                 var opt = tmp.clone();
                 opt.removeAttr("id").removeClass("hidden").addClass("c-ctrl-search-form-checkbox-element");
-                $(":checkbox", opt).attr("data-id", entry.id);
+                $(":checkbox", opt).attr("data-id", entry.id).change(Search.__currentComp.onCheckboxStateChanged);
                 $("label", opt).text(entry.name);
 
                 container.append(opt);
@@ -115,14 +148,14 @@ var Search;
         };
 
         SearchController.prototype.drawUnloadingType = function (data) {
-            var container = $("#i-ctrl-search-form-unloading-type");
+            var container = $("#i-ctrl-search-form-unloading-type-checkbox-container");
             var tmp = $("#i-ctrl-search-form-unloading-type-template");
 
             for (var i = 0; i < data.length; i++) {
                 var entry = data[i];
                 var opt = tmp.clone();
                 opt.removeAttr("id").removeClass("hidden").addClass("c-ctrl-search-form-checkbox-element");
-                $(":checkbox", opt).attr("data-id", entry.id);
+                $(":checkbox", opt).attr("data-id", entry.id).change(Search.__currentComp.onCheckboxStateChanged);
                 $("label", opt).text(entry.name);
 
                 container.append(opt);
@@ -202,6 +235,156 @@ var Search;
                 opt.val(currentYear + i).text(currentYear + i);
                 select.append(opt);
             }
+        };
+
+        SearchController.prototype.onCheckboxStateChanged = function (event) {
+            var chb = $(event.delegateTarget).parent();
+
+            if (chb.hasClass("c-ctrl-search-form-checkbox-element")) {
+                chb.removeClass("c-ctrl-search-form-checkbox-element").addClass("c-ctrl-search-form-checkbox-element-checked");
+            } else {
+                chb.removeClass("c-ctrl-search-form-checkbox-element-checked").addClass("c-ctrl-search-form-checkbox-element");
+            }
+
+            Search.__currentComp.changeCheckboxPanelText(chb);
+        };
+
+        SearchController.prototype.changeCheckboxPanelText = function (checkbox) {
+            // соберём текст
+            var textArr = [];
+            var text = "не указан";
+            var checked = $("input:checked", checkbox.parent());
+
+            if (0 < checked.length) {
+                for (var i = 0; i < checked.length; i++) {
+                    var chk = $(checked.get(i));
+                    var label = $("label", $(chk).parent());
+                    textArr.push(label.text());
+                }
+
+                text = textArr.join("; ");
+            }
+
+            var textBlock = checkbox.parent().parent();
+            $("label.c-ctrl-search-form-checked-options", textBlock).text(text);
+        };
+
+        SearchController.prototype.onCargoTypeUpDownButtonClick = function (event) {
+            var btn = $(event.delegateTarget);
+
+            if (btn.hasClass("fa-rotate-180")) {
+                $("#i-ctrl-search-form-cargo-type-checkbox-container").removeClass("block").addClass("hidden");
+                btn.removeClass("fa-rotate-180");
+            } else {
+                $("#i-ctrl-search-form-cargo-type-checkbox-container").removeClass("hidden").addClass("block");
+                btn.addClass("fa-rotate-180");
+            }
+        };
+
+        SearchController.prototype.onCargoAdrTypeUpDownButtonClick = function (event) {
+            var btn = $(event.delegateTarget);
+
+            if (btn.hasClass("fa-rotate-180")) {
+                $("#i-ctrl-search-form-cargo-adr-type-checkbox-container").removeClass("block").addClass("hidden");
+                btn.removeClass("fa-rotate-180");
+            } else {
+                $("#i-ctrl-search-form-cargo-adr-type-checkbox-container").removeClass("hidden").addClass("block");
+                btn.addClass("fa-rotate-180");
+            }
+        };
+
+        SearchController.prototype.onLoadingTypeUpDownButtonClick = function (event) {
+            var btn = $(event.delegateTarget);
+
+            if (btn.hasClass("fa-rotate-180")) {
+                $("#i-ctrl-search-form-loading-type-checkbox-container").removeClass("block").addClass("hidden");
+                btn.removeClass("fa-rotate-180");
+            } else {
+                $("#i-ctrl-search-form-loading-type-checkbox-container").removeClass("hidden").addClass("block");
+                btn.addClass("fa-rotate-180");
+            }
+        };
+
+        SearchController.prototype.onUnloadingTypeUpDownButtonClick = function (event) {
+            var btn = $(event.delegateTarget);
+
+            if (btn.hasClass("fa-rotate-180")) {
+                $("#i-ctrl-search-form-unloading-type-checkbox-container").removeClass("block").addClass("hidden");
+                btn.removeClass("fa-rotate-180");
+            } else {
+                $("#i-ctrl-search-form-unloading-type-checkbox-container").removeClass("hidden").addClass("block");
+                btn.addClass("fa-rotate-180");
+            }
+        };
+
+        SearchController.prototype.onCity1Focus = function (event) {
+            Search.__currentComp.cityBound1 = true;
+            Search.__currentComp.cityBound2 = false;
+
+            // подключаем контрол выбора города
+            Application.__currentCitySelector.init($("#i-ctrl-search-form-load-city-txt"), Search.__currentComp);
+        };
+
+        SearchController.prototype.onCity2Focus = function (event) {
+            Search.__currentComp.cityBound1 = false;
+            Search.__currentComp.cityBound2 = true;
+
+            // подключаем контрол выбора города
+            Application.__currentCitySelector.init($("#i-ctrl-search-form-unload-city-txt"), Search.__currentComp);
+        };
+
+        SearchController.prototype.onCity1Delete = function (event) {
+            Search.__currentComp.cityTmpData1 = null;
+            Search.__currentComp.applyCityData();
+        };
+
+        SearchController.prototype.onCity2Delete = function (event) {
+            Search.__currentComp.cityTmpData2 = null;
+            Search.__currentComp.applyCityData();
+        };
+
+        SearchController.prototype.applyCityData = function () {
+            var city = null;
+            var fullName = "";
+
+            if (null != Search.__currentComp.cityTmpData1) {
+                city = Search.__currentComp.cityTmpData1;
+                fullName = city.fullname;
+            }
+
+            $("#i-ctrl-search-form-load-city-txt").val(fullName);
+
+            fullName = "";
+
+            if (null != Search.__currentComp.cityTmpData2) {
+                city = Search.__currentComp.cityTmpData2;
+                fullName = city.fullname;
+            }
+
+            $("#i-ctrl-search-form-unload-city-txt").val(fullName);
+        };
+
+        SearchController.prototype.onClearButtonClick = function (event) {
+            // сбрасываем значения городов
+            Search.__currentComp.setDefaultCargoDate();
+            Search.__currentComp.onCity1Delete(null);
+            Search.__currentComp.onCity2Delete(null);
+
+            // сбрасываем отмеченные чекбоксы
+            $("#i-ctrl-search-form :checkbox").attr("checked", false);
+            $("#i-ctrl-search-form div.c-ctrl-search-form-checkbox-element-checked").removeClass("c-ctrl-search-form-checkbox-element-checked").addClass("c-ctrl-search-form-checkbox-element");
+            $("#i-ctrl-search-form label.c-ctrl-search-form-checked-options").text("не указан");
+
+            // сбрасываем текстовые поля
+            $("#i-ctrl-search-form-max-weight-txt").val("");
+            $("#i-ctrl-search-form-max-value-txt").val("");
+            $("#i-ctrl-search-form-min-price-txt").val("");
+            $("#i-ctrl-search-form-max-distance-txt").val("");
+        };
+
+        SearchController.prototype.onSubmitButtonClick = function (event) {
+            // проверяем значения на корректность
+            // отправляем данные на сервер
         };
 
         SearchController.prototype.onDocumentReady = function () {

@@ -190,19 +190,23 @@
             <div class="c-page-form-block">
                 <div class="c-page-property-set-block">
                     <div class="c-page-property-key-block">Город загрузки:</div>
-                    <div class="c-page-property-input-block"><input id="i-ctrl-search-form-load-city-txt" type="text" placeholder=""/></div>
+                    <div class="c-page-property-input-block"><input id="i-ctrl-search-form-load-city-txt" type="text" placeholder=""/>
+                        <div id="i-ctrl-search-form-load-city-delete-btn" class="c-page-form-button fa fa-times"></div>
+                    </div>
                     <div id="i-ctrl-search-form-load-city-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                 </div>
 
                 <div class="c-page-property-set-block">
                     <div class="c-page-property-key-block">Город выгрузки:</div>
-                    <div class="c-page-property-input-block"><input id="i-ctrl-search-form-unload-city-txt" type="text" placeholder=""/></div>
+                    <div class="c-page-property-input-block"><input id="i-ctrl-search-form-unload-city-txt" type="text" placeholder=""/>
+                        <div id="i-ctrl-search-form-unload-city-delete-btn" class="c-page-form-button fa fa-times"></div>
+                    </div>
                     <div id="i-ctrl-search-form-unload-city-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                 </div>
 
                 <div class="c-page-property-set-block">
                     <div class="c-page-property-key-block">Макс. вес (кг):</div>
-                    <div class="c-page-property-input-block"><input id="Text1" type="i-ctrl-search-form-max-weight-txt" placeholder=""/></div>
+                    <div class="c-page-property-input-block"><input id="i-ctrl-search-form-max-weight-txt" type="text" placeholder=""/></div>
                     <div id="Div1" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                 </div>
 
@@ -215,8 +219,15 @@
                 <div class="c-page-property-set-block">
                     <div class="c-page-property-key-block">Типы грузов:</div>
                     <div id="i-ctrl-search-form-cargo-type" class="c-page-property-input-block">
-                        <div id="i-ctrl-search-form-cargo-type-template" class="hidden">
-                            <input type="checkbox" data-id="" /><label></label>
+                        <div id="i-ctrl-search-form-cargo-type-panel-block" class="c-ctrl-search-form-checkbox-panel">
+                            <label id="i-ctrl-search-form-cargo-type-up-down-button" class="fa fa-arrow-circle-down c-ctrl-search-form-up-down-button"></label>
+                            <label class="c-ctrl-search-form-checked-options">не указан</label>
+
+                        </div>
+                        <div id="i-ctrl-search-form-cargo-type-checkbox-container" class="hidden">
+                            <div id="i-ctrl-search-form-cargo-type-template" class="hidden">
+                                <input type="checkbox" data-id="" /><label></label>
+                            </div>
                         </div>
                     </div>
                     <div id="Div3" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
@@ -225,8 +236,14 @@
                 <div class="c-page-property-set-block">
                     <div class="c-page-property-key-block">Класс опасности:</div>
                     <div id="i-ctrl-search-form-cargo-adr-type" class="c-page-property-input-block">
-                        <div id="i-ctrl-search-form-cargo-adr-type-template" class="hidden">
-                            <input type="checkbox" data-id="" /><label></label>
+                        <div id="i-ctrl-search-form-cargo-adr-type-panel-block" class="c-ctrl-search-form-checkbox-panel">
+                            <label id="i-ctrl-search-form-cargo-adr-type-up-down-button" class="fa fa-arrow-circle-down c-ctrl-search-form-up-down-button"></label>
+                            <label class="c-ctrl-search-form-checked-options">не указан</label>
+                        </div>
+                        <div id="i-ctrl-search-form-cargo-adr-type-checkbox-container" class="hidden">
+                            <div id="i-ctrl-search-form-cargo-adr-type-template" class="hidden">
+                                <input type="checkbox" data-id="" /><label></label>
+                            </div>
                         </div>
                     </div>
                     <div id="Div4" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
@@ -234,12 +251,17 @@
 
                 <div class="c-page-property-set-block">
                     <div class="c-page-property-key-block">Типы погрузки:</div>
-                    <div id="i-ctrl-search-form-loading-type" class="c-page-property-input-block">
-                                
-                        <div id="i-ctrl-search-form-loading-type-template" class="hidden">
-                            <input type="checkbox" data-id="" /><label></label>
-                        </div>                                
+                    <div id="i-ctrl-search-form-loading-type" class="c-page-property-input-block">                                
+                        <div id="i-ctrl-search-form-loading-type-panel-block" class="c-ctrl-search-form-checkbox-panel">
+                            <label id="i-ctrl-search-form-loading-type-up-down-button" class="fa fa-arrow-circle-down c-ctrl-search-form-up-down-button"></label>
+                            <label class="c-ctrl-search-form-checked-options">не указан</label>
+                        </div>
 
+                        <div id="i-ctrl-search-form-loading-type-checkbox-container" class="hidden">
+                            <div id="i-ctrl-search-form-loading-type-template" class="hidden">
+                                <input type="checkbox" data-id="" /><label></label>
+                            </div>                                
+                        </div>
                     </div>
                     <div id="Div5" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                 </div>
@@ -248,19 +270,24 @@
                     <div class="c-page-property-key-block">Типы выгрузки:</div>
                     <div id="i-ctrl-search-form-unloading-type" class="c-page-property-input-block">
                                 
-                        <div id="i-ctrl-search-form-unloading-type-template" class="hidden">
-                            <input type="checkbox" data-id="" /><label></label>
-                        </div>                                
-
+                        <div id="i-ctrl-search-form-unloading-type-panel-block" class="c-ctrl-search-form-checkbox-panel">
+                            <label id="i-ctrl-search-form-unloading-type-up-down-button" class="fa fa-arrow-circle-down c-ctrl-search-form-up-down-button"></label>
+                            <label class="c-ctrl-search-form-checked-options">не указан</label>
+                        </div>
+                        <div id="i-ctrl-search-form-unloading-type-checkbox-container" class="hidden">
+                            <div id="i-ctrl-search-form-unloading-type-template" class="hidden">
+                                <input type="checkbox" data-id="" /><label></label>
+                            </div>                                
+                        </div>
                     </div>
                     <div id="Div6" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                 </div>
 
-<<<<<<< HEAD
+
 
                         <div class="c-page-property-set-block">
                             <div class="c-page-property-key-block">Стоимость не менее (руб./км.):</div>
-                            <div class="c-page-property-input-block"><input id="Text2" type="text" placeholder=""/></div>
+                            <div class="c-page-property-input-block"><input id="i-ctrl-search-form-min-price-txt" type="text" placeholder=""/></div>
                             <div id="Div9" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                         </div>
 
@@ -273,13 +300,13 @@
                             </div>                                            
                             <div id="i-ctrl-search-form-ready-date-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                         </div>
-=======
+
                 <div class="c-page-property-set-block">
                     <div class="c-page-property-key-block">Макс. расстояние (км):</div>
                     <div class="c-page-property-input-block"><input id="i-ctrl-search-form-max-distance-txt" type="text" placeholder=""/></div>
                     <div id="Div7" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                 </div>
->>>>>>> bd174e5e412f328dfb2abc1fd2a2b42546bd761d
+
 
                 <div class="c-page-property-set-block">
                     <div class="c-page-property-key-block">Только с указанной ценой:</div>
@@ -287,15 +314,7 @@
                     <div id="Div8" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                 </div>
 
-                <div class="c-page-property-set-block">
-                    <div class="c-page-property-key-block">Дата готовности не позже:</div>
-                    <div class="c-page-property-input-block">
-                        <select id="i-ctrl-search-form-ready-date-day-select" class="c-ctrl-search-form-ready-date-day"></select>
-                        <select id="i-ctrl-search-form-ready-date-month-select" class="c-ctrl-search-form-ready-date-month"></select>
-                        <select id="i-ctrl-search-form-ready-date-year-select" class="c-ctrl-search-form-ready-date-year"></select>
-                    </div>                                            
-                    <div id="i-ctrl-search-form-ready-date-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
-                </div>
+
 
 
                 <div class="с-page-button-set-block">
