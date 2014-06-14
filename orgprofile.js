@@ -105,6 +105,12 @@ var OrgProfile;
             // ничего не делаем
         };
 
+        OrgProfileController.prototype.onLogin = function () {
+        };
+
+        OrgProfileController.prototype.onLogout = function () {
+        };
+
         // вызовы от child IComponent
         OrgProfileController.prototype.dataLoaded = function (sender) {
             // Not Implemented

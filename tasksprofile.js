@@ -72,6 +72,12 @@ var TasksProfile;
         TasksProfileController.prototype.onHide = function (state) {
         };
 
+        TasksProfileController.prototype.onLogin = function () {
+        };
+
+        TasksProfileController.prototype.onLogout = function () {
+        };
+
         // вызовы от child IComponent
         TasksProfileController.prototype.dataLoaded = function (sender) {
         };

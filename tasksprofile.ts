@@ -107,6 +107,13 @@ module TasksProfile
         onHide(state: Application.IState): void
         { }
 
+        onLogin(): void
+        { }
+
+        onLogout(): void
+        { }
+
+
         // вызовы от child IComponent
         dataLoaded(sender: Application.IComponent): void
         { }

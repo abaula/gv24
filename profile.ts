@@ -67,6 +67,12 @@ module Profile
             }
         }
 
+        onLogin(): void
+        { }
+
+        onLogout(): void
+        { }
+
         dataLoaded(sender: Application.IComponent): void
         {
             __currentComp.drawComponentData(sender);

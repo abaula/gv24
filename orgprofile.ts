@@ -112,6 +112,12 @@ module OrgProfile
             // ничего не делаем
         }
 
+        onLogin(): void
+        { }
+
+        onLogout(): void
+        { }
+
         // вызовы от child IComponent
         dataLoaded(sender: Application.IComponent): void
         {

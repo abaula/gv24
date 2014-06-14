@@ -109,3 +109,19 @@
 .c-ctrl-search-form-ready-date-year {
     width: 70pt;
 }
+
+.с-ctrl-search-form-save-query-container {
+    
+}
+
+.с-ctrl-search-form-save-query-block {
+    margin-top: 10px;
+}
+
+    .с-ctrl-search-form-save-query-block label {
+        margin-right: 8px;
+    }
+
+.c-ctrl-search-form-query-name-container {
+
+}

@@ -187,7 +187,25 @@
 
                 
         <div id="i-ctrl-search-form" class="c-page-form-outer-block">
+
             <div class="c-page-form-block">
+
+                <div id="i-ctrl-search-form-query-name-container" class="c-ctrl-search-form-query-name-container block">
+                    <label>Сохранённый запрос:</label>
+                    <select></select>
+                </div>
+
+                <div id="i-ctrl-search-form-save-query-container" class="с-ctrl-search-form-save-query-container block">
+                    <div class="с-ctrl-search-form-save-query-block">
+                        <input id="i-ctrl-search-form-save-query-chk" type="checkbox"/>
+                        <label>Сохранить новый запрос</label>
+                    </div>
+                    <div class="с-ctrl-search-form-save-query-block">
+                        <label>Укажите имя запроса:</label>
+                        <input id="i-ctrl-search-form-save-query-name-txt" type="text" placeholder=""/>
+                    </div>
+                </div>
+
                 <div class="c-page-property-set-block">
                     <div class="c-page-property-key-block">Город загрузки:</div>
                     <div class="c-page-property-input-block"><input id="i-ctrl-search-form-load-city-txt" type="text" placeholder=""/>
@@ -205,15 +223,48 @@
                 </div>
 
                 <div class="c-page-property-set-block">
+                    <div class="c-page-property-key-block">Стоимость не менее (руб./км.):</div>
+                    <div class="c-page-property-input-block"><input id="i-ctrl-search-form-min-price-txt" type="text" placeholder=""/></div>
+                    <div id="i-ctrl-search-form-min-price-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                </div>
+
+                <div class="c-page-property-set-block">
+                    <div class="c-page-property-key-block">Дата готовности не позже:</div>
+                    <div class="c-page-property-input-block">
+                        <select id="i-ctrl-search-form-ready-date-day-select" class="c-ctrl-search-form-ready-date-day"></select>
+                        <select id="i-ctrl-search-form-ready-date-month-select" class="c-ctrl-search-form-ready-date-month"></select>
+                        <select id="i-ctrl-search-form-ready-date-year-select" class="c-ctrl-search-form-ready-date-year"></select>
+                    </div>                                            
+                    <div id="i-ctrl-search-form-ready-date-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                </div>
+
+                <div class="c-page-property-set-block">
+                    <div class="c-page-property-key-block">Макс. расстояние (км):</div>
+                    <div class="c-page-property-input-block"><input id="i-ctrl-search-form-max-distance-txt" type="text" placeholder=""/></div>
+                    <div id="i-ctrl-search-form-max-distance-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                </div>
+
+
+                <div class="c-page-property-set-block">
+                    <div class="c-page-property-key-block">Только с указанной ценой:</div>
+                    <div class="c-page-property-input-block"><input id="i-ctrl-search-form-with-price-chk" type="checkbox"/></div>
+                    <div id="i-ctrl-search-form-with-price-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                </div>
+
+                <div>
+                    <label>Параметры груза</label>
+                </div>
+
+                <div class="c-page-property-set-block">
                     <div class="c-page-property-key-block">Макс. вес (кг):</div>
                     <div class="c-page-property-input-block"><input id="i-ctrl-search-form-max-weight-txt" type="text" placeholder=""/></div>
-                    <div id="Div1" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                    <div id="i-ctrl-search-form-max-weight-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                 </div>
 
                 <div class="c-page-property-set-block">
                     <div class="c-page-property-key-block">Макс. объём (м<sup>3</sup>):</div>
                     <div class="c-page-property-input-block"><input id="i-ctrl-search-form-max-value-txt" type="text" placeholder=""/></div>
-                    <div id="Div2" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                    <div id="i-ctrl-search-form-max-value-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                 </div>
 
                 <div class="c-page-property-set-block">
@@ -230,7 +281,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id="Div3" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                    <div id="i-ctrl-search-form-cargo-type-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                 </div>
 
                 <div class="c-page-property-set-block">
@@ -246,7 +297,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id="Div4" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                    <div id="i-ctrl-search-form-cargo-adr-type-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                 </div>
 
                 <div class="c-page-property-set-block">
@@ -263,7 +314,7 @@
                             </div>                                
                         </div>
                     </div>
-                    <div id="Div5" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                    <div id="i-ctrl-search-form-loading-type-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                 </div>
 
                 <div class="c-page-property-set-block">
@@ -280,43 +331,9 @@
                             </div>                                
                         </div>
                     </div>
-                    <div id="Div6" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                    <div id="i-ctrl-search-form-unloading-type-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
                 </div>
-
-
-
-                        <div class="c-page-property-set-block">
-                            <div class="c-page-property-key-block">Стоимость не менее (руб./км.):</div>
-                            <div class="c-page-property-input-block"><input id="i-ctrl-search-form-min-price-txt" type="text" placeholder=""/></div>
-                            <div id="Div9" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
-                        </div>
-
-                        <div class="c-page-property-set-block">
-                            <div class="c-page-property-key-block">Дата готовности не позже:</div>
-                            <div class="c-page-property-input-block">
-                                <select id="i-ctrl-search-form-ready-date-day-select" class="c-ctrl-search-form-ready-date-day"></select>
-                                <select id="i-ctrl-search-form-ready-date-month-select" class="c-ctrl-search-form-ready-date-month"></select>
-                                <select id="i-ctrl-search-form-ready-date-year-select" class="c-ctrl-search-form-ready-date-year"></select>
-                            </div>                                            
-                            <div id="i-ctrl-search-form-ready-date-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
-                        </div>
-
-                <div class="c-page-property-set-block">
-                    <div class="c-page-property-key-block">Макс. расстояние (км):</div>
-                    <div class="c-page-property-input-block"><input id="i-ctrl-search-form-max-distance-txt" type="text" placeholder=""/></div>
-                    <div id="Div7" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
-                </div>
-
-
-                <div class="c-page-property-set-block">
-                    <div class="c-page-property-key-block">Только с указанной ценой:</div>
-                    <div class="c-page-property-input-block"><input id="i-ctrl-search-form-with-price-chk" type="checkbox"/></div>
-                    <div id="Div8" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
-                </div>
-
-
-
-
+                      
                 <div class="с-page-button-set-block">
                     <button id="i-ctrl-search-form-submit-btn"><div class="fa fa-search"></div>Найти</button>
                     <button id="i-ctrl-search-form-cancel-btn"><div class="fa fa-undo"></div>Очистить форму</button>

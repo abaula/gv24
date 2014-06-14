@@ -394,6 +394,9 @@ module Application
         onUpdate(state: IState): void;
         onShow(state: IState): void;
         onHide(state: IState): void;
+        onLogin(): void;
+        onLogout(): void;
+
         // вызовы от child IComponent
         dataLoaded(sender: IComponent): void;
         dataReady(sender: IComponent): void;
@@ -418,12 +421,15 @@ module Application
         switchFormPropertyErrorVisibility(id: string, error: string, visible: boolean): void;
         switchFormInfoMessageVisibility(id: string, message: string, visible: boolean): void;
 
+        isAuthentificated(): boolean;
+
     }
 
     export class ApplicationController implements IApplication, IState
     {
         public component: IComponent;
         public isPrivate: boolean;
+        public userName: string;
 
         init(component: IComponent, isPrivate: boolean): void
         {
@@ -472,6 +478,14 @@ module Application
             if (false == __currentApp.isPrivate)
                 __currentApp.component.onLoad(__currentApp, null, __currentApp);
 
+        }
+
+        isAuthentificated(): boolean
+        {
+            if (null != __currentApp.userName)
+                return true;
+
+            return false;
         }
 
         checkAuthStatus(): void
@@ -685,6 +699,8 @@ module Application
                 var authResp: AjaxAuthResponse = <AjaxAuthResponse>data.data;
                 $("#i-page-top-login-user-info > span").text(authResp.name);
 
+                __currentApp.userName = authResp.name;
+
                 if (__currentApp.isPrivate)
                 {
                     if (__currentApp.component.isComponentLoaded)
@@ -742,6 +758,9 @@ module Application
             $("#i-page-top-logout-container").removeClass("block").addClass("hidden");
             $("#i-page-top-login-user-info > span").text("");
 
+            // сообщаем компоненту о выходе пользователя из системы
+            __currentApp.component.onLogout();
+
             if (__currentApp.isPrivate)
             {
                 __currentApp.switchToAuthSection();
@@ -784,11 +803,14 @@ module Application
 
             // обработка ответа сервера
             var authResp: AjaxAuthResponse = <AjaxAuthResponse>data.data;
-
+            
             // отображаем имя в строке приветствия
             $("#i-page-top-login-container").removeClass("block").addClass("hidden");
             $("#i-page-top-logout-container").removeClass("hidden").addClass("block");
             $("#i-page-top-login-user-info > span").text(authResp.name);
+
+            // сообщаем компоненту о авторизации пользователя
+            __currentApp.component.onLogin();
 
             if (__currentApp.isPrivate)
             {

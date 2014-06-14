@@ -1,4 +1,4 @@
-﻿///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
+///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
 ///<reference path="ServerAjaxData.d.ts"/>
 ///<reference path="application.ts"/>
 ///<reference path="accountprofile.ts"/>
@@ -50,6 +50,12 @@ var Profile;
             } else if ("i-ctrl-profile-vehicle-container" == id) {
                 VehicleProfile.__currentVehProfile.onHide(Profile.__currentComp.state);
             }
+        };
+
+        ProfileController.prototype.onLogin = function () {
+        };
+
+        ProfileController.prototype.onLogout = function () {
         };
 
         ProfileController.prototype.dataLoaded = function (sender) {

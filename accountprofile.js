@@ -1,4 +1,4 @@
-﻿///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
+///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
 ///<reference path="ServerAjaxData.d.ts"/>
 ///<reference path="application.ts"/>
 ///<reference path="profile.ts"/>
@@ -49,6 +49,12 @@ var AccountProfile;
 
         AccountProfileController.prototype.onHide = function (state) {
             // ничего не делаем
+        };
+
+        AccountProfileController.prototype.onLogin = function () {
+        };
+
+        AccountProfileController.prototype.onLogout = function () {
         };
 
         AccountProfileController.prototype.dataLoaded = function (sender) {

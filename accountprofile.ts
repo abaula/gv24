@@ -73,6 +73,12 @@ module AccountProfile
             // ничего не делаем
         }
 
+        onLogin(): void
+        { }
+
+        onLogout(): void
+        { }
+
         dataLoaded(sender: Application.IComponent): void
         { // Not Implemented
         }

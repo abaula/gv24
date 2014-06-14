@@ -44,6 +44,15 @@ module Search
             $("#i-ctrl-search-form-cancel-btn").click(__currentComp.onClearButtonClick);
             $("#i-ctrl-search-form-submit-btn").click(__currentComp.onSubmitButtonClick);
 
+            // проверяем авторизован ли пользователь
+            var authentificated: boolean = __currentComp.application.isAuthentificated();
+
+            if (authentificated)
+                __currentComp.switchSaveQuerySectionVisible(true);                
+            else
+                __currentComp.switchSaveQuerySectionVisible(false);
+                
+
 
             __currentComp.onComponentLoaded();
         }
@@ -64,6 +73,16 @@ module Search
         onHide(state: Application.IState): void
         {
             // Ничего не делаем
+        }
+
+        onLogin(): void
+        {
+            __currentComp.switchSaveQuerySectionVisible(true);
+        }
+
+        onLogout(): void
+        {
+            __currentComp.switchSaveQuerySectionVisible(false);
         }
 
         dataLoaded(sender: Application.IComponent): void
@@ -122,6 +141,19 @@ module Search
         onCitySelectedAbort(): void
         {
             __currentComp.applyCityData();
+        }
+
+
+        switchSaveQuerySectionVisible(visible: boolean): void
+        {
+            if (visible)
+            {
+                $("#i-ctrl-search-form-query-name-container, #i-ctrl-search-form-save-query-container").removeClass("hidden").addClass("block");
+            }
+            else
+            {
+                $("#i-ctrl-search-form-query-name-container, #i-ctrl-search-form-save-query-container").removeClass("block").addClass("hidden");
+            }
         }
 
         drawCargoType(data: Dictionary.DictionaryEntry[]): void

@@ -1,4 +1,4 @@
-﻿///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
+///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
 ///<reference path="ServerAjaxData.d.ts"/>
 ///<reference path="Dictionary.ts"/>
 var Application;
@@ -340,6 +340,13 @@ else
                 Application.__currentApp.component.onLoad(Application.__currentApp, null, Application.__currentApp);
         };
 
+        ApplicationController.prototype.isAuthentificated = function () {
+            if (null != Application.__currentApp.userName)
+                return true;
+
+            return false;
+        };
+
         ApplicationController.prototype.checkAuthStatus = function () {
             $.ajax({
                 type: "GET",
@@ -521,6 +528,8 @@ else
                 var authResp = data.data;
                 $("#i-page-top-login-user-info > span").text(authResp.name);
 
+                Application.__currentApp.userName = authResp.name;
+
                 if (Application.__currentApp.isPrivate) {
                     if (Application.__currentApp.component.isComponentLoaded)
                         Application.__currentApp.component.onShow(Application.__currentApp);
@@ -569,6 +578,9 @@ else
             $("#i-page-top-logout-container").removeClass("block").addClass("hidden");
             $("#i-page-top-login-user-info > span").text("");
 
+            // сообщаем компоненту о выходе пользователя из системы
+            Application.__currentApp.component.onLogout();
+
             if (Application.__currentApp.isPrivate) {
                 Application.__currentApp.switchToAuthSection();
 
@@ -612,6 +624,9 @@ else
             $("#i-page-top-login-container").removeClass("block").addClass("hidden");
             $("#i-page-top-logout-container").removeClass("hidden").addClass("block");
             $("#i-page-top-login-user-info > span").text(authResp.name);
+
+            // сообщаем компоненту о авторизации пользователя
+            Application.__currentApp.component.onLogin();
 
             if (Application.__currentApp.isPrivate) {
                 Application.__currentApp.switchToLoadingSection();

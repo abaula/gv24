@@ -1,4 +1,4 @@
-﻿///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
+///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
 ///<reference path="ServerAjaxData.d.ts"/>
 ///<reference path="application.ts"/>
 ///<reference path="profile.ts"/>
@@ -63,6 +63,12 @@ var VehicleProfile;
         };
 
         VehicleProfileController.prototype.onHide = function (state) {
+        };
+
+        VehicleProfileController.prototype.onLogin = function () {
+        };
+
+        VehicleProfileController.prototype.onLogout = function () {
         };
 
         // вызовы от child IComponent

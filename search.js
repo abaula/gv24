@@ -40,6 +40,14 @@ var Search;
             $("#i-ctrl-search-form-cancel-btn").click(Search.__currentComp.onClearButtonClick);
             $("#i-ctrl-search-form-submit-btn").click(Search.__currentComp.onSubmitButtonClick);
 
+            // проверяем авторизован ли пользователь
+            var authentificated = Search.__currentComp.application.isAuthentificated();
+
+            if (authentificated)
+                Search.__currentComp.switchSaveQuerySectionVisible(true);
+else
+                Search.__currentComp.switchSaveQuerySectionVisible(false);
+
             Search.__currentComp.onComponentLoaded();
         };
 
@@ -54,6 +62,14 @@ var Search;
 
         SearchController.prototype.onHide = function (state) {
             // Ничего не делаем
+        };
+
+        SearchController.prototype.onLogin = function () {
+            Search.__currentComp.switchSaveQuerySectionVisible(true);
+        };
+
+        SearchController.prototype.onLogout = function () {
+            Search.__currentComp.switchSaveQuerySectionVisible(false);
         };
 
         SearchController.prototype.dataLoaded = function (sender) {
@@ -96,6 +112,14 @@ var Search;
 
         SearchController.prototype.onCitySelectedAbort = function () {
             Search.__currentComp.applyCityData();
+        };
+
+        SearchController.prototype.switchSaveQuerySectionVisible = function (visible) {
+            if (visible) {
+                $("#i-ctrl-search-form-query-name-container, #i-ctrl-search-form-save-query-container").removeClass("hidden").addClass("block");
+            } else {
+                $("#i-ctrl-search-form-query-name-container, #i-ctrl-search-form-save-query-container").removeClass("block").addClass("hidden");
+            }
         };
 
         SearchController.prototype.drawCargoType = function (data) {
