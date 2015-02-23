@@ -1,0 +1,380 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel="stylesheet" href="/main.css" type="text/css" />
+    <link rel="stylesheet" href="/search.css" type="text/css" />
+    <link rel="stylesheet" href="/resources/font-awesome-4.0.3/css/font-awesome.min.css"/>
+    <script type="text/javascript" src="/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="/application.js"></script>
+    <script type="text/javascript" src="/validators.js"></script>
+    <script type="text/javascript" src="/dictionary.js"></script>    
+    <script type="text/javascript" src="/search.js"></script>
+
+    <title>Поиск</title>
+</head>
+<body>
+
+    <div class="c-page-top-section-block">
+        <div class="c-page-top-panel-block">
+            <div class="c-page-top-logo">gv24.ru</div>
+            <div class="c-page-top-spacer"></div>
+            <div class="c-page-top-spacer"></div>
+            <div class="c-page-top-menu-item"><div class="fa fa-gift"></div>&nbsp;Грузы</div>
+            <div class="c-page-top-menu-item"><div class="fa fa-users"></div>&nbsp;Перевозчики</div>
+            
+            <div class="c-page-top-login-block">
+                <div id="i-page-top-login-container" class="hidden">
+                    <div id="i-page-top-login-link"><div class="fa fa-sign-in"></div><span>Вход</span></div>
+                    <div id="i-page-top-reg-link"><div class="fa fa-pencil-square"></div><span>Регистрация</span></div>
+                </div>
+                <div id="i-page-top-logout-container" class="hidden">
+                    <div id="i-page-top-login-user-info" class="c-page-user-info-block"><div class="fa fa-user"></div><span></span></div>
+                    <div id="i-page-top-logout-link"><div class="fa fa-sign-out"></div><span>Выход</span></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- панель навигации -->
+    <div class="c-page-navigation-block"><div class="fa fa-home"></div><span>Главная / Поиск грузов</span></div>
+    <!-- /панель навигации -->
+
+    <!-- панель ошибки страницы -->
+    <div id="i-page-error-container" class="c-page-error-container hidden"></div>
+    <!-- /панель ошибки страницы -->
+
+    <!-- панель авторизации -->
+    <div id="i-page-auth-container" class="c-page-auth-container hidden">
+
+        <div id="i-page-auth-form-block" class="c-page-form-outer-block">
+
+            <!-- панель закладок -->
+            <div id="i-page-auth-tabs" class="c-page-auth-tabs-block">
+                <span data-target-id="i-page-auth-login-container" class="selected">Авторизация</span>
+                <span data-target-id="i-page-auth-reg-container">Регистрация</span>
+                <span data-target-id="i-page-auth-remind-container">Напоминание пароля</span>
+            </div>
+            <!-- /панель закладок -->
+
+            <!-- панель авторизации -->
+            <div id="i-page-auth-login-container">
+
+                <div class="c-page-auth-panel-container">
+                    <div class="c-page-auth-panel-block">
+                        <div class="c-page-auth-panel-block-txt">Почта</div>
+                        <div class="c-page-auth-panel-block-ctrl"><input id="i-page-auth-login-login-txt" type="text" value="anton.baula@gmail.com" placeholder="" /></div>
+                    </div>
+                    <div class="c-page-auth-panel-block">
+                        <div class="c-page-auth-panel-block-txt">Пароль</div>
+                        <div class="c-page-auth-panel-block-ctrl"><input id="i-page-auth-login-pass-txt" type="password" value="root123" placeholder="" /></div>
+                    </div>
+                    <div class="c-page-auth-panel-block">
+                        <div class="c-page-auth-panel-block-ctrl"><button id="i-page-auth-login-submit-btn"><div class="fa fa-sign-in"></div>Войти</button></div>
+                    </div>
+
+                    <!-- панель отображаемая ошибка авторизации -->
+                    <div id="i-page-auth-login-error-container" class="c-page-auth-error-container hidden">
+                        <div class="fa fa-exclamation-circle"></div><span></span>
+                    </div>  
+                    <!-- /панель отображаемая ошибка авторизации -->
+
+                </div>
+            </div>
+            <!-- /панель авторизации -->
+
+            <!-- панель регистрации -->
+            <div id="i-page-auth-reg-container" class="hidden">
+                <div class="c-page-auth-panel-container">
+                    <div id="i-page-auth-reg-form-container" class="block">
+                        <div class="c-page-auth-panel-block">
+                            <div class="c-page-auth-panel-block-txt">Укажите имя</div>
+                            <div class="c-page-auth-panel-block-ctrl"><input id="i-page-auth-reg-login-txt" type="text" value="" placeholder="" /></div>
+                        </div>
+                        <div class="c-page-auth-panel-block">
+                            <div class="c-page-auth-panel-block-txt">Укажите почту</div>
+                            <div class="c-page-auth-panel-block-ctrl"><input id="i-page-auth-reg-email-txt" type="text" value="" placeholder="" /></div>
+                        </div>
+                        <div class="c-page-auth-panel-block">
+                            <div class="c-page-auth-panel-block-ctrl"><button id="i-page-auth-reg-submit-btn"><div class="fa fa-pencil-square-o"></div>Зарегистрировать</button></div>
+                        </div>              
+
+                        <!-- панель отображаемая ошибка регистрации -->
+                        <div id="i-page-auth-reg-error-container" class="c-page-auth-error-container hidden">
+                            <div class="fa fa-exclamation-circle"></div><span></span>
+                        </div>  
+                        <!-- /панель отображаемая ошибка регистрации -->
+                    </div>
+
+                    <!-- панель сообщения об успешной регистрации -->
+                    <div id="i-page-auth-reg-message-container"  class="c-page-auth-info-message-container hidden">
+                            <div class="fa fa-check-square-o"></div><span>Регистрация успешно завершена. Дальнейшие инструкции по активации учётной записи высланы на указанный email.</span>
+                    </div>
+                    <!-- /панель сообщения об успешной регистрации -->
+                </div>
+            </div>
+            <!-- /панель регистрации -->
+
+
+            <!-- панель напоминания пароля -->
+            <div id="i-page-auth-remind-container" class="hidden">
+
+                <div class="c-page-auth-panel-container">
+
+                    <div class="c-page-auth-panel-block">
+                        <div class="c-page-auth-panel-block-txt">Почта</div>
+                        <div class="c-page-auth-panel-block-ctrl"><input id="Text4" type="text" value="" placeholder=""/></div>
+                    </div>
+                    <div class="c-page-auth-panel-block">
+                        <div class="c-page-auth-panel-block-ctrl"><button id="Button2"><div class="fa fa-bell-o"></div>Напомнить</button></div>
+                    </div>  
+                
+                    <!-- панель отображаемая ошибка напоминания пароля -->
+                    <div id="i-page-auth-remind-error-container" class="c-page-auth-error-container hidden">
+                        <div class="fa fa-exclamation-circle"></div><span></span>
+                    </div>  
+                    <!-- /панель отображаемая ошибка напоминания пароля -->                            
+                </div>
+
+            </div>
+            <!-- /панель напоминания пароля -->
+
+            <!-- панель индикатора выполнения операции -->
+            <div id="i-page-auth-loading-container"  class="c-page-auth-loading-container hidden">
+                    <div class="fa fa-spinner fa-spin"></div>
+            </div>
+            <!-- /панель индикатора выполнения операции авторизации -->
+
+        </div>
+
+        <!-- панель отображаемая при отсутствии прав доступа -->
+        <div id="i-page-auth-required-container" class="c-page-auth-required-container hidden">
+            <div class="fa fa-lock"></div><span>Для доступа к содержимому требуется авторизация</span>
+        </div>
+        <!-- /панель отображаемая при отсутствии прав доступа -->
+
+    </div>
+    <!-- /панель авторизации -->
+
+    <!-- индикатор загрузки содержимого страницы -->
+    <div id="i-page-loading-container" class="c-page-loading-container block">
+        <div class="fa fa-spinner fa-spin"></div>
+    </div>
+    <!-- /индикатор загрузки содержимого страницы -->
+
+    <!-- ошибка содержимого страницы -->
+    <div id="i-page-main-section-error-container" class="c-page-main-error-container hidden">
+        <div><button id="i-page-main-section-error-btn">Обновить</button></div>
+        <div id="i-page-main-error-text-block" class="c-page-main-error-text-block"></div>
+    </div>
+    <!-- /ошибка содержимого страницы -->
+
+    <!-- содержимое страницы -->
+    <div id="i-page-main-container" class="c-page-main-container hidden">
+
+        <!-- ListView template --
+        <div class="c-page-lv-block">
+            <div class="c-page-lv-list-block">
+                <div data-target-id="someId" class="c-page-lv-list-item selected"><span></span></div>
+            </div>
+            <div class="c-page-lv-view-block">
+                <div id="someId" class="c-page-lv-view-container hidden"></div>
+            </div>
+        </div>
+        -- /ListView -->
+
+
+
+
+
+
+
+
+                
+        <div id="i-ctrl-search-form" class="c-page-form-outer-block">
+
+            <div class="c-page-form-block">
+
+                <!-- div id="i-ctrl-search-form-query-name-container" class="c-ctrl-search-form-query-name-container block">
+                    <label>Сохранённый запрос:</label>
+                    <select></select>
+                </div !-->
+
+                <!-- div id="i-ctrl-search-form-save-query-container" class="с-ctrl-search-form-save-query-container block">
+                    <div class="с-ctrl-search-form-save-query-block">
+                        <input id="i-ctrl-search-form-save-query-chk" type="checkbox"/>
+                        <label>Сохранить новый запрос</label>
+                    </div>
+                    <div class="с-ctrl-search-form-save-query-block">
+                        <label>Укажите имя запроса:</label>
+                        <input id="i-ctrl-search-form-save-query-name-txt" type="text" placeholder=""/>
+                    </div>
+                </div !-->
+
+
+                <div class="c-ctrl-search-form-cargo-type">
+                    <div><input id="i-ctrl-search-form-piece-goods-chk" type="checkbox"/><label>Штучные грузы</label></div>
+                    <div id="i-ctrl-search-form-piece-goods-block" class="c-ctrl-search-form-cargo-type-block">                        
+
+                        <div><input id="i-ctrl-search-form-piece-goods-value-limit-chk" type="checkbox"/><label>ограничить по объёму (м<sup>3</sup>)</label>
+                            <div class="c-ctrl-search-form-cargo-type-inline-block"><lable>min:</lable><input id="i-ctrl-search-form-piece-goods-value-limit-min-value-txt" class="c-ctrl-search-form-cargo-type-inline-block-txt" type="text"/></div>
+                            <div class="c-ctrl-search-form-cargo-type-inline-block"><lable>max:</lable><input id="i-ctrl-search-form-piece-goods-value-limit-max-value-txt" class="c-ctrl-search-form-cargo-type-inline-block-txt" type="text"/></div>
+                        </div>
+
+                        <div><input id="i-ctrl-search-form-piece-goods-weight-limit-chk" type="checkbox"/><label>ограничить по массе (кг)</label>
+                            <div class="c-ctrl-search-form-cargo-type-inline-block"><lable>min:</lable><input id="i-ctrl-search-form-piece-goods-weight-limit-min-weight-txt" class="c-ctrl-search-form-cargo-type-inline-block-txt" type="text"/></div>
+                            <div class="c-ctrl-search-form-cargo-type-inline-block"><lable>max:</lable><input id="i-ctrl-search-form-piece-goods-weight-limit-max-weight-txt" class="c-ctrl-search-form-cargo-type-inline-block-txt" type="text"/></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="c-ctrl-search-form-cargo-type">
+                    <div><input id="i-ctrl-search-form-builk-cargo-chk" type="checkbox"/><label>Навалочные грузы</label></div>
+                    <div id="i-ctrl-search-form-builk-cargo-block" class="c-ctrl-search-form-cargo-type-block">                        
+
+                        <div><input id="i-ctrl-search-form-builk-cargo-value-limit" type="checkbox"/><label>ограничить по объёму (м<sup>3</sup>)</label>
+                            <div class="c-ctrl-search-form-cargo-type-inline-block"><lable>min:</lable><input id="i-ctrl-search-form-builk-cargo-value-limit-min-value-txt" class="c-ctrl-search-form-cargo-type-inline-block-txt" type="text"/></div>
+                            <div class="c-ctrl-search-form-cargo-type-inline-block"><lable>max:</lable><input id="i-ctrl-search-form-builk-cargo-value-limit-max-value-txt" class="c-ctrl-search-form-cargo-type-inline-block-txt" type="text"/></div>
+                        </div>
+
+                        <div><input id="i-ctrl-search-form-builk-cargo-weight-limit" type="checkbox"/><label>ограничить по массе (кг)</label>
+                            <div class="c-ctrl-search-form-cargo-type-inline-block"><lable>min:</lable><input id="i-ctrl-search-form-builk-cargo-weight-limit-min-weight-txt" class="c-ctrl-search-form-cargo-type-inline-block-txt" type="text"/></div>
+                            <div class="c-ctrl-search-form-cargo-type-inline-block"><lable>max:</lable><input id="i-ctrl-search-form-builk-cargo-weight-limit-max-weight-txt" class="c-ctrl-search-form-cargo-type-inline-block-txt" type="text"/></div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="c-ctrl-search-form-cargo-type">
+                    <div><input id="i-ctrl-search-form-liquid-cargo-chk" type="checkbox"/><label>Наливные грузы</label></div>
+                    <div id="i-ctrl-search-form-liquid-cargo-block" class="c-ctrl-search-form-cargo-type-block">                        
+
+                        <div><input id="i-ctrl-search-form-liquid-cargo-value-limit" type="checkbox"/><label>ограничить по объёму (м<sup>3</sup>)</label>
+                            <div class="c-ctrl-search-form-cargo-type-inline-block"><lable>min:</lable><input id="i-ctrl-search-form-liquid-cargo-value-limit-min-value-txt" class="c-ctrl-search-form-cargo-type-inline-block-txt" type="text"/></div>
+                            <div class="c-ctrl-search-form-cargo-type-inline-block"><lable>max:</lable><input id="i-ctrl-search-form-liquid-cargo-value-limit-max-value-txt" class="c-ctrl-search-form-cargo-type-inline-block-txt" type="text"/></div>
+                        </div>
+
+                        <div><input id="i-ctrl-search-form-liquid-cargo-weight-limit" type="checkbox"/><label>ограничить по массе (кг)</label>
+                            <div class="c-ctrl-search-form-cargo-type-inline-block"><lable>min:</lable><input id="i-ctrl-search-form-liquid-cargo-weight-limit-min-weight-txt" class="c-ctrl-search-form-cargo-type-inline-block-txt" type="text"/></div>
+                            <div class="c-ctrl-search-form-cargo-type-inline-block"><lable>max:</lable><input id="i-ctrl-search-form-liquid-cargo-weight-limit-max-weight-txt" class="c-ctrl-search-form-cargo-type-inline-block-txt" type="text"/></div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="c-page-property-set-block">
+                    <div class="c-page-property-key-block">Город загрузки:</div>
+                    <div class="c-page-property-input-block"><input id="i-ctrl-search-form-load-city-txt" type="text" placeholder=""/>
+                        <div id="i-ctrl-search-form-load-city-delete-btn" class="c-page-form-button fa fa-times"></div>
+                    </div>
+                    <div id="i-ctrl-search-form-load-city-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                </div>
+
+                <div class="c-page-property-set-block">
+                    <div class="c-page-property-key-block">Город выгрузки:</div>
+                    <div class="c-page-property-input-block"><input id="i-ctrl-search-form-unload-city-txt" type="text" placeholder=""/>
+                        <div id="i-ctrl-search-form-unload-city-delete-btn" class="c-page-form-button fa fa-times"></div>
+                    </div>
+                    <div id="i-ctrl-search-form-unload-city-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                </div>
+
+
+                <div class="c-page-property-set-block">
+                    <div class="c-page-property-key-block">Стоимость не менее (руб./км.):</div>
+                    <div class="c-page-property-input-block"><input id="i-ctrl-search-form-min-price-txt" type="text" placeholder=""/></div>
+                    <div id="i-ctrl-search-form-min-price-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                </div>
+
+                <div class="c-page-property-set-block">
+                    <div class="c-page-property-key-block">Дата готовности не позже:</div>
+                    <div class="c-page-property-input-block">
+                        <select id="i-ctrl-search-form-ready-date-day-select" class="c-ctrl-search-form-ready-date-day"></select>
+                        <select id="i-ctrl-search-form-ready-date-month-select" class="c-ctrl-search-form-ready-date-month"></select>
+                        <select id="i-ctrl-search-form-ready-date-year-select" class="c-ctrl-search-form-ready-date-year"></select>
+                    </div>                                            
+                    <div id="i-ctrl-search-form-ready-date-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                </div>
+
+                <div class="c-page-property-set-block">
+                    <div class="c-page-property-key-block">Макс. расстояние (км):</div>
+                    <div class="c-page-property-input-block"><input id="i-ctrl-search-form-max-distance-txt" type="text" placeholder=""/></div>
+                    <div id="i-ctrl-search-form-max-distance-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                </div>
+
+
+                <div class="c-page-property-set-block">
+                    <div class="c-page-property-key-block">Только с указанной ценой:</div>
+                    <div class="c-page-property-input-block"><input id="i-ctrl-search-form-with-price-chk" type="checkbox"/></div>
+                    <div id="i-ctrl-search-form-with-price-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                </div>
+
+
+                
+
+                <div class="c-page-property-set-block">
+                    <div class="c-page-property-key-block">Класс опасности:</div>
+                    <div id="i-ctrl-search-form-cargo-adr-type" class="c-page-property-input-block">
+                        <div id="i-ctrl-search-form-cargo-adr-type-panel-block" class="c-ctrl-search-form-checkbox-panel">
+                            <label id="i-ctrl-search-form-cargo-adr-type-up-down-button" class="fa fa-arrow-circle-down c-ctrl-search-form-up-down-button"></label>
+                            <label class="c-ctrl-search-form-checked-options">не указан</label>
+                        </div>
+                        <div id="i-ctrl-search-form-cargo-adr-type-checkbox-container" class="hidden">
+                            <div id="i-ctrl-search-form-cargo-adr-type-template" class="hidden">
+                                <input type="checkbox" data-id="" /><label></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="i-ctrl-search-form-cargo-adr-type-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                </div>
+
+                <div class="c-page-property-set-block">
+                    <div class="c-page-property-key-block">Типы погрузки:</div>
+                    <div id="i-ctrl-search-form-loading-type" class="c-page-property-input-block">                                
+                        <div id="i-ctrl-search-form-loading-type-panel-block" class="c-ctrl-search-form-checkbox-panel">
+                            <label id="i-ctrl-search-form-loading-type-up-down-button" class="fa fa-arrow-circle-down c-ctrl-search-form-up-down-button"></label>
+                            <label class="c-ctrl-search-form-checked-options">не указан</label>
+                        </div>
+
+                        <div id="i-ctrl-search-form-loading-type-checkbox-container" class="hidden">
+                            <div id="i-ctrl-search-form-loading-type-template" class="hidden">
+                                <input type="checkbox" data-id="" /><label></label>
+                            </div>                                
+                        </div>
+                    </div>
+                    <div id="i-ctrl-search-form-loading-type-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                </div>
+
+                <div class="c-page-property-set-block">
+                    <div class="c-page-property-key-block">Типы выгрузки:</div>
+                    <div id="i-ctrl-search-form-unloading-type" class="c-page-property-input-block">
+                                
+                        <div id="i-ctrl-search-form-unloading-type-panel-block" class="c-ctrl-search-form-checkbox-panel">
+                            <label id="i-ctrl-search-form-unloading-type-up-down-button" class="fa fa-arrow-circle-down c-ctrl-search-form-up-down-button"></label>
+                            <label class="c-ctrl-search-form-checked-options">не указан</label>
+                        </div>
+                        <div id="i-ctrl-search-form-unloading-type-checkbox-container" class="hidden">
+                            <div id="i-ctrl-search-form-unloading-type-template" class="hidden">
+                                <input type="checkbox" data-id="" /><label></label>
+                            </div>                                
+                        </div>
+                    </div>
+                    <div id="i-ctrl-search-form-unloading-type-error-message" class="c-page-property-error-container hidden"><div class="fa fa-exclamation-circle"></div><span></span></div>
+                </div>
+                      
+                <div class="с-page-button-set-block">
+                    <button id="i-ctrl-search-form-submit-btn"><div class="fa fa-search"></div>Найти</button>
+                    <button id="i-ctrl-search-form-cancel-btn"><div class="fa fa-undo"></div>Очистить форму</button>
+                </div>
+            </div>
+            <div id="i-ctrl-search-form-info-message" class="c-page-form-info-message-container hidden"><div class="fa fa-check-square-o"></div><span></span></div>
+            <div id="i-ctrl-search-form-overlay" class="c-page-form-overlay-container"><div class="fa fa-spinner fa-spin"></div></div>
+        </div>
+
+
+
+
+
+    </div>
+</body>
+</html>

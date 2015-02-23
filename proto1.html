@@ -1,52 +1,58 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <link rel="stylesheet" href="/main.css" type="text/css" />
-    <link rel="stylesheet" href="/search.css" type="text/css" />
-    <link rel="stylesheet" href="/resources/font-awesome-4.3.0/css/font-awesome.min.css"/>
-
-    <script type="text/javascript" src="/jquery-1.10.2.js"></script>
-    <script type="text/javascript" src="/application.js"></script>
-    <script type="text/javascript" src="/validators.js"></script>
-    <script type="text/javascript" src="/dictionary.js"></script>    
-    <script type="text/javascript" src="/search.js"></script>
-
-    <title>Поиск</title>
+    <link rel="stylesheet" href="main.css" type="text/css" />
+    <link rel="stylesheet" href="proto1.css" type="text/css" />
+    <link rel="stylesheet" href="/resources/font-awesome-4.0.3/css/font-awesome.min.css"/>
+    <title></title>
 </head>
 <body>
+    
 
-     <div class="c-page-top-section-block">
-         <div class="c-page-top-logo fa fa-cubes"></div><div class="c-page-top-menu-item-selected">Грузы</div><div class="c-page-top-menu-item">Отложенные грузы</div><div class="c-page-top-menu-item">Калькулятор</div><div class="c-page-top-menu-item">Настройки</div>
+    <div class="c-page-top-section-block">
+        <div class="c-page-top-panel-block">
+            <div class="c-page-top-menu-item-selected"><div class="fa fa-gift"></div>Грузы</div>
+            <div class="c-page-top-menu-item"><div class="fa fa-users"></div>Отложенные грузы</div>
+            <div class="c-page-top-menu-item"><div class="fa fa-users"></div>Калькулятор</div>
+            <div class="c-page-top-menu-item"><div class="fa fa-users"></div>Настройки</div>
+            
+            <div class="c-page-top-login-block">
+                <div id="i-page-top-login-container" class="hidden">
+                    <div id="i-page-top-login-link"><div class="fa fa-sign-in"></div><span>Вход</span></div>
+                    <div id="i-page-top-reg-link"><div class="fa fa-pencil-square"></div><span>Регистрация</span></div>
+                </div>
+                <div id="i-page-top-logout-container" class="hidden">
+                    <div id="i-page-top-login-user-info" class="c-page-user-info-block"><div class="fa fa-user"></div><span></span></div>
+                    <div id="i-page-top-logout-link"><div class="fa fa-sign-out"></div><span>Выход</span></div>
+                </div>
+            </div>
+
+        </div>
     </div>
 
-    <!-- индикатор загрузки содержимого страницы -->
-    <div id="i-page-loading-container" class="c-page-loading-container block">
-        <div class="fa fa-spinner fa-spin"></div>
+    
+    <!-- Верхняя панель -->
+    <div class="top_panel">
+        <img src="resources/logo_small.png" class="logo" width="300" />
     </div>
-    <!-- /индикатор загрузки содержимого страницы -->
+    <!-- /Верхняя панель -->
 
-    <!-- ошибка содержимого страницы -->
-    <div id="i-page-main-section-error-container" class="c-page-main-error-container hidden">
-        <div><button id="i-page-main-section-error-btn">Обновить</button></div>
-        <div id="i-page-main-error-text-block" class="c-page-main-error-text-block"></div>
+    
+    
+    <!-- Панель параметров поиска -->
+    <div class="search_panel">
+        ddd
+        а
+        аа
+        а
+        а
+        а
+
     </div>
-    <!-- /ошибка содержимого страницы -->
-
-    <!-- содержимое страницы -->
-    <div id="i-page-main-container" class="c-page-main-container hidden">
+    <!-- /Панель параметров поиска -->
 
 
-    <!-- Панель управления таблицей грузов -->
-    <div class="table-options-panel">
-        
-        <div class="table-options-button" id="i-page-table-options-filter-btn"><div class="fa fa-filter"></div> Настройки фильтрации</div>
-        <div class="table-options-button" id="i-page-table-options-settings-btn"><div class="fa fa-table"></div> Настройки таблицы</div>
-        <div class="table-options-button" id="i-page-table-options-refresh-btn"><div class="fa fa-refresh"></div> Обновить</div>
-    </div>
-
-    <!-- /Панель управления таблицей грузов -->
-
-
+    
     <!-- Панель результатов поиска -->
     <div class="table-panel">
         <table class="tasks-table">                                    
@@ -56,9 +62,9 @@
                     <th>Откуда</th>
                     <th>Куда</th>
                     <th>Тип груза</th>
-                    <th>Вес, кг</th>
-                    <th>Объём, м<sup>3</sup></th>
-                    <th>Дистанция, км</th>
+                    <th>Вес,<br/>кг</th>
+                    <th>Объём,<br/>м<sup>3</sup></th>
+                    <th>Дистанция,<br/>км</th>
                     <th>Стоимость</th>
                     <th>Дата готовности</th>
                 </tr>
@@ -111,17 +117,15 @@
                     <td class="c-ctrl-tasks-table-cell-cost"></td>
                     <td class="c-ctrl-tasks-table-cell-ready-date"></td>
                 </tr>
+
+
+
+
+
             </tbody>
         </table>
     </div>
     <!-- /Панель результатов поиска -->
 
-
-
-
-
-
-
-    </div>
 </body>
 </html>

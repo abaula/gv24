@@ -28,9 +28,14 @@
     <Content Include="default.htm" />
     <Content Include="dictionary.ts" />
     <Content Include="Graph.ts" />
+    <Content Include="proto1.css" />
+    <Content Include="proto1.html" />
+    <Content Include="resources\logo_small.png" />
+    <Content Include="resources\logo_white.png" />
     <Content Include="search.css" />
     <Content Include="search.html" />
     <Content Include="search.ts" />
+    <Content Include="search2.html" />
     <Content Include="tasksprofile.ts" />
     <Content Include="main.css" />
     <Content Include="orgprofile.ts" />

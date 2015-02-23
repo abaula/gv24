@@ -14,17 +14,14 @@ button, input {
 }
 
 .c-page-top-section-block {
-    width: 100%;
-    height: 40px;
-    background-color: #336699;
-    
-}
-
-.c-page-top-panel-block {
     width: 1200px; /* Ширина макета */
     margin: 0 auto; /* Выравниваем макет по центру */
-    display: block;
+    background-color: #336699;    
 }
+
+/*.c-page-top-panel-block {
+    display: block;
+}*/
 
 
 /* BEGIN: Информационный блок */
@@ -264,24 +261,38 @@ button, input {
 
 .c-page-top-menu-item {
     display: inline-block;
-    vertical-align: top;
     padding-top: 10px;
-    margin-left: 32px;
-    font-size: 12pt;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 10pt;
     font-weight: 900;
     cursor: pointer;
     color: #ffffff;
 }
 
-.c-page-top-menu-item:hover {
-    text-decoration: underline;
+.c-page-top-menu-item-selected {
+    display: inline-block;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 10pt;
+    font-weight: 900;
+    color: #336699;
+    background-color: #d0d0d0;
+}
 
+.c-page-top-menu-item:hover {
+    background-color: #59a1d5;
 }
 
 .c-page-top-logo {
     display: inline-block;
-    color: #ffffff;
-    font-size: 20pt;
+    color: #59a1d5;
+    font-size: 12pt;
+    margin-left: 4px;
+    margin-right: 4px;
 }
 
 .c-page-top-spacer {

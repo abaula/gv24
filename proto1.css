@@ -1,0 +1,56 @@
+﻿
+.top_panel {
+    margin-left: 20px;
+}
+
+.logo {
+    margin-left: -10px;
+}
+
+.search_panel {
+    border: 1px solid #ffd800;
+    background-color: #faf4d4;
+    padding: 4px 4px 4px 4px;
+    margin-top: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    font-size: 10pt;
+}
+
+.table-panel {
+    margin-top: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+    font-size: 10pt;
+}
+
+.tasks-table {
+    border-collapse: collapse;
+    font-size: 8pt;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.tasks-table > TBODY {
+    background-color: #ffffff;
+}
+
+.tasks-table > THEAD {
+    background-color:#faf4d4;
+}
+
+.tasks-table TH {
+    padding: 2px;
+    box-shadow: inset 1px 1px 4px #ffd800;
+    border: 1px solid #ffac00;
+    color: #ffac00;
+    font-weight: normal;
+}
+
+.tasks-table TD {
+    padding: 4px;
+    border: 1px solid #ffd800;
+}
