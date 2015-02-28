@@ -211,7 +211,7 @@ var TasksProfile;
         TasksProfileController.prototype.getData = function () {
             $.ajax({
                 type: "GET",
-                url: TasksProfile.__currentTasksProfile.application.getFullUri("api/tasks"),
+                url: TasksProfile.__currentTasksProfile.application.getFullUri("api/cargo"),
                 success: TasksProfile.__currentTasksProfile.onAjaxGetTasksDataSuccess,
                 error: TasksProfile.__currentTasksProfile.onAjaxGetTasksDataError
             });
@@ -776,7 +776,7 @@ else {
         TasksProfileController.prototype.createNewCargo = function (data) {
             $.ajax({
                 type: "POST",
-                url: TasksProfile.__currentTasksProfile.application.getFullUri("api/tasks"),
+                url: TasksProfile.__currentTasksProfile.application.getFullUri("api/cargo"),
                 data: JSON.stringify(data),
                 contentType: "application/json",
                 dataType: "json",
@@ -831,7 +831,7 @@ else
         TasksProfileController.prototype.updateCargo = function (data) {
             $.ajax({
                 type: "PUT",
-                url: TasksProfile.__currentTasksProfile.application.getFullUri("api/tasks"),
+                url: TasksProfile.__currentTasksProfile.application.getFullUri("api/cargo"),
                 data: JSON.stringify(data),
                 contentType: "application/json",
                 dataType: "json",

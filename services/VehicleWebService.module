@@ -9,32 +9,9 @@
 
 require_once("WebServBase.module");
 require_once("Log.module");
+require_once("Contract.module");
 
 
-class AjaxVehicle
-{
-    public $id;
-    public $typeId;
-    public $name;
-    public $maxValue;
-    public $maxWeight;
-    public $expences;
-    public $taxWeight;
-    public $taxValue;
-
-
-    function __construct($id, $typeId, $name, $maxValue, $maxWeight, $expences, $taxWeight, $taxValue)
-    {
-        $this->id = $id;
-        $this->typeId = $typeId;
-        $this->name = $name;
-        $this->maxValue = $maxValue;
-        $this->maxWeight = $maxWeight;
-        $this->expences = $expences;
-        $this->taxWeight = $taxWeight;
-        $this->taxValue = $taxValue;
-    }
-}
 
 class AjaxVehicleList
 {

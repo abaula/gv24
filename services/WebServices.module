@@ -10,7 +10,7 @@
 /*
  * Возвращаем объект web сервиса по его имени
  * */
-require_once("TasksWebService.module");
+require_once("CargoWebService.module");
 require_once("VehicleWebService.module");
 require_once("AccountWebService.module");
 require_once("AuthWebService.module");
@@ -20,15 +20,15 @@ require_once("CityAutoCompleteWebService.module");
 require_once("Validators.module");
 require_once("AppErrors.module");
 require_once("SqlFactory.module");
-
+require_once("SearchTasksWebService.module");
 
 
 
 
 function getWebService($name)
 {
-    if("tasks" == $name)
-        return new TasksWebService();
+    if("cargo" == $name)
+        return new CargoWebService();
     else if ("vehicle" == $name)
         return new VehicleWebService();
     else if("account" == $name)
@@ -41,7 +41,8 @@ function getWebService($name)
         return new DictWebService();
     else if("cityautocomplete" == $name)
         return new CityAutoCompleteWebService();
-
+    else if("searchtasks" == $name)
+        return new SearchTasksWebService();
 
     return null;
 }

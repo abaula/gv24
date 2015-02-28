@@ -1,27 +1,27 @@
 ﻿
 
-.table-panel {
+.c-table-panel {
     width: 1200px; /* Ширина макета */
     margin: 0 auto; /* Выравниваем макет по центру */
     margin-top: 10px;
 }
 
-.tasks-table {
+.c-tasks-table {
     border-collapse: collapse;
     font-size: 10pt;
     width: 100%;
     margin-top: 10px;
 }
 
-.tasks-table > TBODY {
+.c-tasks-table > TBODY {
     background-color: #ffffff;
 }
 
-.tasks-table > THEAD {
+.c-tasks-table > THEAD {
     background-color:#f0f0f0;
 }
 
-.tasks-table TH {
+.c-tasks-table TH {
     padding: 2px;
     box-shadow: inset 1px 1px 4px #e6e6e6;
     border: 1px solid #e6e6e6;
@@ -29,19 +29,19 @@
     font-weight: normal;
 }
 
-.tasks-table TD {
+.c-tasks-table TD {
     padding: 4px;
     border: 1px solid #e6e6e6;
 }
 
-.table-options-panel {
+.c-table-options-panel {
     width: 1200px; /* Ширина макета */
     margin: 0 auto; /* Выравниваем макет по центру */
     margin-top: 10px;
     font-size: 10pt;
 }
 
-.table-options-button{
+.c-table-options-button{
     font-size: 9pt;
     display: inline-block;
     padding-top: 8px;
@@ -57,7 +57,7 @@
     cursor: pointer;
 }
 
-.table-options-button:hover{
+.c-table-options-button:hover{
     border: 1px solid #afafaf;
     background-color: #e6e6e6;
 }

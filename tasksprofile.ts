@@ -290,7 +290,7 @@ module TasksProfile
         {
             $.ajax({
                 type: "GET",
-                url: __currentTasksProfile.application.getFullUri("api/tasks"),
+                url: __currentTasksProfile.application.getFullUri("api/cargo"),
                 success: __currentTasksProfile.onAjaxGetTasksDataSuccess,
                 error: __currentTasksProfile.onAjaxGetTasksDataError
             });
@@ -952,7 +952,7 @@ module TasksProfile
         {
             $.ajax({
                 type: "POST",
-                url: __currentTasksProfile.application.getFullUri("api/tasks"),
+                url: __currentTasksProfile.application.getFullUri("api/cargo"),
                 data: JSON.stringify(data),
                 contentType: "application/json",
                 dataType: "json",
@@ -1018,7 +1018,7 @@ module TasksProfile
         {
             $.ajax({
                 type: "PUT",
-                url: __currentTasksProfile.application.getFullUri("api/tasks"),
+                url: __currentTasksProfile.application.getFullUri("api/cargo"),
                 data: JSON.stringify(data),
                 contentType: "application/json",
                 dataType: "json",

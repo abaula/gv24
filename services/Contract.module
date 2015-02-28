@@ -1,0 +1,268 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 28.02.15
+ * Time: 23:23
+ * To change this template use File | Settings | File Templates.
+ */
+
+class AjaxCargo
+{
+    public $id;
+    public $name;
+    public $description;
+
+    public $cargoTypeId;
+    public $bodyTypeId;
+    public $cargoADRTypeId;
+
+    public $weight;
+    public $value;
+
+    public $packingTypeId;
+    public $numOfPackages;
+
+    public $city1;
+    public $addr1;
+    public $loadingTypeId1;
+
+    public $city2;
+    public $addr2;
+    public $loadingTypeId2;
+
+    public $distance;
+
+    public $readyDate;
+    public $cost;
+
+    public $contacts;
+
+    function __construct($id, $name, $description, $cargoTypeId, $bodyTypeId, $cargoADRTypeId,
+                         $value, $weight, $numOfPackages, $packingTypeId,
+                         $city1, $addr1, $loadingTypeId1,
+                         $city2, $addr2, $loadingTypeId2,
+                         $distance, $readyDate, $contacts, $cost)
+    {
+        $this->addr1 = $addr1;
+        $this->addr2 = $addr2;
+        $this->bodyTypeId = $bodyTypeId;
+        $this->cargoADRTypeId = $cargoADRTypeId;
+        $this->cargoTypeId = $cargoTypeId;
+        $this->city1 = $city1;
+        $this->city2 = $city2;
+        $this->contacts = $contacts;
+        $this->cost = $cost;
+        $this->description = $description;
+        $this->distance = $distance;
+        $this->id = $id;
+        $this->loadingTypeId1 = $loadingTypeId1;
+        $this->loadingTypeId2 = $loadingTypeId2;
+        $this->name = $name;
+        $this->numOfPackages = $numOfPackages;
+        $this->packingTypeId = $packingTypeId;
+        $this->readyDate = $readyDate;
+        $this->value = $value;
+        $this->weight = $weight;
+    }
+
+
+}
+
+class AjaxCargoList
+{
+    public $cargo;
+
+    function __construct()
+    {
+        $this->cargo = null;
+    }
+}
+
+class OrgContactData
+{
+    public $id;
+    public $email;
+    public $emailNote;
+    public $phone1;
+    public $phone1Note;
+    public $phone2;
+    public $phone2Note;
+    public $skype;
+    public $skypeNote;
+    public $icq;
+    public $icqNote;
+
+    function __construct($id, $email, $emailNote, $phone1, $phone1Note, $phone2, $phone2Note, $skype, $skypeNote, $icq, $icqNote)
+    {
+        $this->id = $id;
+        $this->email = $email;
+        $this->emailNote = $emailNote;
+        $this->phone1 = $phone1;
+        $this->phone1Note = $phone1Note;
+        $this->phone2 = $phone2;
+        $this->phone2Note = $phone2Note;
+        $this->skype = $skype;
+        $this->skypeNote = $skypeNote;
+        $this->icq = $icq;
+        $this->icqNote = $icqNote;
+    }
+}
+
+class OrgInfoData
+{
+    public $id;
+    public $shortName;
+    public $fullName;
+    public $ogrn;
+    public $inn;
+    public $formId;
+
+    function __construct($id, $shortName, $fullName, $ogrn, $inn, $formId)
+    {
+        $this->id = $id;
+        $this->shortName = $shortName;
+        $this->fullName = $fullName;
+        $this->ogrn = $ogrn;
+        $this->inn = $inn;
+        $this->formId = $formId;
+    }
+}
+
+class OrgAddressData
+{
+    public $id;
+    public $cityId;
+    public $address;
+    public $city;
+    public $district;
+    public $region;
+    public $postcode;
+    public $longitude;
+    public $latitude;
+
+    function __construct($id, $cityId, $address, $city, $district, $region, $postcode, $latitude, $longitude)
+    {
+        $this->cityId = $cityId;
+        $this->address = $address;
+        $this->city = $city;
+        $this->district = $district;
+        $this->id = $id;
+        $this->latitude = $latitude;
+        $this->longitude = $longitude;
+        $this->postcode = $postcode;
+        $this->region = $region;
+    }
+}
+
+class AjaxOrgData
+{
+    public $id;
+    public $info;
+    public $contacts;
+    public $address;
+
+    function __construct()
+    {
+        $this->id = null;
+        $this->info = null;
+        $this->contacts = null;
+        $this->address = null;
+    }
+}
+
+class CityData
+{
+    public $id;
+    public $latitude;
+    public $longitude;
+    public $name;
+    public $fullname;
+    public $district;
+    public $region;
+    public $suffix;
+    public $cladrCode;
+    public $postCode;
+
+    function __construct($id, $latitude, $longitude, $name, $fullname, $district, $region, $suffix, $cladrCode, $postCode)
+    {
+        $this->id = $id;
+        $this->latitude = $latitude;
+        $this->longitude = $longitude;
+        $this->name = $name;
+        $this->fullname = $fullname;
+        $this->district = $district;
+        $this->region = $region;
+        $this->suffix = $suffix;
+        $this->cladrCode = $cladrCode;
+        $this->postCode = $postCode;
+    }
+
+
+}
+
+class AjaxVehicle
+{
+    public $id;
+    public $typeId;
+    public $name;
+    public $maxValue;
+    public $maxWeight;
+    public $expences;
+    public $taxWeight;
+    public $taxValue;
+
+
+    function __construct($id, $typeId, $name, $maxValue, $maxWeight, $expences, $taxWeight, $taxValue)
+    {
+        $this->id = $id;
+        $this->typeId = $typeId;
+        $this->name = $name;
+        $this->maxValue = $maxValue;
+        $this->maxWeight = $maxWeight;
+        $this->expences = $expences;
+        $this->taxWeight = $taxWeight;
+        $this->taxValue = $taxValue;
+    }
+}
+
+
+class AjaxTask
+{
+    public $id;
+    public $city1;
+    public $city2;
+    public $type;
+    public $weight;
+    public $value;
+    public $distance;
+    public $cost;
+    public $readyDate;
+
+    function __construct($id, $city1, $city2, $type, $distance, $value, $weight, $cost, $readyDate)
+    {
+        $this->id = $id;
+        $this->city1 = $city1;
+        $this->city2 = $city2;
+        $this->type = $type;
+        $this->distance = $distance;
+        $this->value = $value;
+        $this->weight = $weight;
+        $this->cost = $cost;
+        $this->readyDate = $readyDate;
+    }
+}
+
+class AjaxTaskList
+{
+    public $offset;
+    public $limit;
+    public $allRowCount;
+    public $page;
+    public $tasks;
+
+    function __construct()
+    {
+        $this->tasks = null;
+    }
+}

@@ -8,37 +8,9 @@
  */
 require_once("WebServBase.module");
 require_once("Log.module");
+require_once("Contract.module");
 
 
-class CityData
-{
-    public $id;
-    public $latitude;
-    public $longitude;
-    public $name;
-    public $fullname;
-    public $district;
-    public $region;
-    public $suffix;
-    public $cladrCode;
-    public $postCode;
-
-    function __construct($id, $latitude, $longitude, $name, $fullname, $district, $region, $suffix, $cladrCode, $postCode)
-    {
-        $this->id = $id;
-        $this->latitude = $latitude;
-        $this->longitude = $longitude;
-        $this->name = $name;
-        $this->fullname = $fullname;
-        $this->district = $district;
-        $this->region = $region;
-        $this->suffix = $suffix;
-        $this->cladrCode = $cladrCode;
-        $this->postCode = $postCode;
-    }
-
-
-}
 
 
 class AjaxCityAutoComplete

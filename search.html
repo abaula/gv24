@@ -36,85 +36,55 @@
     <div id="i-page-main-container" class="c-page-main-container hidden">
 
 
-    <!-- Панель управления таблицей грузов -->
-    <div class="table-options-panel">
+        <!-- Панель управления таблицей грузов -->
+        <div class="c-table-options-panel">
         
-        <div class="table-options-button" id="i-page-table-options-filter-btn"><div class="fa fa-filter"></div> Настройки фильтрации</div>
-        <div class="table-options-button" id="i-page-table-options-settings-btn"><div class="fa fa-table"></div> Настройки таблицы</div>
-        <div class="table-options-button" id="i-page-table-options-refresh-btn"><div class="fa fa-refresh"></div> Обновить</div>
-    </div>
+            <div class="c-table-options-button" id="i-page-table-options-filter-btn"><div class="fa fa-filter"></div> Настройки фильтрации</div>
+            <div class="c-table-options-button" id="i-page-table-options-settings-btn"><div class="fa fa-table"></div> Настройки таблицы</div>
+            <div class="c-table-options-button" id="i-page-table-options-refresh-btn"><div class="fa fa-refresh"></div> Обновить</div>
+        </div>
 
-    <!-- /Панель управления таблицей грузов -->
+        <!-- /Панель управления таблицей грузов -->
 
 
-    <!-- Панель результатов поиска -->
-    <div class="table-panel">
-        <table class="tasks-table">                                    
-            <thead>
-                <tr>
-                    <th>№</th>
-                    <th>Откуда</th>
-                    <th>Куда</th>
-                    <th>Тип груза</th>
-                    <th>Вес, кг</th>
-                    <th>Объём, м<sup>3</sup></th>
-                    <th>Дистанция, км</th>
-                    <th>Стоимость</th>
-                    <th>Дата готовности</th>
-                </tr>
-            </thead>
-            <tbody>  
-                <tr>
-                    <td class="c-ctrl-tasks-table-cell-num">1</td>
-                    <td class="c-ctrl-tasks-table-cell-from">Волгодонск</td>
-                    <td class="c-ctrl-tasks-table-cell-to">Тверь</td>
-                    <td class="c-ctrl-tasks-table-cell-type"></td>
-                    <td class="c-ctrl-tasks-table-cell-weight"></td>
-                    <td class="c-ctrl-tasks-table-cell-value"></td>
-                    <td class="c-ctrl-tasks-table-cell-distance"></td>
-                    <td class="c-ctrl-tasks-table-cell-cost"></td>
-                    <td class="c-ctrl-tasks-table-cell-ready-date"></td>
-                </tr>
+        <!-- Панель результатов поиска -->
 
-                <tr>
-                    <td class="c-ctrl-tasks-table-cell-num">2</td>
-                    <td class="c-ctrl-tasks-table-cell-from">Москва</td>
-                    <td class="c-ctrl-tasks-table-cell-to">Вологда</td>
-                    <td class="c-ctrl-tasks-table-cell-type"></td>
-                    <td class="c-ctrl-tasks-table-cell-weight"></td>
-                    <td class="c-ctrl-tasks-table-cell-value"></td>
-                    <td class="c-ctrl-tasks-table-cell-distance"></td>
-                    <td class="c-ctrl-tasks-table-cell-cost"></td>
-                    <td class="c-ctrl-tasks-table-cell-ready-date"></td>
-                </tr>
 
-                <tr>
-                    <td class="c-ctrl-tasks-table-cell-num">3</td>
-                    <td class="c-ctrl-tasks-table-cell-from">Смоленск</td>
-                    <td class="c-ctrl-tasks-table-cell-to">Сочи</td>
-                    <td class="c-ctrl-tasks-table-cell-type"></td>
-                    <td class="c-ctrl-tasks-table-cell-weight"></td>
-                    <td class="c-ctrl-tasks-table-cell-value"></td>
-                    <td class="c-ctrl-tasks-table-cell-distance"></td>
-                    <td class="c-ctrl-tasks-table-cell-cost"></td>
-                    <td class="c-ctrl-tasks-table-cell-ready-date"></td>
-                </tr>
 
-                <tr>
-                    <td class="c-ctrl-tasks-table-cell-num">4</td>
-                    <td class="c-ctrl-tasks-table-cell-from">Тула</td>
-                    <td class="c-ctrl-tasks-table-cell-to">Курск</td>
-                    <td class="c-ctrl-tasks-table-cell-type"></td>
-                    <td class="c-ctrl-tasks-table-cell-weight"></td>
-                    <td class="c-ctrl-tasks-table-cell-value"></td>
-                    <td class="c-ctrl-tasks-table-cell-distance"></td>
-                    <td class="c-ctrl-tasks-table-cell-cost"></td>
-                    <td class="c-ctrl-tasks-table-cell-ready-date"></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <!-- /Панель результатов поиска -->
+
+        <div class="c-table-panel">
+            <table id="i-ctrl-tasks-table" class="c-tasks-table">                                    
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>№</th>
+                        <th>Откуда</th>
+                        <th>Куда</th>
+                        <th>Тип груза</th>
+                        <th>Вес, кг</th>
+                        <th>Объём, м<sup>3</sup></th>
+                        <th>Дистанция, км</th>
+                        <th>Стоимость</th>
+                        <th>Дата готовности</th>
+                    </tr>
+                    <tr id="i-ctrl-tasks-table-row-template" data-id="" class="hidden">
+                        <td class="c-ctrl-tasks-table-cell-chk"><input type="checkbox" /></td>
+                        <td class="c-ctrl-tasks-table-cell-num"></td>
+                        <td class="c-ctrl-tasks-table-cell-from"></td>
+                        <td class="c-ctrl-tasks-table-cell-to"></td>
+                        <td class="c-ctrl-tasks-table-cell-type"></td>
+                        <td class="c-ctrl-tasks-table-cell-weight"></td>
+                        <td class="c-ctrl-tasks-table-cell-value"></td>
+                        <td class="c-ctrl-tasks-table-cell-distance"></td>
+                        <td class="c-ctrl-tasks-table-cell-cost"></td>
+                        <td class="c-ctrl-tasks-table-cell-ready-date"></td>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <!-- /Панель результатов поиска -->
 
 
 
