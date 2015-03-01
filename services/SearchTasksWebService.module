@@ -32,6 +32,9 @@ class SearchTasksWebService extends WebServBase
         {
             $page_arg = intval($args[0]);
             $page = $page_arg > 0 ? $page_arg : 1;
+
+            // TODO Сделать проверку правильности номера страницы полученного с клиента
+
             $limit = 20;
             $offset = ($page - 1) * $limit;
             $allRowCount = 0;
