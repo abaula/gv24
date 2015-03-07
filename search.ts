@@ -113,6 +113,9 @@ module Search
 
         getTasksPageData(pageNumber: number): void
         {
+            // показываем иконку загрузки
+            __currentComp.application.showOverlay("#i-ctrl-tasks-table-overlay", "#i-ctrl-tacks-container");
+
             $.ajax({
                 type: "GET",
                 url: __currentComp.application.getFullUri("api/searchtasks/" + pageNumber.toString()),
@@ -134,6 +137,11 @@ module Search
             // если ошибка "Требуется авторизация", то требуем у Application проверить текущий статус авторизации
             //if (2 == parseInt(__currentTasksProfile.errorData.code))
             //    __currentTasksProfile.application.checkAuthStatus();
+
+
+            // скрываем иконку загрузки
+            __currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
+
         }
 
         onAjaxGetTasksPageDataSuccess(data: ServerData.AjaxServerResponse, status: string, jqXHR: JQueryXHR): void
@@ -155,6 +163,9 @@ module Search
             {
                 __currentComp.dataReady(__currentComp);
             }
+
+            // скрываем иконку загрузки
+            __currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
         }
 
 
@@ -163,8 +174,18 @@ module Search
             // Чистим строки в таблице
             __currentComp.clearTasksList();
 
+            // чистим панель навигации по страницам
+            __currentComp.clearPageNavigation();
 
             // отображаем в таблице полученные с сервера данные
+            __currentComp.drawTableRows();
+
+            // рисуем панель навигации по страницам
+            __currentComp.drawPageNavigation();
+        }
+
+        drawTableRows(): void
+        {
             var tbody: JQuery = $("#i-ctrl-tasks-table > tbody");
 
             var rowTempl: JQuery = $("#i-ctrl-tasks-table-row-template");
@@ -186,23 +207,155 @@ module Search
                 $("td.c-ctrl-tasks-table-cell-cost", row).text(task.cost);
                 $("td.c-ctrl-tasks-table-cell-ready-date", row).text(task.readyDate);
 
-                // TODO привязываем обработчики на кнопки
+                // TODO привязываем обработчики на чекбоксы
                 //$("td.c-ctrl-tasks-table-cell-action > span.c-ctrl-tasks-table-cell-action-edit", row).attr("data-id", cargo.id).click(__currentTasksProfile.onTaskEditClick);
-                //$("td.c-ctrl-tasks-table-cell-action > span.c-ctrl-tasks-table-cell-action-delete", row).attr("data-id", cargo.id).click(__currentTasksProfile.onTaskDeleteClick);
 
                 row.appendTo(tbody);
             }
+        }
 
+        drawPageNavigation(): void
+        {
+            // рассчитываем данные панели навигации
+            // ... отображаемое количество ссылок
+            var displayPagesNumber: number = 10;
+            // ... номер страницы в первой отображаемой ссылке
+            var displayFirstPageNumber: number;
+            // ... номер страницы в последней отображаемой ссылке
+            var displayLastPageNumber: number;
+            // ... общее количество страниц в выборке
+            var allPagesNumber: number;
+            // ... номер текущей страницы
+            var currentPageNumber: number;
+
+            // рассчитываем общее количество страниц в выборке
+            allPagesNumber = Math.ceil(__currentComp.taskData.allRowCount / __currentComp.taskData.limit);
+
+            // номер текущей страницы
+            currentPageNumber = __currentComp.taskData.page;
+
+            // находим номер первой страницы в списке
+            displayFirstPageNumber = currentPageNumber - Math.floor(displayPagesNumber / 2);
+            displayFirstPageNumber = Math.max(displayFirstPageNumber, 1);
+            // находим номер последней страницы в списке
+            displayLastPageNumber = Math.min(allPagesNumber, displayFirstPageNumber + displayPagesNumber - 1);
+            // корректируем номер первой страницы в списке
+            displayFirstPageNumber = Math.max(displayLastPageNumber - displayPagesNumber + 1, 1);
+
+            // рисуем панель навигации
+            var container: JQuery = $("#i-ctrl-tasks-navpage-container");
+            var pageNumTempl: JQuery = $("#i-ctrl-tasks-navpage-pagelink-template");
+
+            for (var i: number = displayFirstPageNumber; i <= displayLastPageNumber; i++)
+            {
+                var pageNumContainer: JQuery = pageNumTempl.clone();
+                pageNumContainer.removeAttr("id");
+                pageNumContainer.attr("data-page-num", i);
+                pageNumContainer.text(i);
+                pageNumContainer.appendTo(container);
+
+                if (i == currentPageNumber)
+                {
+                    pageNumContainer.addClass("c-ctrl-tasks-navpage-panel-link-current");
+                }
+                else
+                {
+                    // привязываем обработчик события
+                    pageNumContainer.click(__currentComp.onPageNavigationClick);
+                }
+            }
+
+            // расставляем обработчики и стили на сслыки быстрой навигации
+            // ... отображаем ли ссылку на страницу назад
+            var displayPrevLinkActive: boolean = (currentPageNumber > 1);
+            // ... отображаем ли ссылку на страницу вперёд
+            var displayNextLinkActive: boolean = (currentPageNumber < allPagesNumber);
+            // ... отображаем ли ссылку на страницу назад
+            var displayPrevPageLinkActive: boolean = (displayFirstPageNumber > 1);
+            // ... отображаем ли ссылку на страницу вперёд
+            var displayNextPageLinkActive: boolean = (displayLastPageNumber < allPagesNumber);
+            // ... отображаем ли ссылку на первую страницу
+            var displayFirstLinkActive: boolean = (currentPageNumber != 1);
+            // ... отображаем ли ссылку на последнюю страницу
+            var displayLastLinkActive: boolean = (currentPageNumber != allPagesNumber);
+
+            var linkPageNumber: number;
+
+            if (displayPrevLinkActive)
+            {
+                linkPageNumber = Math.max(currentPageNumber - 1, 1);
+                $("#i-ctrl-tasks-navpage-prev").click(__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
+            }
+
+            if (displayNextLinkActive)
+            {
+                linkPageNumber = Math.min(currentPageNumber + 1, allPagesNumber);
+                $("#i-ctrl-tasks-navpage-next").click(__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
+            }
+
+            if (displayPrevPageLinkActive)
+            {
+                linkPageNumber = Math.max(currentPageNumber - displayPagesNumber, 1);
+                $("#i-ctrl-tasks-navpage-prev-page").click(__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
+            }
+
+            if (displayNextPageLinkActive)
+            {
+                linkPageNumber = Math.min(currentPageNumber + displayPagesNumber, allPagesNumber);
+                $("#i-ctrl-tasks-navpage-next-page").click(__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
+            }
+
+            if (displayFirstLinkActive)
+            {
+                linkPageNumber = 1;
+                $("#i-ctrl-tasks-navpage-first").click(__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
+            }
+
+            if (displayLastLinkActive)
+            {
+                linkPageNumber = allPagesNumber;
+                $("#i-ctrl-tasks-navpage-last").click(__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
+            }
 
 
         }
+
+
+        onPageNavigationClick(event: JQueryEventObject): void
+        {
+            var ctrl: JQuery = $(event.delegateTarget);
+            //window.console.log("onTaskEditClick " + ctrl.attr("data-id"));
+
+            var pageNum: number = parseInt(ctrl.attr("data-page-num"));
+
+            // загружаем данные указанной страницы
+            __currentComp.getTasksPageData(pageNum);
+        }
+
 
         clearTasksList(): void
         {
+            // получаем все строки таблицы
+            var rows: JQuery = $("#i-ctrl-tasks-table > tbody > tr");
+            // TODO удаляем все обработчики событий
+
             // удаляем все строки таблицы
-            var row: JQuery = $("#i-ctrl-tasks-table > tbody > tr");
-            row.remove();
+            rows.remove();
         }
+
+        clearPageNavigation(): void
+        {
+            // удаляем обработчики событий со ссылок быстрой навигации и ставим стили по умолчанию
+            $("#i-ctrl-tasks-navpage-prev, #i-ctrl-tasks-navpage-next, #i-ctrl-tasks-navpage-prev-page, #i-ctrl-tasks-navpage-next-page, #i-ctrl-tasks-navpage-first, #i-ctrl-tasks-navpage-last").unbind("click", __currentComp.onPageNavigationClick).addClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", "");
+            
+            // получаем коллекцию контролов с номерами страниц
+            var divs: JQuery = $("#i-ctrl-tasks-navpage-container > div");
+            // удаляем все обработчики событий
+            divs.unbind("click", __currentComp.onPageNavigationClick);
+            // удаляем все контейнеры навигации
+            divs.remove();
+        }
+
 
         onDocumentReady(): void
         {

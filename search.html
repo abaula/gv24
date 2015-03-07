@@ -16,7 +16,7 @@
 <body>
 
      <div class="c-page-top-section-block">
-         <div class="c-page-top-logo fa fa-cubes"></div><div class="c-page-top-menu-item-selected">Грузы</div><div class="c-page-top-menu-item">Отложенные грузы</div><div class="c-page-top-menu-item">Калькулятор</div><div class="c-page-top-menu-item">Настройки</div>
+         <div class="c-page-top-logo fa fa-cubes"></div><div class="c-page-top-menu-item-selected">Грузы</div><div class="c-page-top-menu-item">Отложенные грузы</div><div class="c-page-top-menu-item">Расчёт рейса</div><div class="c-page-top-menu-item">Настройки</div>
     </div>
 
     <!-- индикатор загрузки содержимого страницы -->
@@ -35,63 +35,69 @@
     <!-- содержимое страницы -->
     <div id="i-page-main-container" class="c-page-main-container hidden">
 
-
-        <!-- Панель управления таблицей грузов -->
-        <div class="c-table-options-panel">
+        <div id="i-ctrl-tacks-container" class="c-page-form-outer-block">
+            <!-- Панель управления таблицей грузов -->
+            <div class="c-table-options-panel">
         
-            <div class="c-table-options-button" id="i-page-table-options-filter-btn"><div class="fa fa-filter"></div> Настройки фильтрации</div>
-            <div class="c-table-options-button" id="i-page-table-options-settings-btn"><div class="fa fa-table"></div> Настройки таблицы</div>
-            <div class="c-table-options-button" id="i-page-table-options-refresh-btn"><div class="fa fa-refresh"></div> Обновить</div>
+                <div class="c-table-options-button" id="i-page-table-options-filter-btn"><i class="fa fa-filter"></i> Настройки фильтрации</div>
+                <div class="c-table-options-button" id="i-page-table-options-settings-btn"><i class="fa fa-table"></i> Настройки таблицы</div>
+                <div class="c-table-options-button" id="i-page-table-options-refresh-btn"><i class="fa fa-refresh"></i> Обновить</div>
+            </div>
+            <!-- /Панель управления таблицей грузов -->
+
+
+            <!-- Панель результатов поиска -->
+            <div class="c-table-panel">
+                <table id="i-ctrl-tasks-table" class="c-tasks-table">                                    
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>№</th>
+                            <th>Откуда</th>
+                            <th>Куда</th>
+                            <th>Тип груза</th>
+                            <th>Вес, кг</th>
+                            <th>Объём, м<sup>3</sup></th>
+                            <th>Дистанция, км</th>
+                            <th>Стоимость</th>
+                            <th>Дата готовности</th>
+                        </tr>
+                        <tr id="i-ctrl-tasks-table-row-template" data-id="" class="hidden">
+                            <td class="c-ctrl-tasks-table-cell-chk"><input type="checkbox" /></td>
+                            <td class="c-ctrl-tasks-table-cell-num"></td>
+                            <td class="c-ctrl-tasks-table-cell-from"></td>
+                            <td class="c-ctrl-tasks-table-cell-to"></td>
+                            <td class="c-ctrl-tasks-table-cell-type"></td>
+                            <td class="c-ctrl-tasks-table-cell-weight"></td>
+                            <td class="c-ctrl-tasks-table-cell-value"></td>
+                            <td class="c-ctrl-tasks-table-cell-distance"></td>
+                            <td class="c-ctrl-tasks-table-cell-cost"></td>
+                            <td class="c-ctrl-tasks-table-cell-ready-date"></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <!-- /Панель результатов поиска -->
+
+            <!-- Панель навигации по страницам -->
+            <div class="c-ctrl-tasks-navpage-panel">
+                <div id="i-ctrl-tasks-navpage-first" class="c-ctrl-tasks-navpage-panel-link c-ctrl-tasks-navpage-panel-link-disabled" data-page-num=""><i class="fa fa-chevron-circle-left"></i></div>
+                <div id="i-ctrl-tasks-navpage-prev-page" class="c-ctrl-tasks-navpage-panel-link c-ctrl-tasks-navpage-panel-link-disabled" data-page-num=""><i class="fa fa-angle-double-left"></i></div>
+                <div id="i-ctrl-tasks-navpage-prev" class="c-ctrl-tasks-navpage-panel-link c-ctrl-tasks-navpage-panel-link-disabled" data-page-num=""><i class="fa fa-angle-left"></i></div>
+                <div id="i-ctrl-tasks-navpage-pagelink-template" class="c-ctrl-tasks-navpage-panel-link" data-page-num=""></div>
+                <div id="i-ctrl-tasks-navpage-container" class="c-ctrl-tasks-navpage-container"></div>
+                <div id="i-ctrl-tasks-navpage-next" class="c-ctrl-tasks-navpage-panel-link c-ctrl-tasks-navpage-panel-link-disabled" data-page-num=""><i class="fa fa-angle-right"></i></div>
+                <div id="i-ctrl-tasks-navpage-next-page" class="c-ctrl-tasks-navpage-panel-link c-ctrl-tasks-navpage-panel-link-disabled" data-page-num=""><i class="fa fa-angle-double-right"></i></div>
+                <div id="i-ctrl-tasks-navpage-last" class="c-ctrl-tasks-navpage-panel-link c-ctrl-tasks-navpage-panel-link-disabled" data-page-num=""><i class="fa fa-chevron-circle-right"></i></div>
+            </div>
+            <!-- /Панель навигации по страницам -->
+
+            <!-- Индикатор выполнения операции -->
+            <div id="i-ctrl-tasks-table-overlay" class="c-page-form-overlay-container"><div class="fa fa-spinner fa-spin"></div></div>
+            <!-- /Индикатор выполнения операции -->
         </div>
-
-        <!-- /Панель управления таблицей грузов -->
-
-
-        <!-- Панель результатов поиска -->
-
-
-
-
-        <div class="c-table-panel">
-            <table id="i-ctrl-tasks-table" class="c-tasks-table">                                    
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>№</th>
-                        <th>Откуда</th>
-                        <th>Куда</th>
-                        <th>Тип груза</th>
-                        <th>Вес, кг</th>
-                        <th>Объём, м<sup>3</sup></th>
-                        <th>Дистанция, км</th>
-                        <th>Стоимость</th>
-                        <th>Дата готовности</th>
-                    </tr>
-                    <tr id="i-ctrl-tasks-table-row-template" data-id="" class="hidden">
-                        <td class="c-ctrl-tasks-table-cell-chk"><input type="checkbox" /></td>
-                        <td class="c-ctrl-tasks-table-cell-num"></td>
-                        <td class="c-ctrl-tasks-table-cell-from"></td>
-                        <td class="c-ctrl-tasks-table-cell-to"></td>
-                        <td class="c-ctrl-tasks-table-cell-type"></td>
-                        <td class="c-ctrl-tasks-table-cell-weight"></td>
-                        <td class="c-ctrl-tasks-table-cell-value"></td>
-                        <td class="c-ctrl-tasks-table-cell-distance"></td>
-                        <td class="c-ctrl-tasks-table-cell-cost"></td>
-                        <td class="c-ctrl-tasks-table-cell-ready-date"></td>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-        <!-- /Панель результатов поиска -->
-
-
-
-
-
-
-
     </div>
 </body>
 </html>

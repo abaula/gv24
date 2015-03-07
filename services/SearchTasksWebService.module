@@ -17,6 +17,9 @@ class SearchTasksWebService extends WebServBase
     public function onGet($args)
     {
 
+        // TODO убрать эмуляцию задержки ответа сервера
+        sleep(1);
+
         //var_dump($args);
 
         // проверяем авторизован ли пользователь
