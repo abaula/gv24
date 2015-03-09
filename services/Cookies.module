@@ -1,0 +1,114 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 09.03.15
+ * Time: 17:07
+ * To change this template use File | Settings | File Templates.
+ */
+require_once("Log.module");
+require_once("SqlFactory.module");
+require_once("CurrentUser.module");
+
+class Cookies
+{
+
+    public static function updateCookies()
+    {
+        $timeOffset = time() + (3600 * 24 * 365 * 10);
+
+        // настраиваем куки первый раз
+        if(!isset($_COOKIE['USER_TOKEN']))
+        {
+            $user_token = md5(uniqid(rand(),1));
+            setcookie('USER_TOKEN', $user_token, $timeOffset, '/');
+            $_COOKIE['USER_TOKEN'] = $user_token;
+        }
+        // обновляем время годности у куки
+        else
+        {
+            $user_token = Cookies::getUserToken();
+            setcookie('USER_TOKEN', $user_token, $timeOffset, '/');
+        }
+
+        // сохраняем токен в БД
+        Cookies::updateUserToken();
+    }
+
+
+    public static function getUserToken()
+    {
+        return $_COOKIE['USER_TOKEN'];
+    }
+
+    public static function getUserTokenId()
+    {
+        return $_SESSION['USER_TOKEN_ID'];
+    }
+
+
+    public static function updateUserToken()
+    {
+        $user_token = Cookies::getUserToken();
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            // проверяем существует ли запись о токене в БД
+            $sql = 'SELECT id FROM user_token WHERE token=?s';
+            $user_token_id = $db->getOne($sql, $user_token);
+
+            // если записи нет, то создаём её
+            if(false == $user_token_id)
+            {
+                if(CurrentUser::isAuthenticated())
+                {
+                    $user_id = CurrentUser::getUserId();
+                    $sql = 'INSERT INTO user_token (token, account_id) VALUES (?s, ?i)';
+                    $result = $db->query($sql, $user_token, $user_id);
+                }
+                else
+                {
+                    $sql = 'INSERT INTO user_token (token, account_id) VALUES (?s, null)';
+                    $result = $db->query($sql, $user_token);
+                }
+
+
+                if(true == $result)
+                {
+                    $user_token_id = $db->insertId();
+                    $_SESSION['USER_TOKEN_ID'] = $user_token_id;
+                }
+            }
+            else
+            {
+                $_SESSION['USER_TOKEN_ID'] = $user_token_id;
+            }
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+        }
+    }
+
+    public static function mapAccountToUserToken($account_id)
+    {
+        $user_token_id = Cookies::getUserTokenId();
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            // проверяем существует ли запись о токене в БД
+            $sql = 'UPDATE user_token SET account_id=?i WHERE id=?i';
+            $result = $db->query($sql, $account_id, $user_token_id);
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+        }
+    }
+
+
+
+
+}

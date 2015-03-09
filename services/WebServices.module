@@ -21,6 +21,7 @@ require_once("Validators.module");
 require_once("AppErrors.module");
 require_once("SqlFactory.module");
 require_once("SearchTasksWebService.module");
+require_once("CargoSelectedWebService.module");
 
 
 
@@ -43,6 +44,7 @@ function getWebService($name)
         return new CityAutoCompleteWebService();
     else if("searchtasks" == $name)
         return new SearchTasksWebService();
-
+    else if("caregoselected" == $name)
+        return new CargoSelectedWebService();
     return null;
 }

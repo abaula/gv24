@@ -1,0 +1,71 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 09.03.15
+ * Time: 16:03
+ * To change this template use File | Settings | File Templates.
+ */
+require_once("WebServBase.module");
+require_once("Headers.module");
+require_once("Contract.module");
+
+class CargoSelectedWebService extends WebServBase
+{
+
+    public function onGet($args)
+    {
+        $accountId = null;
+        $userTokenId = Cookies::getUserTokenId();
+
+        // если пользователь авторизован, то получаем ID акаунта
+        if(true == CurrentUser::isAuthenticated())
+        {
+            $accountId = CurrentUser::getUserId();
+        }
+
+
+
+
+
+
+
+
+
+
+
+    }
+
+    public function onPost($args, $data)
+    {
+        // TODO: Implement onPost() method.
+    }
+
+    public function onPut($args, $data)
+    {
+        // TODO: Implement onPut() method.
+    }
+
+    public function onDelete($args, $data)
+    {
+        // TODO: Implement onDelete() method.
+    }
+
+
+
+    public static function mapSelectedCargoToAccount($accountId)
+    {
+        $userTokenId = Cookies::getUserTokenId();
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            $sql = 'UPDATE cargo_selected SET user_token_id = null, account_id=?i WHERE user_token_id=?i';
+            $result = $db->query($sql, $accountId, $userTokenId);
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+        }
+    }
+}

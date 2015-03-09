@@ -15,6 +15,8 @@ module Search
         public distance: number;
         public cost: number;
         public readyDate: string;
+        public selected: boolean;
+        public selectedInAccount: boolean;
     }
 
     export class AjaxTaskList

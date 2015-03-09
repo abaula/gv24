@@ -22,9 +22,15 @@ class SearchTasksWebService extends WebServBase
 
         //var_dump($args);
 
+        $accountId = null;
+        $userTokenId = Cookies::getUserTokenId();
+
+
+
         // проверяем авторизован ли пользователь
         if(true == CurrentUser::isAuthenticated())
         {
+            $accountId = CurrentUser::getUserId();
             // TODO получаем параметры поиска сохранённые в профиле пользователя
 
         }
@@ -48,8 +54,15 @@ class SearchTasksWebService extends WebServBase
 
             $allRowCount = $db->getOne($sql);
 
+
+            if(null != $accountId)
+                $cargo_selected_filter = ' AND CS.account_id = ' . intval($accountId);
+            else
+                $cargo_selected_filter = ' AND CS.user_token_id = ' . intval($userTokenId);
+
+
             // получаем страницу данных
-            $sql = 'SELECT C.id, GC1.name AS city1, GC2.name AS city2, CT.name AS type, C.weight, C.value, C.distance, C.cost, C.ready_date
+            $sql = 'SELECT C.id, GC1.name AS city1, GC2.name AS city2, CT.name AS type, C.weight, C.value, C.distance, C.cost, C.ready_date, CS.account_id, CS.user_token_id
                     FROM cargo C
 	                INNER JOIN geocities GC1
                         ON GC1.id = C.city1_id
@@ -57,7 +70,12 @@ class SearchTasksWebService extends WebServBase
                         ON GC2.id = C.city2_id
                     INNER JOIN cargo_type CT
                         ON CT.id = C.cargo_type_id
+                    LEFT OUTER JOIN cargo_selected CS
+                        ON CS.cargo_id = C.id'
+                        . $cargo_selected_filter .
+                    ' WHERE C.is_deleted = 0
                     LIMIT ?i, ?i';
+
 
             $result = $db->query($sql, $offset, $limit);
 
@@ -72,10 +90,12 @@ class SearchTasksWebService extends WebServBase
                 while($row = $db->fetch($result))
                 {
                     $rusReadyDate = Validators::convertMySqlDate2RusDate($row['ready_date']);
+                    $selected = (null != $row['account_id'] || null != $row['user_token_id']) ? true : false;
+                    $selectedInAccount = (null != $row['account_id']) ? true : false;
 
                     $entry = new AjaxTask
                     (
-                        $row['id'], $row['city1'], $row['city2'], $row['type'], $row['weight'], $row['value'], $row['distance'], $row['cost'], $rusReadyDate
+                        $row['id'], $row['city1'], $row['city2'], $row['type'], $row['weight'], $row['value'], $row['distance'], $row['cost'], $rusReadyDate, $selected, $selectedInAccount
                     );
 
                     array_push($arr, $entry);

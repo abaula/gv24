@@ -88,6 +88,14 @@ class AuthWebService extends WebServBase
             // Создаём сессию
             CurrentUser::setUser($result['id'], $result['name']);
 
+            // Выполняем действия после авторизации пользователя
+            // ... 1. привязываем cookie к акаунту
+            Cookies::mapAccountToUserToken($result['id']);
+            // ... 2. верифицируем отложенные грузы
+            CargoSelectedWebService::mapSelectedCargoToAccount($result['id']);
+
+
+
             // возвращаем результат
             $respData = new AjaxAuthResponse($result['name']);
             $response = new AjaxServerResponse(200, '', '', $respData);
