@@ -271,3 +271,23 @@ class AjaxTaskList
         $this->tasks = null;
     }
 }
+
+class AjaxTaskInfo
+{
+    public $taskId;
+
+    function __construct($taskId)
+    {
+        $this->taskId = $taskId;
+    }
+}
+
+class AjaxTaskInfoList
+{
+    public $tasks;
+
+    function __construct()
+    {
+        $this->tasks = null;
+    }
+}

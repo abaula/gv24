@@ -130,16 +130,22 @@ class SearchTasksWebService extends WebServBase
 
     public function onPost($args, $data)
     {
-        // TODO: Implement onPost() method.
+        // HTTP/1.1 405 Method Not Allowed
+        sendHTTPStatus(405);
+        header('Allow: GET');
     }
 
     public function onPut($args, $data)
     {
-        // TODO: Implement onPut() method.
+        // HTTP/1.1 405 Method Not Allowed
+        sendHTTPStatus(405);
+        header('Allow: GET');
     }
 
     public function onDelete($args, $data)
     {
-        // TODO: Implement onDelete() method.
+        // HTTP/1.1 405 Method Not Allowed
+        sendHTTPStatus(405);
+        header('Allow: GET');
     }
 }
