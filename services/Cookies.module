@@ -59,22 +59,22 @@ class Cookies
             $user_token_id = $db->getOne($sql, $user_token);
 
             // если записи нет, то создаём её
-            if(false == $user_token_id)
+            if(empty($user_token_id))
             {
                 if(CurrentUser::isAuthenticated())
                 {
                     $user_id = CurrentUser::getUserId();
                     $sql = 'INSERT INTO user_token (token, account_id) VALUES (?s, ?i)';
-                    $result = $db->query($sql, $user_token, $user_id);
+                    $db->query($sql, $user_token, $user_id);
                 }
                 else
                 {
                     $sql = 'INSERT INTO user_token (token, account_id) VALUES (?s, null)';
-                    $result = $db->query($sql, $user_token);
+                    $db->query($sql, $user_token);
                 }
 
 
-                if(true == $result)
+                if(0 < $db->affectedRows())
                 {
                     $user_token_id = $db->insertId();
                     $_SESSION['USER_TOKEN_ID'] = $user_token_id;
@@ -98,9 +98,9 @@ class Cookies
 
         try
         {
-            // проверяем существует ли запись о токене в БД
+            // присваиваем токену аккаунт
             $sql = 'UPDATE user_token SET account_id=?i WHERE id=?i';
-            $result = $db->query($sql, $account_id, $user_token_id);
+            $db->query($sql, $account_id, $user_token_id);
         }
         catch(Exception $ex)
         {

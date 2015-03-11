@@ -56,9 +56,9 @@ class SearchTasksWebService extends WebServBase
 
 
             if(null != $accountId)
-                $cargo_selected_filter = ' AND CS.account_id = ' . intval($accountId);
+                $cargo_selected_filter = $db->parse(' AND CS.account_id = ?i ', $accountId);
             else
-                $cargo_selected_filter = ' AND CS.user_token_id = ' . intval($userTokenId);
+                $cargo_selected_filter = $db->parse(' AND CS.user_token_id = ?i ', $userTokenId);
 
 
             // получаем страницу данных
@@ -71,19 +71,15 @@ class SearchTasksWebService extends WebServBase
                     INNER JOIN cargo_type CT
                         ON CT.id = C.cargo_type_id
                     LEFT OUTER JOIN cargo_selected CS
-                        ON CS.cargo_id = C.id'
-                        . $cargo_selected_filter .
-                    ' WHERE C.is_deleted = 0
+                        ON CS.cargo_id = C.id
+                        ?p
+                    WHERE C.is_deleted = 0
                     LIMIT ?i, ?i';
 
 
-            $result = $db->query($sql, $offset, $limit);
+            $result = $db->query($sql, $cargo_selected_filter, $offset, $limit);
 
-            if(false == $result)
-            {
-                $this->returnError(500, array(1));
-            }
-            else
+            if(0 < $db->numRows($result))
             {
                 $arr = array();
 

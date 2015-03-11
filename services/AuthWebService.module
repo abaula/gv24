@@ -60,7 +60,7 @@ class AuthWebService extends WebServBase
             $sql = 'select id, name, isActive, banDate from account where email=?s and passMD5=?s';
             $result = $db->getRow($sql, $email, $md5pass);
 
-            if(null == $result)
+            if(empty($result))
             {
                 // HTTP/1.1 403 Forbidden
                 $this->returnError(403, array(3));

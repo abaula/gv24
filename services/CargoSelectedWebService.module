@@ -52,11 +52,7 @@ class CargoSelectedWebService extends WebServBase
 
             $result = $db->query($sql, $accountId, $userTokenId);
 
-            if(false == $result)
-            {
-                $this->returnError(500, array(1));
-            }
-            else
+            if(0 < $db->numRows($result))
             {
                 $arr = array();
 
@@ -96,9 +92,50 @@ class CargoSelectedWebService extends WebServBase
         // AjaxTaskInfoList
         // AjaxTaskInfo
 
+        $accountId = null;
+        $userTokenId = Cookies::getUserTokenId();
 
+        // если пользователь авторизован, то получаем ID акаунта
+        if(true == CurrentUser::isAuthenticated())
+        {
+            $accountId = CurrentUser::getUserId();
+        }
 
-        // TODO: Implement onPost() method.
+        // возвращаем объекты AjaxTask
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            if(is_null($accountId))
+                $check_sql_definition = $db->parse(' AND user_token_id = ?i ', $userTokenId);
+            else
+                $check_sql_definition = $db->parse(' AND account_id = ?i ', $accountId);
+
+            foreach($data->tasks as $task)
+            {
+                // страхуемся от внесения дублей в таблицу выбранных грузов
+                $sql = 'SELECT id FROM cargo_selected WHERE cargo_id = ?i ?p';
+                $result = $db->getOne($sql, $task->taskId, $check_sql_definition);
+
+                if(empty($result))
+                {
+                    // вносим новую запись в таблицу выбранных грузов
+                    $sql = 'INSERT INTO cargo_selected (cargo_id, account_id, user_token_id) VALUES ?p';
+
+                    if(is_null($accountId))
+                        $insert_sql_definition = $db->parse(' (?i, null, ?i) ', $task->taskId, $userTokenId);
+                    else
+                        $insert_sql_definition = $db->parse(' (?i, ?i, null) ', $task->taskId, $accountId);
+
+                    $db->query($sql, $insert_sql_definition);
+                }
+            }
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1));
+        }
     }
 
     public function onPut($args, $data)
@@ -122,8 +159,40 @@ class CargoSelectedWebService extends WebServBase
 
         try
         {
+            // 1. Удаляем дубли выбора грузов
+
+            // ... получаем идентификаторы строк для удаления
+            $sql = 'SELECT CS_UT.id
+                    FROM cargo_selected CS_UT
+                        INNER JOIN cargo_selected CS_AC
+                            ON CS_UT.cargo_id = CS_AC.cargo_id
+                                AND CS_UT.user_token_id = ?i
+                                AND CS_AC.account_id = ?i';
+
+            $result = $db->query($sql, $userTokenId, $accountId);
+
+            if(0 < $db->numRows($result))
+            {
+               $arr_ids = array();
+
+               // ... собираем полученные идентификаторы
+               while($row = $db->fetch($result))
+               {
+                   array_push($arr_ids, $row['id']);
+               }
+
+                // ... удаляем дубли строк из таблицы
+               if(0 < count($arr_ids))
+               {
+                   $in_sql_definition = implode(',', $arr_ids);
+                   $sql = 'DELETE FROM cargo_selected WHERE id IN(' . $in_sql_definition . ')';
+                   $db->query($sql);
+               }
+            }
+
+            // 2. Обновляем запись о выбранном грузе - назначаем владельцем записи акаунт пользователя
             $sql = 'UPDATE cargo_selected SET user_token_id = null, account_id=?i WHERE user_token_id=?i';
-            $result = $db->query($sql, $accountId, $userTokenId);
+            $db->query($sql, $accountId, $userTokenId);
         }
         catch(Exception $ex)
         {
