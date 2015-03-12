@@ -239,10 +239,8 @@ class AjaxTask
     public $cost;
     public $readyDate;
     public $selected;
-    public $selectedInAccount;
 
-
-    function __construct($id, $city1, $city2, $type, $distance, $value, $weight, $cost, $readyDate, $selected, $selectedInAccount)
+    function __construct($id, $city1, $city2, $type, $distance, $value, $weight, $cost, $readyDate, $selected)
     {
         $this->id = $id;
         $this->city1 = $city1;
@@ -254,7 +252,6 @@ class AjaxTask
         $this->cost = $cost;
         $this->readyDate = $readyDate;
         $this->selected = $selected;
-        $this->selectedInAccount = $selectedInAccount;
     }
 }
 

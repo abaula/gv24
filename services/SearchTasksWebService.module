@@ -74,6 +74,7 @@ class SearchTasksWebService extends WebServBase
                         ON CS.cargo_id = C.id
                         ?p
                     WHERE C.is_deleted = 0
+                    ORDER BY C.id
                     LIMIT ?i, ?i';
 
 
@@ -87,11 +88,10 @@ class SearchTasksWebService extends WebServBase
                 {
                     $rusReadyDate = Validators::convertMySqlDate2RusDate($row['ready_date']);
                     $selected = (null != $row['account_id'] || null != $row['user_token_id']) ? true : false;
-                    $selectedInAccount = (null != $row['account_id']) ? true : false;
 
                     $entry = new AjaxTask
                     (
-                        $row['id'], $row['city1'], $row['city2'], $row['type'], $row['weight'], $row['value'], $row['distance'], $row['cost'], $rusReadyDate, $selected, $selectedInAccount
+                        $row['id'], $row['city1'], $row['city2'], $row['type'], $row['weight'], $row['value'], $row['distance'], $row['cost'], $rusReadyDate, $selected
                     );
 
                     array_push($arr, $entry);

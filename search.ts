@@ -16,7 +16,6 @@ module Search
         public cost: number;
         public readyDate: string;
         public selected: boolean;
-        public selectedInAccount: boolean;
     }
 
     export class AjaxTaskList
@@ -27,6 +26,18 @@ module Search
         public page: number;
         public tasks: AjaxTask[];
     }
+
+    export class AjaxTaskInfo
+    {
+        public taskId: number;
+    }
+
+    export class AjaxTaskInfoList
+    {
+        public tasks: AjaxTaskInfo[];
+    }
+
+
 
     export class SearchController implements Application.IComponent
     {
@@ -199,6 +210,7 @@ module Search
                 row.removeAttr("id").removeClass("hidden");
 
                 row.attr("data-id", task.id);
+                $("td.c-ctrl-tasks-table-cell-chk > :checkbox", row).prop("checked", task.selected);
                 $("td.c-ctrl-tasks-table-cell-num", row).text(task.id);
                 $("td.c-ctrl-tasks-table-cell-from", row).text(task.city1);
                 $("td.c-ctrl-tasks-table-cell-to", row).text(task.city2);
@@ -209,8 +221,8 @@ module Search
                 $("td.c-ctrl-tasks-table-cell-cost", row).text(task.cost);
                 $("td.c-ctrl-tasks-table-cell-ready-date", row).text(task.readyDate);
 
-                // TODO привязываем обработчики на чекбоксы
-                //$("td.c-ctrl-tasks-table-cell-action > span.c-ctrl-tasks-table-cell-action-edit", row).attr("data-id", cargo.id).click(__currentTasksProfile.onTaskEditClick);
+                // привязываем обработчики на чекбоксы
+                $("td.c-ctrl-tasks-table-cell-chk > :checkbox", row).click(__currentComp.onTaskSelected);
 
                 row.appendTo(tbody);
             }
@@ -322,6 +334,75 @@ module Search
 
         }
 
+        onTaskSelected(event: JQueryEventObject): void
+        {
+            var elem: JQuery = $(event.delegateTarget);
+            var checked: boolean = elem.is(":checked");
+            var taskId: string = elem.parent().parent().attr("data-id");
+
+            // сохраняем выбор на сервере
+            __currentComp.saveTaskSelected(taskId, checked);
+        }
+
+
+        saveTaskSelected(taskId: number, selected: boolean): void
+        {
+
+            var ajaxMethod: string = selected ? "POST" : "DELETE";
+
+
+            var taskInfo = new AjaxTaskInfo();
+            taskInfo.taskId = parseInt(taskId);
+
+            var taskInfoList = new AjaxTaskInfoList();
+            taskInfoList.tasks = [];
+            taskInfoList.tasks.push(taskInfo);
+
+            // показываем иконку загрузки
+            __currentComp.application.showOverlay("#i-ctrl-tasks-table-overlay", "#i-ctrl-tacks-container");
+
+            $.ajax({
+                type: ajaxMethod,
+                url: __currentComp.application.getFullUri("api/caregoselected"),
+                data: JSON.stringify(taskInfoList),
+                contentType: "application/json",
+                dataType: "json",
+                success: __currentComp.onAjaxTaskSelectedDataSuccess,
+                error: __currentComp.onAjaxTaskSelectedDataError
+            });
+        }
+
+        onAjaxTaskSelectedDataError(jqXHR: JQueryXHR, status: string, message: string): void
+        {
+            //window.console.log("_onAjaxError");
+
+            __currentComp.errorData = <ServerData.AjaxServerResponse>JSON.parse(jqXHR.responseText);
+            __currentComp.dataError(__currentComp, __currentComp.errorData);
+
+            // TODO обрабатываем ошибки сервера
+
+            // если ошибка "Требуется авторизация", то требуем у Application проверить текущий статус авторизации
+            //if (2 == parseInt(__currentTasksProfile.errorData.code))
+            //    __currentTasksProfile.application.checkAuthStatus();
+
+
+            // скрываем иконку загрузки
+            __currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
+
+        }
+
+        onAjaxTaskSelectedDataSuccess(data: ServerData.AjaxServerResponse, status: string, jqXHR: JQueryXHR): void
+        {
+            //window.console.log("_onAjaxGetAccountDataSuccess");
+
+            // загрузка компонента произведена успешно
+            __currentComp.taskData = <AjaxTaskList>data.data;
+
+
+            // скрываем иконку загрузки
+            __currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
+        }
+
 
         onPageNavigationClick(event: JQueryEventObject): void
         {
@@ -339,8 +420,8 @@ module Search
         {
             // получаем все строки таблицы
             var rows: JQuery = $("#i-ctrl-tasks-table > tbody > tr");
-            // TODO удаляем все обработчики событий
-
+            // удаляем все обработчики событий
+            $("#i-ctrl-tasks-table > tbody > tr > td > :checkbox").unbind("click", __currentComp.onTaskSelected);
             // удаляем все строки таблицы
             rows.remove();
         }

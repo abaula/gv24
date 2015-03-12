@@ -101,7 +101,6 @@ class CargoSelectedWebService extends WebServBase
             $accountId = CurrentUser::getUserId();
         }
 
-        // возвращаем объекты AjaxTask
         $db = SqlFactory::getSql();
 
         try
@@ -130,11 +129,18 @@ class CargoSelectedWebService extends WebServBase
                     $db->query($sql, $insert_sql_definition);
                 }
             }
+
+
+            $response = new AjaxServerResponse(200, '', '', $data);
+            sendHTTPStatus(200);
+            header('Content-type: application/json');
+            echo json_encode($response);
+
         }
         catch(Exception $ex)
         {
             Log::writeSqlExeption($db, $ex);
-            $this->returnError(500, array(1));
+            $this->returnError(500, array(1), $data);
         }
     }
 
@@ -147,7 +153,47 @@ class CargoSelectedWebService extends WebServBase
 
     public function onDelete($args, $data)
     {
-        // TODO: Implement onDelete() method.
+        // AjaxTaskInfoList
+        // AjaxTaskInfo
+
+        $accountId = null;
+        $userTokenId = Cookies::getUserTokenId();
+
+        // если пользователь авторизован, то получаем ID акаунта
+        if(true == CurrentUser::isAuthenticated())
+        {
+            $accountId = CurrentUser::getUserId();
+        }
+
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            if(is_null($accountId))
+                $where_sql_definition = $db->parse(' AND user_token_id = ?i ', $userTokenId);
+            else
+                $where_sql_definition = $db->parse(' AND account_id = ?i ', $accountId);
+
+            foreach($data->tasks as $task)
+            {
+                // удаляем запись из таблицы выбранных грузов
+                $sql = 'DELETE FROM cargo_selected WHERE cargo_id = ?i ?p';
+
+                $db->query($sql, $task->taskId, $where_sql_definition);
+            }
+
+
+            $response = new AjaxServerResponse(200, '', '', $data);
+            sendHTTPStatus(200);
+            header('Content-type: application/json');
+            echo json_encode($response);
+
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1), $data);
+        }
     }
 
 

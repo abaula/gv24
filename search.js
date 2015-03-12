@@ -17,6 +17,20 @@ var Search;
     })();
     Search.AjaxTaskList = AjaxTaskList;
 
+    var AjaxTaskInfo = (function () {
+        function AjaxTaskInfo() {
+        }
+        return AjaxTaskInfo;
+    })();
+    Search.AjaxTaskInfo = AjaxTaskInfo;
+
+    var AjaxTaskInfoList = (function () {
+        function AjaxTaskInfoList() {
+        }
+        return AjaxTaskInfoList;
+    })();
+    Search.AjaxTaskInfoList = AjaxTaskInfoList;
+
     var SearchController = (function () {
         function SearchController() {
             this.isComponentLoaded = false;
@@ -151,6 +165,7 @@ var Search;
                 row.removeAttr("id").removeClass("hidden");
 
                 row.attr("data-id", task.id);
+                $("td.c-ctrl-tasks-table-cell-chk > :checkbox", row).prop("checked", task.selected);
                 $("td.c-ctrl-tasks-table-cell-num", row).text(task.id);
                 $("td.c-ctrl-tasks-table-cell-from", row).text(task.city1);
                 $("td.c-ctrl-tasks-table-cell-to", row).text(task.city2);
@@ -161,8 +176,9 @@ var Search;
                 $("td.c-ctrl-tasks-table-cell-cost", row).text(task.cost);
                 $("td.c-ctrl-tasks-table-cell-ready-date", row).text(task.readyDate);
 
-                // TODO привязываем обработчики на чекбоксы
-                //$("td.c-ctrl-tasks-table-cell-action > span.c-ctrl-tasks-table-cell-action-edit", row).attr("data-id", cargo.id).click(__currentTasksProfile.onTaskEditClick);
+                // привязываем обработчики на чекбоксы
+                $("td.c-ctrl-tasks-table-cell-chk > :checkbox", row).click(Search.__currentComp.onTaskSelected);
+
                 row.appendTo(tbody);
             }
         };
@@ -271,6 +287,61 @@ var Search;
             }
         };
 
+        SearchController.prototype.onTaskSelected = function (event) {
+            var elem = $(event.delegateTarget);
+            var checked = elem.is(":checked");
+            var taskId = elem.parent().parent().attr("data-id");
+
+            // сохраняем выбор на сервере
+            Search.__currentComp.saveTaskSelected(taskId, checked);
+        };
+
+        SearchController.prototype.saveTaskSelected = function (taskId, selected) {
+            var ajaxMethod = selected ? "POST" : "DELETE";
+
+            var taskInfo = new AjaxTaskInfo();
+            taskInfo.taskId = parseInt(taskId);
+
+            var taskInfoList = new AjaxTaskInfoList();
+            taskInfoList.tasks = [];
+            taskInfoList.tasks.push(taskInfo);
+
+            // показываем иконку загрузки
+            Search.__currentComp.application.showOverlay("#i-ctrl-tasks-table-overlay", "#i-ctrl-tacks-container");
+
+            $.ajax({
+                type: ajaxMethod,
+                url: Search.__currentComp.application.getFullUri("api/caregoselected"),
+                data: JSON.stringify(taskInfoList),
+                contentType: "application/json",
+                dataType: "json",
+                success: Search.__currentComp.onAjaxTaskSelectedDataSuccess,
+                error: Search.__currentComp.onAjaxTaskSelectedDataError
+            });
+        };
+
+        SearchController.prototype.onAjaxTaskSelectedDataError = function (jqXHR, status, message) {
+            //window.console.log("_onAjaxError");
+            Search.__currentComp.errorData = JSON.parse(jqXHR.responseText);
+            Search.__currentComp.dataError(Search.__currentComp, Search.__currentComp.errorData);
+
+            // TODO обрабатываем ошибки сервера
+            // если ошибка "Требуется авторизация", то требуем у Application проверить текущий статус авторизации
+            //if (2 == parseInt(__currentTasksProfile.errorData.code))
+            //    __currentTasksProfile.application.checkAuthStatus();
+            // скрываем иконку загрузки
+            Search.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
+        };
+
+        SearchController.prototype.onAjaxTaskSelectedDataSuccess = function (data, status, jqXHR) {
+            //window.console.log("_onAjaxGetAccountDataSuccess");
+            // загрузка компонента произведена успешно
+            Search.__currentComp.taskData = data.data;
+
+            // скрываем иконку загрузки
+            Search.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
+        };
+
         SearchController.prototype.onPageNavigationClick = function (event) {
             var ctrl = $(event.delegateTarget);
 
@@ -285,7 +356,9 @@ var Search;
             // получаем все строки таблицы
             var rows = $("#i-ctrl-tasks-table > tbody > tr");
 
-            // TODO удаляем все обработчики событий
+            // удаляем все обработчики событий
+            $("#i-ctrl-tasks-table > tbody > tr > td > :checkbox").unbind("click", Search.__currentComp.onTaskSelected);
+
             // удаляем все строки таблицы
             rows.remove();
         };
