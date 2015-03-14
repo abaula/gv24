@@ -25,6 +25,9 @@
     <Content Include="calcproto.ts" />
     <Content Include="Calculator.ts" />
     <Content Include="Collections.ts" />
+    <Content Include="cargoselected.html" />
+    <Content Include="cargoselected.css" />
+    <Content Include="cargoselected.ts" />
     <Content Include="default.htm" />
     <Content Include="dictionary.ts" />
     <Content Include="Graph.ts" />

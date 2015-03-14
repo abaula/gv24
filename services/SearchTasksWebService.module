@@ -79,10 +79,10 @@ class SearchTasksWebService extends WebServBase
 
 
             $result = $db->query($sql, $cargo_selected_filter, $offset, $limit);
+            $arr = array();
 
             if(0 < $db->numRows($result))
             {
-                $arr = array();
 
                 while($row = $db->fetch($result))
                 {
@@ -97,22 +97,19 @@ class SearchTasksWebService extends WebServBase
                     array_push($arr, $entry);
                 }
 
-
-                $respData = new AjaxTaskList();
-                $respData->offset = $offset;
-                $respData->limit = $limit;
-                $respData->allRowCount = $allRowCount;
-                $respData->page = $page;
-                $respData->tasks = $arr;
-
-                $response = new AjaxServerResponse(200, '', '', $respData);
-                sendHTTPStatus(200);
-                header('Content-type: application/json');
-                echo json_encode($response);
-
             }
 
+            $respData = new AjaxTaskList();
+            $respData->offset = $offset;
+            $respData->limit = $limit;
+            $respData->allRowCount = $allRowCount;
+            $respData->page = $page;
+            $respData->tasks = $arr;
 
+            $response = new AjaxServerResponse(200, '', '', $respData);
+            sendHTTPStatus(200);
+            header('Content-type: application/json');
+            echo json_encode($response);
 
         }
         catch(Exception $ex)

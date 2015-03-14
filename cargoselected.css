@@ -57,6 +57,22 @@
     cursor: pointer;
 }
 
+.c-table-options-button-selected {
+    font-size: 9pt;
+    display: inline-block;
+    padding-top: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-bottom: 4px;
+    margin-right: 4px;
+    border: 1px solid #e6e6e6;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    background-color: #bffaf4;
+}
+
 .c-table-options-button:hover{
     border: 1px solid #afafaf;
     background-color: #e6e6e6;

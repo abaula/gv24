@@ -31,19 +31,19 @@ var Search;
     })();
     Search.AjaxTaskInfoList = AjaxTaskInfoList;
 
-    var SearchController = (function () {
-        function SearchController() {
+    var CargoSelectedController = (function () {
+        function CargoSelectedController() {
             this.isComponentLoaded = false;
             this.application = null;
             this.state = null;
             this.errorData = null;
         }
-        SearchController.prototype.onLoad = function (app, parent, state) {
+        CargoSelectedController.prototype.onLoad = function (app, parent, state) {
             Search.__currentComp.application = app;
             Search.__currentComp.state = state;
 
             // настраиваем обработчики событий
-            $("#i-page-cargoselected-link").click(Search.__currentComp.onMainMenuLinkClick);
+            $("#i-page-search-link").click(Search.__currentComp.onMainMenuLinkClick);
 
             // проверяем авторизован ли пользователь
             var authentificated = Search.__currentComp.application.isAuthentificated();
@@ -54,60 +54,60 @@ var Search;
             //__currentComp.onComponentLoaded();
         };
 
-        SearchController.prototype.onUpdate = function (state) {
+        CargoSelectedController.prototype.onUpdate = function (state) {
             // TODO Чистим список результатов поиска
             Search.__currentComp.onComponentLoaded();
         };
 
-        SearchController.prototype.onShow = function (state) {
+        CargoSelectedController.prototype.onShow = function (state) {
             // Ничего не делаем
         };
 
-        SearchController.prototype.onHide = function (state) {
+        CargoSelectedController.prototype.onHide = function (state) {
             // Ничего не делаем
         };
 
-        SearchController.prototype.onLogin = function () {
+        CargoSelectedController.prototype.onLogin = function () {
             //__currentComp.switchSaveQuerySectionVisible(true);
         };
 
-        SearchController.prototype.onLogout = function () {
+        CargoSelectedController.prototype.onLogout = function () {
             //__currentComp.switchSaveQuerySectionVisible(false);
         };
 
-        SearchController.prototype.dataLoaded = function (sender) {
+        CargoSelectedController.prototype.dataLoaded = function (sender) {
             // Дочерних компонентов нет, ничего не делаем
         };
 
-        SearchController.prototype.dataReady = function (sender) {
+        CargoSelectedController.prototype.dataReady = function (sender) {
             // Дочерних компонентов нет, ничего не делаем
         };
 
-        SearchController.prototype.dataError = function (sender, error) {
+        CargoSelectedController.prototype.dataError = function (sender, error) {
             // Дочерних компонентов нет, ничего не делаем
         };
 
-        SearchController.prototype.dictDataReady = function (name) {
+        CargoSelectedController.prototype.dictDataReady = function (name) {
         };
 
-        SearchController.prototype.onComponentLoaded = function () {
+        CargoSelectedController.prototype.onComponentLoaded = function () {
             Search.__currentComp.isComponentLoaded = true;
             Search.__currentComp.application.componentReady();
         };
 
-        SearchController.prototype.getTasksPageData = function (pageNumber) {
+        CargoSelectedController.prototype.getTasksPageData = function (pageNumber) {
             // показываем иконку загрузки
             Search.__currentComp.application.showOverlay("#i-ctrl-tasks-table-overlay", "#i-ctrl-tacks-container");
 
             $.ajax({
                 type: "GET",
-                url: Search.__currentComp.application.getFullUri("api/searchtasks/" + pageNumber.toString()),
+                url: Search.__currentComp.application.getFullUri("api/caregoselected/" + pageNumber.toString()),
                 success: Search.__currentComp.onAjaxGetTasksPageDataSuccess,
                 error: Search.__currentComp.onAjaxGetTasksPageDataError
             });
         };
 
-        SearchController.prototype.onAjaxGetTasksPageDataError = function (jqXHR, status, message) {
+        CargoSelectedController.prototype.onAjaxGetTasksPageDataError = function (jqXHR, status, message) {
             //window.console.log("_onAjaxError");
             Search.__currentComp.errorData = JSON.parse(jqXHR.responseText);
             Search.__currentComp.dataError(Search.__currentComp, Search.__currentComp.errorData);
@@ -120,7 +120,7 @@ var Search;
             Search.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
         };
 
-        SearchController.prototype.onAjaxGetTasksPageDataSuccess = function (data, status, jqXHR) {
+        CargoSelectedController.prototype.onAjaxGetTasksPageDataSuccess = function (data, status, jqXHR) {
             //window.console.log("_onAjaxGetAccountDataSuccess");
             // загрузка компонента произведена успешно
             Search.__currentComp.taskData = data.data;
@@ -139,7 +139,7 @@ var Search;
             Search.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
         };
 
-        SearchController.prototype.drawTasksList = function () {
+        CargoSelectedController.prototype.drawTasksList = function () {
             // Чистим строки в таблице
             Search.__currentComp.clearTasksList();
 
@@ -153,7 +153,7 @@ var Search;
             Search.__currentComp.drawPageNavigation();
         };
 
-        SearchController.prototype.drawTableRows = function () {
+        CargoSelectedController.prototype.drawTableRows = function () {
             var tbody = $("#i-ctrl-tasks-table > tbody");
 
             var rowTempl = $("#i-ctrl-tasks-table-row-template");
@@ -182,7 +182,7 @@ var Search;
             }
         };
 
-        SearchController.prototype.drawPageNavigation = function () {
+        CargoSelectedController.prototype.drawPageNavigation = function () {
             // рассчитываем данные панели навигации
             // ... отображаемое количество ссылок
             var displayPagesNumber = 10;
@@ -286,15 +286,15 @@ var Search;
             }
         };
 
-        SearchController.prototype.onMainMenuLinkClick = function (event) {
+        CargoSelectedController.prototype.onMainMenuLinkClick = function (event) {
             var elem = $(event.delegateTarget);
             var id = elem.attr("id");
 
-            if ("i-page-cargoselected-link" == id)
-                Search.__currentComp.application.navigateTo("cargoselected");
+            if ("i-page-search-link" == id)
+                Search.__currentComp.application.navigateTo("search");
         };
 
-        SearchController.prototype.onTaskSelected = function (event) {
+        CargoSelectedController.prototype.onTaskSelected = function (event) {
             var elem = $(event.delegateTarget);
             var checked = elem.is(":checked");
             var taskId = parseInt(elem.parent().parent().attr("data-id"));
@@ -303,7 +303,7 @@ var Search;
             Search.__currentComp.saveTaskSelected(taskId, checked);
         };
 
-        SearchController.prototype.saveTaskSelected = function (taskId, selected) {
+        CargoSelectedController.prototype.saveTaskSelected = function (taskId, selected) {
             var ajaxMethod = selected ? "POST" : "DELETE";
 
             var taskInfo = new AjaxTaskInfo();
@@ -327,7 +327,7 @@ var Search;
             });
         };
 
-        SearchController.prototype.onAjaxTaskSelectedDataError = function (jqXHR, status, message) {
+        CargoSelectedController.prototype.onAjaxTaskSelectedDataError = function (jqXHR, status, message) {
             //window.console.log("_onAjaxError");
             Search.__currentComp.errorData = JSON.parse(jqXHR.responseText);
             Search.__currentComp.dataError(Search.__currentComp, Search.__currentComp.errorData);
@@ -340,7 +340,7 @@ var Search;
             Search.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
         };
 
-        SearchController.prototype.onAjaxTaskSelectedDataSuccess = function (data, status, jqXHR) {
+        CargoSelectedController.prototype.onAjaxTaskSelectedDataSuccess = function (data, status, jqXHR) {
             //window.console.log("_onAjaxGetAccountDataSuccess");
             // загрузка компонента произведена успешно
             Search.__currentComp.taskData = data.data;
@@ -349,7 +349,7 @@ var Search;
             Search.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
         };
 
-        SearchController.prototype.onPageNavigationClick = function (event) {
+        CargoSelectedController.prototype.onPageNavigationClick = function (event) {
             var ctrl = $(event.delegateTarget);
 
             //window.console.log("onTaskEditClick " + ctrl.attr("data-id"));
@@ -359,7 +359,7 @@ var Search;
             Search.__currentComp.getTasksPageData(pageNum);
         };
 
-        SearchController.prototype.clearTasksList = function () {
+        CargoSelectedController.prototype.clearTasksList = function () {
             // получаем все строки таблицы
             var rows = $("#i-ctrl-tasks-table > tbody > tr");
 
@@ -370,7 +370,7 @@ var Search;
             rows.remove();
         };
 
-        SearchController.prototype.clearPageNavigation = function () {
+        CargoSelectedController.prototype.clearPageNavigation = function () {
             // удаляем обработчики событий со ссылок быстрой навигации и ставим стили по умолчанию
             $("#i-ctrl-tasks-navpage-prev, #i-ctrl-tasks-navpage-next, #i-ctrl-tasks-navpage-prev-page, #i-ctrl-tasks-navpage-next-page, #i-ctrl-tasks-navpage-first, #i-ctrl-tasks-navpage-last").unbind("click", Search.__currentComp.onPageNavigationClick).addClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", "");
 
@@ -384,17 +384,17 @@ var Search;
             divs.remove();
         };
 
-        SearchController.prototype.onDocumentReady = function () {
+        CargoSelectedController.prototype.onDocumentReady = function () {
             /////////////////////////////////////
             // цепляем обработчики событий
             // настраиваем Application
             Application.__currentApp.init(Search.__currentComp, false);
         };
-        return SearchController;
+        return CargoSelectedController;
     })();
-    Search.SearchController = SearchController;
+    Search.CargoSelectedController = CargoSelectedController;
 
-    Search.__currentComp = new SearchController();
+    Search.__currentComp = new CargoSelectedController();
 })(Search || (Search = {}));
 
 $(document).ready(Search.__currentComp.onDocumentReady);

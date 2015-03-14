@@ -35,6 +35,25 @@ class CargoSelectedWebService extends WebServBase
 
         try
         {
+            $page_arg = intval($args[0]);
+            $page = $page_arg > 0 ? $page_arg : 1;
+
+            // TODO Сделать проверку правильности номера страницы полученного с клиента
+
+            $limit = 20;
+            $offset = ($page - 1) * $limit;
+            $allRowCount = 0;
+
+            // получаем количество записей удовлетворяющих условию фильтрации
+            $sql = 'SELECT count(C.id)
+                    FROM cargo C
+                      INNER JOIN cargo_selected CS
+                            ON CS.cargo_id = C.id
+                              AND (CS.account_id = ?i OR CS.user_token_id = ?i)
+                    WHERE C.is_deleted = 0';
+
+            $allRowCount = $db->getOne($sql, $accountId, $userTokenId);
+
 
             $sql = 'SELECT C.id, GC1.name AS city1, GC2.name AS city2, CT.name AS type,
                           C.weight, C.value, C.distance, C.cost, C.ready_date
@@ -51,6 +70,7 @@ class CargoSelectedWebService extends WebServBase
                     WHERE C.is_deleted = 0';
 
             $result = $db->query($sql, $accountId, $userTokenId);
+            $arr = array();
 
             if(0 < $db->numRows($result))
             {
@@ -67,17 +87,20 @@ class CargoSelectedWebService extends WebServBase
 
                     array_push($arr, $entry);
                 }
-
-                // на данный момент информацию о страницах не заполняем, т.к. возвращаем все данные
-                $respData = new AjaxTaskList();
-                $respData->tasks = $arr;
-
-                $response = new AjaxServerResponse(200, '', '', $respData);
-                sendHTTPStatus(200);
-                header('Content-type: application/json');
-                echo json_encode($response);
             }
 
+            // на данный момент информацию о страницах не заполняем, т.к. возвращаем все данные
+            $respData = new AjaxTaskList();
+            $respData->offset = $offset;
+            $respData->limit = $limit;
+            $respData->allRowCount = $allRowCount;
+            $respData->page = $page;
+            $respData->tasks = $arr;
+
+            $response = new AjaxServerResponse(200, '', '', $respData);
+            sendHTTPStatus(200);
+            header('Content-type: application/json');
+            echo json_encode($response);
 
         }
         catch(Exception $ex)

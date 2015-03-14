@@ -2,5 +2,6 @@
     RewriteEngine on
     RewriteRule ^profile/?$ /profile.html [L]
     RewriteRule ^search/?$ /search.html [L]
+    RewriteRule ^cargoselected/?$ /cargoselected.html [L]
     RewriteRule ^api/(.*)$ /services/api.php [L]
 </IfModule>

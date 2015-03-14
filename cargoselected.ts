@@ -39,7 +39,7 @@ module Search
 
 
 
-    export class SearchController implements Application.IComponent
+    export class CargoSelectedController implements Application.IComponent
     {
         public isComponentLoaded: boolean = false;
         public application: Application.IApplication = null;
@@ -54,8 +54,7 @@ module Search
             __currentComp.state = state;
 
             // настраиваем обработчики событий
-            $("#i-page-cargoselected-link").click(__currentComp.onMainMenuLinkClick);
-
+            $("#i-page-search-link").click(__currentComp.onMainMenuLinkClick);
 
             // проверяем авторизован ли пользователь
             var authentificated: boolean = __currentComp.application.isAuthentificated();
@@ -128,7 +127,7 @@ module Search
 
             $.ajax({
                 type: "GET",
-                url: __currentComp.application.getFullUri("api/searchtasks/" + pageNumber.toString()),
+                url: __currentComp.application.getFullUri("api/caregoselected/" + pageNumber.toString()),
                 success: __currentComp.onAjaxGetTasksPageDataSuccess,
                 error: __currentComp.onAjaxGetTasksPageDataError
             });
@@ -337,8 +336,8 @@ module Search
             var elem: JQuery = $(event.delegateTarget);
             var id: string = elem.attr("id");
 
-            if ("i-page-cargoselected-link" == id)
-                __currentComp.application.navigateTo("cargoselected");
+            if ("i-page-search-link" == id)
+                __currentComp.application.navigateTo("search");
         }
 
         onTaskSelected(event: JQueryEventObject): void
@@ -463,7 +462,7 @@ module Search
 
     }
 
-    export var __currentComp: SearchController = new SearchController();
+    export var __currentComp: CargoSelectedController = new CargoSelectedController();
 }
 
 $(document).ready(Search.__currentComp.onDocumentReady);

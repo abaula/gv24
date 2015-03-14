@@ -2,21 +2,21 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <link rel="stylesheet" href="/main.css" type="text/css" />
-    <link rel="stylesheet" href="/search.css" type="text/css" />
+    <link rel="stylesheet" href="/cargoselected.css" type="text/css" />
     <link rel="stylesheet" href="/resources/font-awesome-4.3.0/css/font-awesome.min.css"/>
 
     <script type="text/javascript" src="/jquery-1.10.2.js"></script>
     <script type="text/javascript" src="/application.js"></script>
     <script type="text/javascript" src="/validators.js"></script>
     <script type="text/javascript" src="/dictionary.js"></script>    
-    <script type="text/javascript" src="/search.js"></script>
+    <script type="text/javascript" src="/cargoselected.js"></script>
 
     <title>Поиск</title>
 </head>
 <body>
 
      <div class="c-page-top-section-block">
-         <div class="c-page-top-logo fa fa-cubes"></div><div class="c-page-top-menu-item-selected">Грузы</div><div id="i-page-cargoselected-link" class="c-page-top-menu-item">Отложенные грузы</div><div class="c-page-top-menu-item">Расчёт рейса</div><div class="c-page-top-menu-item">Настройки</div>
+         <div class="c-page-top-logo fa fa-cubes"></div><div id="i-page-search-link" class="c-page-top-menu-item">Грузы</div><div class="c-page-top-menu-item-selected">Отложенные грузы</div><div class="c-page-top-menu-item">Расчёт рейса</div><div class="c-page-top-menu-item">Настройки</div>
     </div>
 
     <!-- индикатор загрузки содержимого страницы -->
@@ -39,9 +39,13 @@
             <!-- Панель управления таблицей грузов -->
             <div class="c-table-options-panel">
         
-                <div class="c-table-options-button" id="i-page-table-options-filter-btn"><i class="fa fa-filter"></i> Настройки фильтрации</div>
-                <div class="c-table-options-button" id="i-page-table-options-settings-btn"><i class="fa fa-table"></i> Настройки таблицы</div>
-                <div class="c-table-options-button" id="i-page-table-options-refresh-btn"><i class="fa fa-refresh"></i> Обновить</div>
+                <div class="c-table-options-button-selected" id="i-page-table-filter-selected-btn"><i class="fa fa-check-square-o"></i> Отобранные</div>
+                <div class="c-table-options-button" id="i-page-table-filter-agreement-btn"><i class="fa fa-question"></i> На согласовании</div>
+                <div class="c-table-options-button" id="i-page-table-filter-fulfillment-btn"><i class="fa fa-clock-o"></i> На исполнении</div>
+                <div class="c-table-options-button" id="i-page-table-filter-completed-btn"><i class="fa fa-bookmark-o"></i> Исполненные</div>
+                <div class="c-table-options-button" id="i-page-table-filter-refused-btn"><i class="fa fa-frown-o"></i> Отклонённые</div>
+                <div class="c-table-options-button" id="i-page-table-filter-archive-btn"><i class="fa fa-briefcase"></i> Архив</div>
+                <div class="c-table-options-button" id="i-page-table-filter-trash-btn"><i class="fa fa-trash-o"></i> Корзина</div>
             </div>
             <!-- /Панель управления таблицей грузов -->
 
