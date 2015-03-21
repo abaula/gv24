@@ -22,6 +22,7 @@ require_once("AppErrors.module");
 require_once("SqlFactory.module");
 require_once("SearchTasksWebService.module");
 require_once("CargoSelectedWebService.module");
+require_once("CalculateRouteWebService.module");
 
 
 
@@ -46,5 +47,8 @@ function getWebService($name)
         return new SearchTasksWebService();
     else if("caregoselected" == $name)
         return new CargoSelectedWebService();
+    else if("calculateroute" == $name)
+        return new CalculateRouteWebService();
+
     return null;
 }

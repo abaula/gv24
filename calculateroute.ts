@@ -2,9 +2,9 @@
 ///<reference path="ServerAjaxData.d.ts"/>
 ///<reference path="application.ts"/>
 
-module Search
+module CalculateRoute
 {
-    export class SearchController implements Application.IComponent
+    export class CalculateRouteController implements Application.IComponent
     {
         public isComponentLoaded: boolean = false;
         public application: Application.IApplication = null;
@@ -19,9 +19,8 @@ module Search
             __currentComp.state = state;
 
             // настраиваем обработчики событий
+            $("#i-page-search-link").click(__currentComp.onMainMenuLinkClick);
             $("#i-page-cargoselected-link").click(__currentComp.onMainMenuLinkClick);
-            $("#i-page-calculate-link").click(__currentComp.onMainMenuLinkClick);
-
             // проверяем авторизован ли пользователь
             var authentificated: boolean = __currentComp.application.isAuthentificated();
 
@@ -93,7 +92,7 @@ module Search
 
             $.ajax({
                 type: "GET",
-                url: __currentComp.application.getFullUri("api/searchtasks/" + pageNumber.toString()),
+                url: __currentComp.application.getFullUri("api/calculateroute/" + pageNumber.toString()),
                 success: __currentComp.onAjaxGetTasksPageDataSuccess,
                 error: __currentComp.onAjaxGetTasksPageDataError
             });
@@ -302,10 +301,10 @@ module Search
             var elem: JQuery = $(event.delegateTarget);
             var id: string = elem.attr("id");
 
-            if ("i-page-cargoselected-link" == id)
+            if ("i-page-search-link" == id)
+                __currentComp.application.navigateTo("search");
+            else if ("i-page-cargoselected-link" == id)
                 __currentComp.application.navigateTo("cargoselected");
-            else if ("i-page-calculate-link" == id)
-                __currentComp.application.navigateTo("calculate");
         }
 
         onTaskSelected(event: JQueryEventObject): void
@@ -314,38 +313,11 @@ module Search
             var checked: boolean = elem.is(":checked");
             var taskId: number = parseInt(elem.parent().parent().attr("data-id"));
 
-            // сохраняем выбор на сервере
-            __currentComp.saveTaskSelected(taskId, checked);
+            // TODO добавляем задание в маршрут
         }
 
 
-        saveTaskSelected(taskId: number, selected: boolean): void
-        {
-
-            var ajaxMethod: string = selected ? "POST" : "DELETE";
-
-
-            var taskInfo = new ServerData.AjaxTaskInfo();
-            taskInfo.taskId = taskId;
-
-            var taskInfoList = new ServerData.AjaxTaskInfoList();
-            taskInfoList.tasks = [];
-            taskInfoList.tasks.push(taskInfo);
-
-            // показываем иконку загрузки
-            __currentComp.application.showOverlay("#i-ctrl-tasks-table-overlay", "#i-ctrl-tacks-container");
-
-            $.ajax({
-                type: ajaxMethod,
-                url: __currentComp.application.getFullUri("api/caregoselected"),
-                data: JSON.stringify(taskInfoList),
-                contentType: "application/json",
-                dataType: "json",
-                success: __currentComp.onAjaxTaskSelectedDataSuccess,
-                error: __currentComp.onAjaxTaskSelectedDataError
-            });
-        }
-
+       
         onAjaxTaskSelectedDataError(jqXHR: JQueryXHR, status: string, message: string): void
         {
             //window.console.log("_onAjaxError");
@@ -430,7 +402,7 @@ module Search
 
     }
 
-    export var __currentComp: SearchController = new SearchController();
+    export var __currentComp: CalculateRouteController = new CalculateRouteController();
 }
 
-$(document).ready(Search.__currentComp.onDocumentReady);
+$(document).ready(CalculateRoute.__currentComp.onDocumentReady);

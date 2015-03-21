@@ -28,6 +28,9 @@
     <Content Include="cargoselected.html" />
     <Content Include="cargoselected.css" />
     <Content Include="cargoselected.ts" />
+    <Content Include="calculateroute.html" />
+    <Content Include="calculateroute.css" />
+    <Content Include="calculateroute.ts" />
     <Content Include="default.htm" />
     <Content Include="dictionary.ts" />
     <Content Include="Graph.ts" />

@@ -1,0 +1,114 @@
+﻿
+
+.c-table-panel {
+    width: 1200px; /* Ширина макета */
+    margin: 0 auto; /* Выравниваем макет по центру */
+    margin-top: 10px;
+}
+
+.c-tasks-table {
+    border-collapse: collapse;
+    font-size: 10pt;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.c-tasks-table > TBODY {
+    background-color: #ffffff;
+}
+
+.c-tasks-table > THEAD {
+    background-color:#f0f0f0;
+}
+
+.c-tasks-table TH {
+    padding: 2px;
+    box-shadow: inset 1px 1px 4px #e6e6e6;
+    border: 1px solid #e6e6e6;
+    color: #808080;
+    font-weight: normal;
+}
+
+.c-tasks-table TD {
+    padding: 4px;
+    border: 1px solid #e6e6e6;
+}
+
+.c-table-options-panel {
+    width: 1200px; /* Ширина макета */
+    margin: 0 auto; /* Выравниваем макет по центру */
+    margin-top: 10px;
+    font-size: 10pt;
+}
+
+.c-table-options-button{
+    font-size: 9pt;
+    display: inline-block;
+    padding-top: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-bottom: 4px;
+    margin-right: 4px;
+    border: 1px solid #e6e6e6;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    cursor: pointer;
+}
+
+.c-table-options-button-selected {
+    font-size: 9pt;
+    display: inline-block;
+    padding-top: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-bottom: 4px;
+    margin-right: 4px;
+    border: 1px solid #e6e6e6;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    background-color: #bffaf4;
+}
+
+.c-table-options-button:hover{
+    border: 1px solid #afafaf;
+    background-color: #e6e6e6;
+}
+
+
+.c-ctrl-tasks-navpage-panel {
+    margin-top: 10px;
+}
+
+.c-ctrl-tasks-navpage-container {
+    display: inline-block;
+}
+
+.c-ctrl-tasks-navpage-panel-link {
+    display: inline-block;
+    cursor: pointer;
+    padding-top: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-bottom: 8px;
+    font-size: 10pt;
+}
+
+.c-ctrl-tasks-navpage-panel-link-disabled {
+    color: #a0a0a0;
+    cursor: default;
+}
+
+.c-ctrl-tasks-navpage-panel-link-current {
+    font-weight: bold;
+    cursor: default;
+    background-color: #f0f0f0;
+}
+
+#i-ctrl-tasks-navpage-pagelink-template {
+    display: none;
+}
+

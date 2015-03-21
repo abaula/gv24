@@ -2,50 +2,16 @@
 ///<reference path="ServerAjaxData.d.ts"/>
 ///<reference path="application.ts"/>
 
-module Search
+module CargoSelected
 {
-    export class AjaxTask
-    {
-        public id: number;
-        public city1: string;
-        public city2: string;
-        public type: string;
-        public weight: number;
-        public value: number;
-        public distance: number;
-        public cost: number;
-        public readyDate: string;
-        public selected: boolean;
-    }
-
-    export class AjaxTaskList
-    {
-        public offset: number;
-        public limit: number;
-        public allRowCount: number;
-        public page: number;
-        public tasks: AjaxTask[];
-    }
-
-    export class AjaxTaskInfo
-    {
-        public taskId: number;
-    }
-
-    export class AjaxTaskInfoList
-    {
-        public tasks: AjaxTaskInfo[];
-    }
-
-
-
+    
     export class CargoSelectedController implements Application.IComponent
     {
         public isComponentLoaded: boolean = false;
         public application: Application.IApplication = null;
         public state: Application.IState = null;
         public errorData: ServerData.AjaxServerResponse = null;
-        public taskData: AjaxTaskList;
+        public taskData: ServerData.AjaxTaskList;
 
 
         onLoad(app: Application.IApplication, parent: Application.IComponent, state: Application.IState): void
@@ -55,6 +21,7 @@ module Search
 
             // настраиваем обработчики событий
             $("#i-page-search-link").click(__currentComp.onMainMenuLinkClick);
+            $("#i-page-calculate-link").click(__currentComp.onMainMenuLinkClick);
 
             // проверяем авторизован ли пользователь
             var authentificated: boolean = __currentComp.application.isAuthentificated();
@@ -158,7 +125,7 @@ module Search
             //window.console.log("_onAjaxGetAccountDataSuccess");
 
             // загрузка компонента произведена успешно
-            __currentComp.taskData = <AjaxTaskList>data.data;
+            __currentComp.taskData = <ServerData.AjaxTaskList>data.data;
 
             // помещаем данные в контролы
             __currentComp.drawTasksList();
@@ -201,7 +168,7 @@ module Search
 
             for (var i: number = 0; i < __currentComp.taskData.tasks.length; i++)
             {
-                var task: AjaxTask = __currentComp.taskData.tasks[i];
+                var task: ServerData.AjaxTask = __currentComp.taskData.tasks[i];
                 var row: JQuery = rowTempl.clone();
                 row.removeAttr("id").removeClass("hidden");
 
@@ -338,6 +305,9 @@ module Search
 
             if ("i-page-search-link" == id)
                 __currentComp.application.navigateTo("search");
+            if ("i-page-calculate-link" == id)
+                __currentComp.application.navigateTo("calculate");
+
         }
 
         onTaskSelected(event: JQueryEventObject): void
@@ -357,10 +327,10 @@ module Search
             var ajaxMethod: string = selected ? "POST" : "DELETE";
 
 
-            var taskInfo = new AjaxTaskInfo();
+            var taskInfo = new ServerData.AjaxTaskInfo();
             taskInfo.taskId = taskId;
 
-            var taskInfoList = new AjaxTaskInfoList();
+            var taskInfoList = new ServerData.AjaxTaskInfoList();
             taskInfoList.tasks = [];
             taskInfoList.tasks.push(taskInfo);
 
@@ -402,7 +372,7 @@ module Search
             //window.console.log("_onAjaxGetAccountDataSuccess");
 
             // загрузка компонента произведена успешно
-            __currentComp.taskData = <AjaxTaskList>data.data;
+            __currentComp.taskData = <ServerData.AjaxTaskList>data.data;
 
 
             // скрываем иконку загрузки
@@ -465,4 +435,4 @@ module Search
     export var __currentComp: CargoSelectedController = new CargoSelectedController();
 }
 
-$(document).ready(Search.__currentComp.onDocumentReady);
+$(document).ready(CargoSelected.__currentComp.onDocumentReady);

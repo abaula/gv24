@@ -1,138 +1,138 @@
 ﻿///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
 ///<reference path="ServerAjaxData.d.ts"/>
 ///<reference path="application.ts"/>
-var Search;
-(function (Search) {
-    var SearchController = (function () {
-        function SearchController() {
+var CalculateRoute;
+(function (CalculateRoute) {
+    var CalculateRouteController = (function () {
+        function CalculateRouteController() {
             this.isComponentLoaded = false;
             this.application = null;
             this.state = null;
             this.errorData = null;
         }
-        SearchController.prototype.onLoad = function (app, parent, state) {
-            Search.__currentComp.application = app;
-            Search.__currentComp.state = state;
+        CalculateRouteController.prototype.onLoad = function (app, parent, state) {
+            CalculateRoute.__currentComp.application = app;
+            CalculateRoute.__currentComp.state = state;
 
             // настраиваем обработчики событий
-            $("#i-page-cargoselected-link").click(Search.__currentComp.onMainMenuLinkClick);
-            $("#i-page-calculate-link").click(Search.__currentComp.onMainMenuLinkClick);
+            $("#i-page-search-link").click(CalculateRoute.__currentComp.onMainMenuLinkClick);
+            $("#i-page-cargoselected-link").click(CalculateRoute.__currentComp.onMainMenuLinkClick);
 
             // проверяем авторизован ли пользователь
-            var authentificated = Search.__currentComp.application.isAuthentificated();
+            var authentificated = CalculateRoute.__currentComp.application.isAuthentificated();
 
             // Получаем первую страницу из списка грузов
-            Search.__currentComp.getTasksPageData(1);
+            CalculateRoute.__currentComp.getTasksPageData(1);
             // Сообщаем приложению, что компонент загружен.
             //__currentComp.onComponentLoaded();
         };
 
-        SearchController.prototype.onUpdate = function (state) {
+        CalculateRouteController.prototype.onUpdate = function (state) {
             // TODO Чистим список результатов поиска
-            Search.__currentComp.onComponentLoaded();
+            CalculateRoute.__currentComp.onComponentLoaded();
         };
 
-        SearchController.prototype.onShow = function (state) {
+        CalculateRouteController.prototype.onShow = function (state) {
             // Ничего не делаем
         };
 
-        SearchController.prototype.onHide = function (state) {
+        CalculateRouteController.prototype.onHide = function (state) {
             // Ничего не делаем
         };
 
-        SearchController.prototype.onLogin = function () {
+        CalculateRouteController.prototype.onLogin = function () {
             //__currentComp.switchSaveQuerySectionVisible(true);
         };
 
-        SearchController.prototype.onLogout = function () {
+        CalculateRouteController.prototype.onLogout = function () {
             //__currentComp.switchSaveQuerySectionVisible(false);
         };
 
-        SearchController.prototype.dataLoaded = function (sender) {
+        CalculateRouteController.prototype.dataLoaded = function (sender) {
             // Дочерних компонентов нет, ничего не делаем
         };
 
-        SearchController.prototype.dataReady = function (sender) {
+        CalculateRouteController.prototype.dataReady = function (sender) {
             // Дочерних компонентов нет, ничего не делаем
         };
 
-        SearchController.prototype.dataError = function (sender, error) {
+        CalculateRouteController.prototype.dataError = function (sender, error) {
             // Дочерних компонентов нет, ничего не делаем
         };
 
-        SearchController.prototype.dictDataReady = function (name) {
+        CalculateRouteController.prototype.dictDataReady = function (name) {
         };
 
-        SearchController.prototype.onComponentLoaded = function () {
-            Search.__currentComp.isComponentLoaded = true;
-            Search.__currentComp.application.componentReady();
+        CalculateRouteController.prototype.onComponentLoaded = function () {
+            CalculateRoute.__currentComp.isComponentLoaded = true;
+            CalculateRoute.__currentComp.application.componentReady();
         };
 
-        SearchController.prototype.getTasksPageData = function (pageNumber) {
+        CalculateRouteController.prototype.getTasksPageData = function (pageNumber) {
             // показываем иконку загрузки
-            Search.__currentComp.application.showOverlay("#i-ctrl-tasks-table-overlay", "#i-ctrl-tacks-container");
+            CalculateRoute.__currentComp.application.showOverlay("#i-ctrl-tasks-table-overlay", "#i-ctrl-tacks-container");
 
             $.ajax({
                 type: "GET",
-                url: Search.__currentComp.application.getFullUri("api/searchtasks/" + pageNumber.toString()),
-                success: Search.__currentComp.onAjaxGetTasksPageDataSuccess,
-                error: Search.__currentComp.onAjaxGetTasksPageDataError
+                url: CalculateRoute.__currentComp.application.getFullUri("api/calculateroute/" + pageNumber.toString()),
+                success: CalculateRoute.__currentComp.onAjaxGetTasksPageDataSuccess,
+                error: CalculateRoute.__currentComp.onAjaxGetTasksPageDataError
             });
         };
 
-        SearchController.prototype.onAjaxGetTasksPageDataError = function (jqXHR, status, message) {
+        CalculateRouteController.prototype.onAjaxGetTasksPageDataError = function (jqXHR, status, message) {
             //window.console.log("_onAjaxError");
-            Search.__currentComp.errorData = JSON.parse(jqXHR.responseText);
-            Search.__currentComp.dataError(Search.__currentComp, Search.__currentComp.errorData);
+            CalculateRoute.__currentComp.errorData = JSON.parse(jqXHR.responseText);
+            CalculateRoute.__currentComp.dataError(CalculateRoute.__currentComp, CalculateRoute.__currentComp.errorData);
 
             // TODO обрабатываем ошибки сервера
             // если ошибка "Требуется авторизация", то требуем у Application проверить текущий статус авторизации
             //if (2 == parseInt(__currentTasksProfile.errorData.code))
             //    __currentTasksProfile.application.checkAuthStatus();
             // скрываем иконку загрузки
-            Search.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
         };
 
-        SearchController.prototype.onAjaxGetTasksPageDataSuccess = function (data, status, jqXHR) {
+        CalculateRouteController.prototype.onAjaxGetTasksPageDataSuccess = function (data, status, jqXHR) {
             //window.console.log("_onAjaxGetAccountDataSuccess");
             // загрузка компонента произведена успешно
-            Search.__currentComp.taskData = data.data;
+            CalculateRoute.__currentComp.taskData = data.data;
 
             // помещаем данные в контролы
-            Search.__currentComp.drawTasksList();
+            CalculateRoute.__currentComp.drawTasksList();
 
-            if (false == Search.__currentComp.isComponentLoaded) {
-                Search.__currentComp.onComponentLoaded();
-                Search.__currentComp.dataLoaded(Search.__currentComp);
+            if (false == CalculateRoute.__currentComp.isComponentLoaded) {
+                CalculateRoute.__currentComp.onComponentLoaded();
+                CalculateRoute.__currentComp.dataLoaded(CalculateRoute.__currentComp);
             } else {
-                Search.__currentComp.dataReady(Search.__currentComp);
+                CalculateRoute.__currentComp.dataReady(CalculateRoute.__currentComp);
             }
 
             // скрываем иконку загрузки
-            Search.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
         };
 
-        SearchController.prototype.drawTasksList = function () {
+        CalculateRouteController.prototype.drawTasksList = function () {
             // Чистим строки в таблице
-            Search.__currentComp.clearTasksList();
+            CalculateRoute.__currentComp.clearTasksList();
 
             // чистим панель навигации по страницам
-            Search.__currentComp.clearPageNavigation();
+            CalculateRoute.__currentComp.clearPageNavigation();
 
             // отображаем в таблице полученные с сервера данные
-            Search.__currentComp.drawTableRows();
+            CalculateRoute.__currentComp.drawTableRows();
 
             // рисуем панель навигации по страницам
-            Search.__currentComp.drawPageNavigation();
+            CalculateRoute.__currentComp.drawPageNavigation();
         };
 
-        SearchController.prototype.drawTableRows = function () {
+        CalculateRouteController.prototype.drawTableRows = function () {
             var tbody = $("#i-ctrl-tasks-table > tbody");
 
             var rowTempl = $("#i-ctrl-tasks-table-row-template");
 
-            for (var i = 0; i < Search.__currentComp.taskData.tasks.length; i++) {
-                var task = Search.__currentComp.taskData.tasks[i];
+            for (var i = 0; i < CalculateRoute.__currentComp.taskData.tasks.length; i++) {
+                var task = CalculateRoute.__currentComp.taskData.tasks[i];
                 var row = rowTempl.clone();
                 row.removeAttr("id").removeClass("hidden");
 
@@ -149,13 +149,13 @@ var Search;
                 $("td.c-ctrl-tasks-table-cell-ready-date", row).text(task.readyDate);
 
                 // привязываем обработчики на чекбоксы
-                $("td.c-ctrl-tasks-table-cell-chk > :checkbox", row).click(Search.__currentComp.onTaskSelected);
+                $("td.c-ctrl-tasks-table-cell-chk > :checkbox", row).click(CalculateRoute.__currentComp.onTaskSelected);
 
                 row.appendTo(tbody);
             }
         };
 
-        SearchController.prototype.drawPageNavigation = function () {
+        CalculateRouteController.prototype.drawPageNavigation = function () {
             // рассчитываем данные панели навигации
             // ... отображаемое количество ссылок
             var displayPagesNumber = 10;
@@ -173,10 +173,10 @@ var Search;
             var currentPageNumber;
 
             // рассчитываем общее количество страниц в выборке
-            allPagesNumber = Math.ceil(Search.__currentComp.taskData.allRowCount / Search.__currentComp.taskData.limit);
+            allPagesNumber = Math.ceil(CalculateRoute.__currentComp.taskData.allRowCount / CalculateRoute.__currentComp.taskData.limit);
 
             // номер текущей страницы
-            currentPageNumber = Search.__currentComp.taskData.page;
+            currentPageNumber = CalculateRoute.__currentComp.taskData.page;
 
             // находим номер первой страницы в списке
             displayFirstPageNumber = currentPageNumber - Math.floor(displayPagesNumber / 2);
@@ -203,7 +203,7 @@ var Search;
                     pageNumContainer.addClass("c-ctrl-tasks-navpage-panel-link-current");
                 } else {
                     // привязываем обработчик события
-                    pageNumContainer.click(Search.__currentComp.onPageNavigationClick);
+                    pageNumContainer.click(CalculateRoute.__currentComp.onPageNavigationClick);
                 }
             }
 
@@ -230,146 +230,120 @@ var Search;
 
             if (displayPrevLinkActive) {
                 linkPageNumber = Math.max(currentPageNumber - 1, 1);
-                $("#i-ctrl-tasks-navpage-prev").click(Search.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
+                $("#i-ctrl-tasks-navpage-prev").click(CalculateRoute.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
             }
 
             if (displayNextLinkActive) {
                 linkPageNumber = Math.min(currentPageNumber + 1, allPagesNumber);
-                $("#i-ctrl-tasks-navpage-next").click(Search.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
+                $("#i-ctrl-tasks-navpage-next").click(CalculateRoute.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
             }
 
             if (displayPrevPageLinkActive) {
                 linkPageNumber = Math.max(currentPageNumber - displayPagesNumber, 1);
-                $("#i-ctrl-tasks-navpage-prev-page").click(Search.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
+                $("#i-ctrl-tasks-navpage-prev-page").click(CalculateRoute.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
             }
 
             if (displayNextPageLinkActive) {
                 linkPageNumber = Math.min(currentPageNumber + displayPagesNumber, allPagesNumber);
-                $("#i-ctrl-tasks-navpage-next-page").click(Search.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
+                $("#i-ctrl-tasks-navpage-next-page").click(CalculateRoute.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
             }
 
             if (displayFirstLinkActive) {
                 linkPageNumber = 1;
-                $("#i-ctrl-tasks-navpage-first").click(Search.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
+                $("#i-ctrl-tasks-navpage-first").click(CalculateRoute.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
             }
 
             if (displayLastLinkActive) {
                 linkPageNumber = allPagesNumber;
-                $("#i-ctrl-tasks-navpage-last").click(Search.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
+                $("#i-ctrl-tasks-navpage-last").click(CalculateRoute.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
             }
         };
 
-        SearchController.prototype.onMainMenuLinkClick = function (event) {
+        CalculateRouteController.prototype.onMainMenuLinkClick = function (event) {
             var elem = $(event.delegateTarget);
             var id = elem.attr("id");
 
-            if ("i-page-cargoselected-link" == id)
-                Search.__currentComp.application.navigateTo("cargoselected");
-else if ("i-page-calculate-link" == id)
-                Search.__currentComp.application.navigateTo("calculate");
+            if ("i-page-search-link" == id)
+                CalculateRoute.__currentComp.application.navigateTo("search");
+else if ("i-page-cargoselected-link" == id)
+                CalculateRoute.__currentComp.application.navigateTo("cargoselected");
         };
 
-        SearchController.prototype.onTaskSelected = function (event) {
+        CalculateRouteController.prototype.onTaskSelected = function (event) {
             var elem = $(event.delegateTarget);
             var checked = elem.is(":checked");
             var taskId = parseInt(elem.parent().parent().attr("data-id"));
-
-            // сохраняем выбор на сервере
-            Search.__currentComp.saveTaskSelected(taskId, checked);
+            // TODO добавляем задание в маршрут
         };
 
-        SearchController.prototype.saveTaskSelected = function (taskId, selected) {
-            var ajaxMethod = selected ? "POST" : "DELETE";
-
-            var taskInfo = new ServerData.AjaxTaskInfo();
-            taskInfo.taskId = taskId;
-
-            var taskInfoList = new ServerData.AjaxTaskInfoList();
-            taskInfoList.tasks = [];
-            taskInfoList.tasks.push(taskInfo);
-
-            // показываем иконку загрузки
-            Search.__currentComp.application.showOverlay("#i-ctrl-tasks-table-overlay", "#i-ctrl-tacks-container");
-
-            $.ajax({
-                type: ajaxMethod,
-                url: Search.__currentComp.application.getFullUri("api/caregoselected"),
-                data: JSON.stringify(taskInfoList),
-                contentType: "application/json",
-                dataType: "json",
-                success: Search.__currentComp.onAjaxTaskSelectedDataSuccess,
-                error: Search.__currentComp.onAjaxTaskSelectedDataError
-            });
-        };
-
-        SearchController.prototype.onAjaxTaskSelectedDataError = function (jqXHR, status, message) {
+        CalculateRouteController.prototype.onAjaxTaskSelectedDataError = function (jqXHR, status, message) {
             //window.console.log("_onAjaxError");
-            Search.__currentComp.errorData = JSON.parse(jqXHR.responseText);
-            Search.__currentComp.dataError(Search.__currentComp, Search.__currentComp.errorData);
+            CalculateRoute.__currentComp.errorData = JSON.parse(jqXHR.responseText);
+            CalculateRoute.__currentComp.dataError(CalculateRoute.__currentComp, CalculateRoute.__currentComp.errorData);
 
             // TODO обрабатываем ошибки сервера
             // если ошибка "Требуется авторизация", то требуем у Application проверить текущий статус авторизации
             //if (2 == parseInt(__currentTasksProfile.errorData.code))
             //    __currentTasksProfile.application.checkAuthStatus();
             // скрываем иконку загрузки
-            Search.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
         };
 
-        SearchController.prototype.onAjaxTaskSelectedDataSuccess = function (data, status, jqXHR) {
+        CalculateRouteController.prototype.onAjaxTaskSelectedDataSuccess = function (data, status, jqXHR) {
             //window.console.log("_onAjaxGetAccountDataSuccess");
             // загрузка компонента произведена успешно
-            Search.__currentComp.taskData = data.data;
+            CalculateRoute.__currentComp.taskData = data.data;
 
             // скрываем иконку загрузки
-            Search.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
         };
 
-        SearchController.prototype.onPageNavigationClick = function (event) {
+        CalculateRouteController.prototype.onPageNavigationClick = function (event) {
             var ctrl = $(event.delegateTarget);
 
             //window.console.log("onTaskEditClick " + ctrl.attr("data-id"));
             var pageNum = parseInt(ctrl.attr("data-page-num"));
 
             // загружаем данные указанной страницы
-            Search.__currentComp.getTasksPageData(pageNum);
+            CalculateRoute.__currentComp.getTasksPageData(pageNum);
         };
 
-        SearchController.prototype.clearTasksList = function () {
+        CalculateRouteController.prototype.clearTasksList = function () {
             // получаем все строки таблицы
             var rows = $("#i-ctrl-tasks-table > tbody > tr");
 
             // удаляем все обработчики событий
-            $("#i-ctrl-tasks-table > tbody > tr > td > :checkbox").unbind("click", Search.__currentComp.onTaskSelected);
+            $("#i-ctrl-tasks-table > tbody > tr > td > :checkbox").unbind("click", CalculateRoute.__currentComp.onTaskSelected);
 
             // удаляем все строки таблицы
             rows.remove();
         };
 
-        SearchController.prototype.clearPageNavigation = function () {
+        CalculateRouteController.prototype.clearPageNavigation = function () {
             // удаляем обработчики событий со ссылок быстрой навигации и ставим стили по умолчанию
-            $("#i-ctrl-tasks-navpage-prev, #i-ctrl-tasks-navpage-next, #i-ctrl-tasks-navpage-prev-page, #i-ctrl-tasks-navpage-next-page, #i-ctrl-tasks-navpage-first, #i-ctrl-tasks-navpage-last").unbind("click", Search.__currentComp.onPageNavigationClick).addClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", "");
+            $("#i-ctrl-tasks-navpage-prev, #i-ctrl-tasks-navpage-next, #i-ctrl-tasks-navpage-prev-page, #i-ctrl-tasks-navpage-next-page, #i-ctrl-tasks-navpage-first, #i-ctrl-tasks-navpage-last").unbind("click", CalculateRoute.__currentComp.onPageNavigationClick).addClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", "");
 
             // получаем коллекцию контролов с номерами страниц
             var divs = $("#i-ctrl-tasks-navpage-container > div");
 
             // удаляем все обработчики событий
-            divs.unbind("click", Search.__currentComp.onPageNavigationClick);
+            divs.unbind("click", CalculateRoute.__currentComp.onPageNavigationClick);
 
             // удаляем все контейнеры навигации
             divs.remove();
         };
 
-        SearchController.prototype.onDocumentReady = function () {
+        CalculateRouteController.prototype.onDocumentReady = function () {
             /////////////////////////////////////
             // цепляем обработчики событий
             // настраиваем Application
-            Application.__currentApp.init(Search.__currentComp, false);
+            Application.__currentApp.init(CalculateRoute.__currentComp, false);
         };
-        return SearchController;
+        return CalculateRouteController;
     })();
-    Search.SearchController = SearchController;
+    CalculateRoute.CalculateRouteController = CalculateRouteController;
 
-    Search.__currentComp = new SearchController();
-})(Search || (Search = {}));
+    CalculateRoute.__currentComp = new CalculateRouteController();
+})(CalculateRoute || (CalculateRoute = {}));
 
-$(document).ready(Search.__currentComp.onDocumentReady);
+$(document).ready(CalculateRoute.__currentComp.onDocumentReady);

@@ -1,36 +1,8 @@
 ﻿///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
 ///<reference path="ServerAjaxData.d.ts"/>
 ///<reference path="application.ts"/>
-var Search;
-(function (Search) {
-    var AjaxTask = (function () {
-        function AjaxTask() {
-        }
-        return AjaxTask;
-    })();
-    Search.AjaxTask = AjaxTask;
-
-    var AjaxTaskList = (function () {
-        function AjaxTaskList() {
-        }
-        return AjaxTaskList;
-    })();
-    Search.AjaxTaskList = AjaxTaskList;
-
-    var AjaxTaskInfo = (function () {
-        function AjaxTaskInfo() {
-        }
-        return AjaxTaskInfo;
-    })();
-    Search.AjaxTaskInfo = AjaxTaskInfo;
-
-    var AjaxTaskInfoList = (function () {
-        function AjaxTaskInfoList() {
-        }
-        return AjaxTaskInfoList;
-    })();
-    Search.AjaxTaskInfoList = AjaxTaskInfoList;
-
+var CargoSelected;
+(function (CargoSelected) {
     var CargoSelectedController = (function () {
         function CargoSelectedController() {
             this.isComponentLoaded = false;
@@ -39,24 +11,25 @@ var Search;
             this.errorData = null;
         }
         CargoSelectedController.prototype.onLoad = function (app, parent, state) {
-            Search.__currentComp.application = app;
-            Search.__currentComp.state = state;
+            CargoSelected.__currentComp.application = app;
+            CargoSelected.__currentComp.state = state;
 
             // настраиваем обработчики событий
-            $("#i-page-search-link").click(Search.__currentComp.onMainMenuLinkClick);
+            $("#i-page-search-link").click(CargoSelected.__currentComp.onMainMenuLinkClick);
+            $("#i-page-calculate-link").click(CargoSelected.__currentComp.onMainMenuLinkClick);
 
             // проверяем авторизован ли пользователь
-            var authentificated = Search.__currentComp.application.isAuthentificated();
+            var authentificated = CargoSelected.__currentComp.application.isAuthentificated();
 
             // Получаем первую страницу из списка грузов
-            Search.__currentComp.getTasksPageData(1);
+            CargoSelected.__currentComp.getTasksPageData(1);
             // Сообщаем приложению, что компонент загружен.
             //__currentComp.onComponentLoaded();
         };
 
         CargoSelectedController.prototype.onUpdate = function (state) {
             // TODO Чистим список результатов поиска
-            Search.__currentComp.onComponentLoaded();
+            CargoSelected.__currentComp.onComponentLoaded();
         };
 
         CargoSelectedController.prototype.onShow = function (state) {
@@ -91,66 +64,66 @@ var Search;
         };
 
         CargoSelectedController.prototype.onComponentLoaded = function () {
-            Search.__currentComp.isComponentLoaded = true;
-            Search.__currentComp.application.componentReady();
+            CargoSelected.__currentComp.isComponentLoaded = true;
+            CargoSelected.__currentComp.application.componentReady();
         };
 
         CargoSelectedController.prototype.getTasksPageData = function (pageNumber) {
             // показываем иконку загрузки
-            Search.__currentComp.application.showOverlay("#i-ctrl-tasks-table-overlay", "#i-ctrl-tacks-container");
+            CargoSelected.__currentComp.application.showOverlay("#i-ctrl-tasks-table-overlay", "#i-ctrl-tacks-container");
 
             $.ajax({
                 type: "GET",
-                url: Search.__currentComp.application.getFullUri("api/caregoselected/" + pageNumber.toString()),
-                success: Search.__currentComp.onAjaxGetTasksPageDataSuccess,
-                error: Search.__currentComp.onAjaxGetTasksPageDataError
+                url: CargoSelected.__currentComp.application.getFullUri("api/caregoselected/" + pageNumber.toString()),
+                success: CargoSelected.__currentComp.onAjaxGetTasksPageDataSuccess,
+                error: CargoSelected.__currentComp.onAjaxGetTasksPageDataError
             });
         };
 
         CargoSelectedController.prototype.onAjaxGetTasksPageDataError = function (jqXHR, status, message) {
             //window.console.log("_onAjaxError");
-            Search.__currentComp.errorData = JSON.parse(jqXHR.responseText);
-            Search.__currentComp.dataError(Search.__currentComp, Search.__currentComp.errorData);
+            CargoSelected.__currentComp.errorData = JSON.parse(jqXHR.responseText);
+            CargoSelected.__currentComp.dataError(CargoSelected.__currentComp, CargoSelected.__currentComp.errorData);
 
             // TODO обрабатываем ошибки сервера
             // если ошибка "Требуется авторизация", то требуем у Application проверить текущий статус авторизации
             //if (2 == parseInt(__currentTasksProfile.errorData.code))
             //    __currentTasksProfile.application.checkAuthStatus();
             // скрываем иконку загрузки
-            Search.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
+            CargoSelected.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
         };
 
         CargoSelectedController.prototype.onAjaxGetTasksPageDataSuccess = function (data, status, jqXHR) {
             //window.console.log("_onAjaxGetAccountDataSuccess");
             // загрузка компонента произведена успешно
-            Search.__currentComp.taskData = data.data;
+            CargoSelected.__currentComp.taskData = data.data;
 
             // помещаем данные в контролы
-            Search.__currentComp.drawTasksList();
+            CargoSelected.__currentComp.drawTasksList();
 
-            if (false == Search.__currentComp.isComponentLoaded) {
-                Search.__currentComp.onComponentLoaded();
-                Search.__currentComp.dataLoaded(Search.__currentComp);
+            if (false == CargoSelected.__currentComp.isComponentLoaded) {
+                CargoSelected.__currentComp.onComponentLoaded();
+                CargoSelected.__currentComp.dataLoaded(CargoSelected.__currentComp);
             } else {
-                Search.__currentComp.dataReady(Search.__currentComp);
+                CargoSelected.__currentComp.dataReady(CargoSelected.__currentComp);
             }
 
             // скрываем иконку загрузки
-            Search.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
+            CargoSelected.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
         };
 
         CargoSelectedController.prototype.drawTasksList = function () {
             // Чистим строки в таблице
-            Search.__currentComp.clearTasksList();
+            CargoSelected.__currentComp.clearTasksList();
 
             // чистим панель навигации по страницам
-            Search.__currentComp.clearPageNavigation();
+            CargoSelected.__currentComp.clearPageNavigation();
 
             // отображаем в таблице полученные с сервера данные
-            Search.__currentComp.drawTableRows();
+            CargoSelected.__currentComp.drawTableRows();
 
             // рисуем панель навигации по страницам
-            Search.__currentComp.drawPageNavigation();
+            CargoSelected.__currentComp.drawPageNavigation();
         };
 
         CargoSelectedController.prototype.drawTableRows = function () {
@@ -158,8 +131,8 @@ var Search;
 
             var rowTempl = $("#i-ctrl-tasks-table-row-template");
 
-            for (var i = 0; i < Search.__currentComp.taskData.tasks.length; i++) {
-                var task = Search.__currentComp.taskData.tasks[i];
+            for (var i = 0; i < CargoSelected.__currentComp.taskData.tasks.length; i++) {
+                var task = CargoSelected.__currentComp.taskData.tasks[i];
                 var row = rowTempl.clone();
                 row.removeAttr("id").removeClass("hidden");
 
@@ -176,7 +149,7 @@ var Search;
                 $("td.c-ctrl-tasks-table-cell-ready-date", row).text(task.readyDate);
 
                 // привязываем обработчики на чекбоксы
-                $("td.c-ctrl-tasks-table-cell-chk > :checkbox", row).click(Search.__currentComp.onTaskSelected);
+                $("td.c-ctrl-tasks-table-cell-chk > :checkbox", row).click(CargoSelected.__currentComp.onTaskSelected);
 
                 row.appendTo(tbody);
             }
@@ -200,10 +173,10 @@ var Search;
             var currentPageNumber;
 
             // рассчитываем общее количество страниц в выборке
-            allPagesNumber = Math.ceil(Search.__currentComp.taskData.allRowCount / Search.__currentComp.taskData.limit);
+            allPagesNumber = Math.ceil(CargoSelected.__currentComp.taskData.allRowCount / CargoSelected.__currentComp.taskData.limit);
 
             // номер текущей страницы
-            currentPageNumber = Search.__currentComp.taskData.page;
+            currentPageNumber = CargoSelected.__currentComp.taskData.page;
 
             // находим номер первой страницы в списке
             displayFirstPageNumber = currentPageNumber - Math.floor(displayPagesNumber / 2);
@@ -230,7 +203,7 @@ var Search;
                     pageNumContainer.addClass("c-ctrl-tasks-navpage-panel-link-current");
                 } else {
                     // привязываем обработчик события
-                    pageNumContainer.click(Search.__currentComp.onPageNavigationClick);
+                    pageNumContainer.click(CargoSelected.__currentComp.onPageNavigationClick);
                 }
             }
 
@@ -257,32 +230,32 @@ var Search;
 
             if (displayPrevLinkActive) {
                 linkPageNumber = Math.max(currentPageNumber - 1, 1);
-                $("#i-ctrl-tasks-navpage-prev").click(Search.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
+                $("#i-ctrl-tasks-navpage-prev").click(CargoSelected.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
             }
 
             if (displayNextLinkActive) {
                 linkPageNumber = Math.min(currentPageNumber + 1, allPagesNumber);
-                $("#i-ctrl-tasks-navpage-next").click(Search.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
+                $("#i-ctrl-tasks-navpage-next").click(CargoSelected.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
             }
 
             if (displayPrevPageLinkActive) {
                 linkPageNumber = Math.max(currentPageNumber - displayPagesNumber, 1);
-                $("#i-ctrl-tasks-navpage-prev-page").click(Search.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
+                $("#i-ctrl-tasks-navpage-prev-page").click(CargoSelected.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
             }
 
             if (displayNextPageLinkActive) {
                 linkPageNumber = Math.min(currentPageNumber + displayPagesNumber, allPagesNumber);
-                $("#i-ctrl-tasks-navpage-next-page").click(Search.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
+                $("#i-ctrl-tasks-navpage-next-page").click(CargoSelected.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
             }
 
             if (displayFirstLinkActive) {
                 linkPageNumber = 1;
-                $("#i-ctrl-tasks-navpage-first").click(Search.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
+                $("#i-ctrl-tasks-navpage-first").click(CargoSelected.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
             }
 
             if (displayLastLinkActive) {
                 linkPageNumber = allPagesNumber;
-                $("#i-ctrl-tasks-navpage-last").click(Search.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
+                $("#i-ctrl-tasks-navpage-last").click(CargoSelected.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
             }
         };
 
@@ -291,7 +264,9 @@ var Search;
             var id = elem.attr("id");
 
             if ("i-page-search-link" == id)
-                Search.__currentComp.application.navigateTo("search");
+                CargoSelected.__currentComp.application.navigateTo("search");
+            if ("i-page-calculate-link" == id)
+                CargoSelected.__currentComp.application.navigateTo("calculate");
         };
 
         CargoSelectedController.prototype.onTaskSelected = function (event) {
@@ -300,53 +275,53 @@ var Search;
             var taskId = parseInt(elem.parent().parent().attr("data-id"));
 
             // сохраняем выбор на сервере
-            Search.__currentComp.saveTaskSelected(taskId, checked);
+            CargoSelected.__currentComp.saveTaskSelected(taskId, checked);
         };
 
         CargoSelectedController.prototype.saveTaskSelected = function (taskId, selected) {
             var ajaxMethod = selected ? "POST" : "DELETE";
 
-            var taskInfo = new AjaxTaskInfo();
+            var taskInfo = new ServerData.AjaxTaskInfo();
             taskInfo.taskId = taskId;
 
-            var taskInfoList = new AjaxTaskInfoList();
+            var taskInfoList = new ServerData.AjaxTaskInfoList();
             taskInfoList.tasks = [];
             taskInfoList.tasks.push(taskInfo);
 
             // показываем иконку загрузки
-            Search.__currentComp.application.showOverlay("#i-ctrl-tasks-table-overlay", "#i-ctrl-tacks-container");
+            CargoSelected.__currentComp.application.showOverlay("#i-ctrl-tasks-table-overlay", "#i-ctrl-tacks-container");
 
             $.ajax({
                 type: ajaxMethod,
-                url: Search.__currentComp.application.getFullUri("api/caregoselected"),
+                url: CargoSelected.__currentComp.application.getFullUri("api/caregoselected"),
                 data: JSON.stringify(taskInfoList),
                 contentType: "application/json",
                 dataType: "json",
-                success: Search.__currentComp.onAjaxTaskSelectedDataSuccess,
-                error: Search.__currentComp.onAjaxTaskSelectedDataError
+                success: CargoSelected.__currentComp.onAjaxTaskSelectedDataSuccess,
+                error: CargoSelected.__currentComp.onAjaxTaskSelectedDataError
             });
         };
 
         CargoSelectedController.prototype.onAjaxTaskSelectedDataError = function (jqXHR, status, message) {
             //window.console.log("_onAjaxError");
-            Search.__currentComp.errorData = JSON.parse(jqXHR.responseText);
-            Search.__currentComp.dataError(Search.__currentComp, Search.__currentComp.errorData);
+            CargoSelected.__currentComp.errorData = JSON.parse(jqXHR.responseText);
+            CargoSelected.__currentComp.dataError(CargoSelected.__currentComp, CargoSelected.__currentComp.errorData);
 
             // TODO обрабатываем ошибки сервера
             // если ошибка "Требуется авторизация", то требуем у Application проверить текущий статус авторизации
             //if (2 == parseInt(__currentTasksProfile.errorData.code))
             //    __currentTasksProfile.application.checkAuthStatus();
             // скрываем иконку загрузки
-            Search.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
+            CargoSelected.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
         };
 
         CargoSelectedController.prototype.onAjaxTaskSelectedDataSuccess = function (data, status, jqXHR) {
             //window.console.log("_onAjaxGetAccountDataSuccess");
             // загрузка компонента произведена успешно
-            Search.__currentComp.taskData = data.data;
+            CargoSelected.__currentComp.taskData = data.data;
 
             // скрываем иконку загрузки
-            Search.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
+            CargoSelected.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
         };
 
         CargoSelectedController.prototype.onPageNavigationClick = function (event) {
@@ -356,7 +331,7 @@ var Search;
             var pageNum = parseInt(ctrl.attr("data-page-num"));
 
             // загружаем данные указанной страницы
-            Search.__currentComp.getTasksPageData(pageNum);
+            CargoSelected.__currentComp.getTasksPageData(pageNum);
         };
 
         CargoSelectedController.prototype.clearTasksList = function () {
@@ -364,7 +339,7 @@ var Search;
             var rows = $("#i-ctrl-tasks-table > tbody > tr");
 
             // удаляем все обработчики событий
-            $("#i-ctrl-tasks-table > tbody > tr > td > :checkbox").unbind("click", Search.__currentComp.onTaskSelected);
+            $("#i-ctrl-tasks-table > tbody > tr > td > :checkbox").unbind("click", CargoSelected.__currentComp.onTaskSelected);
 
             // удаляем все строки таблицы
             rows.remove();
@@ -372,13 +347,13 @@ var Search;
 
         CargoSelectedController.prototype.clearPageNavigation = function () {
             // удаляем обработчики событий со ссылок быстрой навигации и ставим стили по умолчанию
-            $("#i-ctrl-tasks-navpage-prev, #i-ctrl-tasks-navpage-next, #i-ctrl-tasks-navpage-prev-page, #i-ctrl-tasks-navpage-next-page, #i-ctrl-tasks-navpage-first, #i-ctrl-tasks-navpage-last").unbind("click", Search.__currentComp.onPageNavigationClick).addClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", "");
+            $("#i-ctrl-tasks-navpage-prev, #i-ctrl-tasks-navpage-next, #i-ctrl-tasks-navpage-prev-page, #i-ctrl-tasks-navpage-next-page, #i-ctrl-tasks-navpage-first, #i-ctrl-tasks-navpage-last").unbind("click", CargoSelected.__currentComp.onPageNavigationClick).addClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", "");
 
             // получаем коллекцию контролов с номерами страниц
             var divs = $("#i-ctrl-tasks-navpage-container > div");
 
             // удаляем все обработчики событий
-            divs.unbind("click", Search.__currentComp.onPageNavigationClick);
+            divs.unbind("click", CargoSelected.__currentComp.onPageNavigationClick);
 
             // удаляем все контейнеры навигации
             divs.remove();
@@ -388,13 +363,13 @@ var Search;
             /////////////////////////////////////
             // цепляем обработчики событий
             // настраиваем Application
-            Application.__currentApp.init(Search.__currentComp, false);
+            Application.__currentApp.init(CargoSelected.__currentComp, false);
         };
         return CargoSelectedController;
     })();
-    Search.CargoSelectedController = CargoSelectedController;
+    CargoSelected.CargoSelectedController = CargoSelectedController;
 
-    Search.__currentComp = new CargoSelectedController();
-})(Search || (Search = {}));
+    CargoSelected.__currentComp = new CargoSelectedController();
+})(CargoSelected || (CargoSelected = {}));
 
-$(document).ready(Search.__currentComp.onDocumentReady);
+$(document).ready(CargoSelected.__currentComp.onDocumentReady);
