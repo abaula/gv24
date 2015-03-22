@@ -11,7 +11,7 @@
     <script type="text/javascript" src="/dictionary.js"></script>    
     <script type="text/javascript" src="/calculateroute.js"></script>
 
-    <title>Расчёт маршрута</title>
+    <title>Расчёт рейса</title>
 </head>
 <body>
 
@@ -88,6 +88,201 @@
             <!-- Индикатор выполнения операции -->
             <div id="i-ctrl-tasks-table-overlay" class="c-page-form-overlay-container"><div class="fa fa-spinner fa-spin"></div></div>
             <!-- /Индикатор выполнения операции -->
+        </div>
+
+
+        <div id="calc-panel-bottom">
+            <div id="calc-routes-container-block">
+                 <table id="calc-routes-table" class="calc-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="3" class="calc-table-col-up-down"></th>
+                            <th rowspan="3" colspan="3">Маршруты</th>
+                            <th rowspan="3" colspan="2">Пункт</th>
+                            <th rowspan="2" colspan="2">Расстояние, км</th>
+                            <th colspan="4">Груз</th>
+                            <th colspan="2">Резерв</th>
+                            <th colspan="8">Финансы</th>
+                        </tr>
+                        <tr>
+                            <th colspan="2">Изм.</th>
+                            <th colspan="2">Всего</th>
+                            <th rowspan="2">Вес, кг</th>
+                            <th rowspan="2">Объём, м<sup>3</sup></th>
+                            <th colspan="3">Изм., руб</th>
+                            <th colspan="3">Всего, руб</th>
+                            <th rowspan="2">Упущ. выручка, руб</th>
+                            <th rowspan="2">Целевая приб., руб</th>                            
+                        </tr>
+                        <tr>
+                            <th>0</th>
+                            <th>1</th>
+                            <th>кг</th>
+                            <th>м<sup>3</sup></th>
+                            <th>кг</th>
+                            <th>м<sup>3</sup></th>
+                            <th>Выр.</th>
+                            <th>Зат.</th>
+                            <th>Приб.</th>
+                            <th>Выр.</th>
+                            <th>Зат.</th>
+                            <th>Приб.</th>
+
+                        </tr>
+                        <!-- Шаблон строки -->
+                         <tr id="calc-routes-table-tr-template" data-task-id="" data-city-id="" class="hidden">
+                            <td class="calc-table-col-show-details"><span class="icon-button ib-toggle-expand"></span></td>
+                            <td class="calc-table-col-up"><span class="icon-button ib-arrow-up icon-gray"></span></td>
+                            <td class="calc-table-col-down"><span class="icon-button ib-arrow-down"></span></td>
+                            <td class="calc-table-col-num"></td>
+                            <td class="calc-table-col-trace"></td>
+                            <td class="calc-table-col-from"></td>
+                            <td class="calc-table-col-distance"></td>
+                            <td class="calc-table-col-sum-distance"></td>
+                            <td class="calc-table-col-weight-load"></td>
+                            <td class="calc-table-col-value-load"></td>
+                            <td class="calc-table-col-sum-weight"></td>
+                            <td class="calc-table-col-sum-value"></td>
+                            <td class="calc-table-col-res-weight"></td>
+                            <td class="calc-table-col-res-value"></td>
+
+                            <td class="calc-table-col-proceeds"></td>
+                            <td class="calc-table-col-expense"></td>
+                            <td class="calc-table-col-profit"></td>
+
+                            <td class="calc-table-col-sum-proceeds"></td>
+                            <td class="calc-table-col-sum-expense"></td>
+                            <td class="calc-table-col-sum-profit"></td>
+                            
+                            <td class="calc-table-col-lost-proceeds"></td>
+                             <td class="calc-table-col-target-profit"></td>
+                         </tr>
+                        <!-- /Шаблон строки -->                        
+                     </thead>
+                     <tbody>
+                         <tr id="calc-routes-table-tr-absent">
+                             <td colspan="22" class="calc-table-col-num">маршрут отсутствует</td>
+                         </tr>
+                         <tr id="calc-routes-table-tr-details" class="hidden">
+                             <td colspan="22" class="calc-table-col-details">Детальная информация о части маршурта:<br />
+                                 
+                                 <dir>
+                                    <span id="calc-route-detail-commited-tasks" class="calc-param-info-panel-entry">
+                                        <span class="calc-param-info-panel-key">Начатые маршруты: <span class="calc-param-info-panel-value"></span></span>                    
+                                    </span>
+
+                                    <span id="calc-route-detail-fulfiled-tasks" class="calc-param-info-panel-entry">
+                                        <span class="calc-param-info-panel-key">Завершённые маршруты: <span class="calc-param-info-panel-value"></span></span>                    
+                                    </span>
+                                 </dir>
+
+                                 <dir>
+                                     <span id="calc-route-detail-loaded" class="calc-param-info-panel-entry">
+                                        <span class="calc-param-info-panel-key">Загружено: <span class="calc-param-info-panel-value"></span> кг, <span class="calc-param-info-panel-value"></span> м<sup>3</sup></span>                    
+                                     </span>
+                                     <span id="calc-route-detail-unloaded" class="calc-param-info-panel-entry">
+                                        <span class="calc-param-info-panel-key">Разгружено: <span class="calc-param-info-panel-value"></span> кг, <span class="calc-param-info-panel-value"></span> м<sup>3</sup></span>                    
+                                     </span>
+                                  </dir>
+                                 <dir>
+                                     <span id="calc-route-detail-last-distance" class="calc-param-info-panel-entry">
+                                        <span class="calc-param-info-panel-key">Пройденное расстояние от прошлой точки: <span class="calc-param-info-panel-value"></span> км</span>                    
+                                     </span>
+ 
+                                    <span id="calc-route-detail-sum-distance" class="calc-param-info-panel-entry">
+                                        <span class="calc-param-info-panel-key">Всего пройдено: <span class="calc-param-info-panel-value"></span> км</span>                    
+                                     </span>
+                                 </dir>
+
+                                Параметры догрузки:<br/>
+
+                                 <dir>
+                                     <span id="calc-route-detail-can-load" class="calc-param-info-panel-entry">
+                                        <span class="calc-param-info-panel-key">Можно догрузить: <span class="calc-param-info-panel-value"></span> кг, <span class="calc-param-info-panel-value"></span> м<sup>3</sup></span>                    
+                                     </span>
+
+                                     <span id="calc-route-detail-path" class="calc-param-info-panel-entry">
+                                        <span class="calc-param-info-panel-key">Перегон: <span class="calc-param-info-panel-value"></span>, <span class="calc-param-info-panel-value"></span> км</span>                    
+                                     </span>
+ 
+                                    <span class="calc-param-info-panel-entry">
+                                        <a href="#">найти маршруты</a>                    
+                                     </span>
+                                 </dir>
+
+                                 Финансовые параметры:<br/>
+
+                                 <dir>
+                                     <span id="calc-route-detail-last-expense" class="calc-param-info-panel-entry">
+                                        <span class="calc-param-info-panel-key">Затраты за прошлой перегон: <span class="calc-param-info-panel-value"></span> руб</span>                    
+                                     </span>
+                                 
+                                     <span id="calc-route-detail-sum-expense" class="calc-param-info-panel-entry">
+                                        <span class="calc-param-info-panel-key">Суммарные затраты: <span class="calc-param-info-panel-value"></span> руб</span>                    
+                                     </span>
+
+                                     <span id="calc-route-detail-last-proceeds" class="calc-param-info-panel-entry">
+                                        <span class="calc-param-info-panel-key">Выручка за прошлой перегон: <span class="calc-param-info-panel-value"></span> руб</span>                    
+                                     </span>
+                                 
+                                     <span id="calc-route-detail-sum-proceeds" class="calc-param-info-panel-entry">
+                                        <span class="calc-param-info-panel-key">Суммарная выручка: <span class="calc-param-info-panel-value"></span> руб</span>                    
+                                     </span>
+                                </dir>
+
+
+                                 <dir>
+                                     <span id="calc-route-detail-last-profit" class="calc-param-info-panel-entry">
+                                        <span class="calc-param-info-panel-key">Прибыль с прошлой точки маршрута увеличилась на: <span class="calc-param-info-panel-value"></span> руб</span>                    
+                                     </span>                                 
+
+                                     <span id="calc-route-detail-sum-profit" class="calc-param-info-panel-entry">
+                                        <span class="calc-param-info-panel-key">Общая прибыль: <span class="calc-param-info-panel-value"></span> руб</span>                    
+                                     </span>                                 
+                                 </dir>
+
+
+                                 <dir>
+                                     <span id="calc-route-detail-last-profit-norm" class="calc-param-info-panel-entry">
+                                        <span class="calc-param-info-panel-key">Норма прибыли за прошлый перегон: <span class="calc-param-info-panel-value"></span> руб/км</span>                    
+                                     </span>                                 
+
+                                     <span id="calc-route-detail-profit-norm-avg" class="calc-param-info-panel-entry">
+                                        <span class="calc-param-info-panel-key">Средняя норма прибыли: <span class="calc-param-info-panel-value"></span> руб/км</span>                    
+                                     </span>                                 
+                                 </dir>
+
+                             </td>
+                         </tr>
+                     </tbody>
+                     <tfoot>
+                         <tr id="calc-routes-table-foot-total" class="hidden">
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                             <td></td>
+                         </tr>
+                     </tfoot>
+                 </table>
+            </div>
         </div>
     </div>
 </body>
