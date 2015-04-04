@@ -68,7 +68,7 @@
     <Content Include="Route.ts" />
     <Content Include="Scripts\typings\googlemaps\google.maps.d.ts" />
     <Content Include="Scripts\typings\jquery\jquery.d.ts" />
-    <Content Include="ServerAjaxData.d.ts" />
+    <Content Include="serverajaxdata.ts" />
     <Content Include="TestCase1.ts" />
     <Content Include="validators.ts" />
     <Content Include="vehicleprofile.ts" />

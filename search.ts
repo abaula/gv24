@@ -1,5 +1,5 @@
 ﻿///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
-///<reference path="ServerAjaxData.d.ts"/>
+///<reference path="serverajaxdata.ts"/>
 ///<reference path="application.ts"/>
 
 module Search

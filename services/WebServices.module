@@ -23,6 +23,7 @@ require_once("SqlFactory.module");
 require_once("SearchTasksWebService.module");
 require_once("CargoSelectedWebService.module");
 require_once("CalculateRouteWebService.module");
+require_once("RouteWebService.module");
 
 
 
@@ -49,6 +50,8 @@ function getWebService($name)
         return new CargoSelectedWebService();
     else if("calculateroute" == $name)
         return new CalculateRouteWebService();
+    else if("route" == $name)
+        return new RouteWebService();
 
     return null;
 }

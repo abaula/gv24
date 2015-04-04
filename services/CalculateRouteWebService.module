@@ -113,16 +113,35 @@ class CalculateRouteWebService extends WebServBase
 
     public function onPost($args, $data)
     {
-        // TODO: Implement onPost() method.
+        // TODO: Добавляем новую задачу в маршрут
+
+
+
+
     }
 
     public function onPut($args, $data)
     {
-        // TODO: Implement onPut() method.
+        // TODO: редактируем порядок маршрутных точек
+
+
+
+
     }
 
     public function onDelete($args, $data)
     {
-        // TODO: Implement onDelete() method.
+        // TODO: Удаляем задачу из маршрута
+
+    }
+
+
+    /*
+     * Привязываем созданные маршруты к указанному аккаунту
+     *
+     * */
+    public static function mapRouteToAccount($accountId)
+    {
+        // TODO делаем
     }
 }

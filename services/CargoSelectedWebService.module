@@ -221,6 +221,10 @@ class CargoSelectedWebService extends WebServBase
 
 
 
+    /*
+     * Привязываем созданные записи об отлолженных грузах к указанному аккаунту
+     *
+     * */
     public static function mapSelectedCargoToAccount($accountId)
     {
         $userTokenId = Cookies::getUserTokenId();

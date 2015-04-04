@@ -1,0 +1,38 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 04.04.15
+ * Time: 22:27
+ * To change this template use File | Settings | File Templates.
+ */
+require_once("WebServBase.module");
+require_once("Headers.module");
+require_once("Contract.module");
+
+
+class RouteWebService extends WebServBase
+{
+
+    public function onGet($args)
+    {
+        // TODO: получаем данные созданного маршрута
+
+    }
+
+    public function onPost($args, $data)
+    {
+        // TODO: пересчитываем данные маршрута
+    }
+
+    public function onPut($args, $data)
+    {
+        // TODO: Implement onPut() method.
+    }
+
+    public function onDelete($args, $data)
+    {
+        // TODO: Implement onDelete() method.
+    }
+
+}

@@ -1,9 +1,9 @@
 ﻿
 
-declare module ServerData
+module ServerData
 {
 
-    interface AjaxServerResponse
+    export class AjaxServerResponse
     {
         code: string;
         userMessage: string;

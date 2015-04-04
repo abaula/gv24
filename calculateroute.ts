@@ -1,5 +1,5 @@
 ﻿///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
-///<reference path="ServerAjaxData.d.ts"/>
+///<reference path="serverajaxdata.ts"/>
 ///<reference path="application.ts"/>
 
 module CalculateRoute
@@ -314,6 +314,7 @@ module CalculateRoute
             var taskId: number = parseInt(elem.parent().parent().attr("data-id"));
 
             // TODO добавляем задание в маршрут
+
         }
 
 
