@@ -36,304 +36,317 @@
     <!-- содержимое страницы -->
     <div id="i-page-main-container" class="c-page-main-container hidden">
 
-        <div id="i-ctrl-tacks-container" class="c-page-form-outer-block">
+        <div id="i-calc-contents" class="c-page-form-outer-block">
 
-            <!-- Панель результатов поиска -->
-            <div class="c-table-panel">
-                <table id="i-ctrl-tasks-table" class="c-tasks-table">                                    
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>№</th>
-                            <th>Откуда</th>
-                            <th>Куда</th>
-                            <th>Тип груза</th>
-                            <th>Вес, кг</th>
-                            <th>Объём, м<sup>3</sup></th>
-                            <th>Дистанция, км</th>
-                            <th>Стоимость</th>
-                            <th>Дата готовности</th>
-                        </tr>
-                        <tr id="i-ctrl-tasks-table-row-template" data-id="" class="hidden">
-                            <td class="c-ctrl-tasks-table-cell-chk"><input type="checkbox" /></td>
-                            <td class="c-ctrl-tasks-table-cell-num"></td>
-                            <td class="c-ctrl-tasks-table-cell-from"></td>
-                            <td class="c-ctrl-tasks-table-cell-to"></td>
-                            <td class="c-ctrl-tasks-table-cell-type"></td>
-                            <td class="c-ctrl-tasks-table-cell-weight"></td>
-                            <td class="c-ctrl-tasks-table-cell-value"></td>
-                            <td class="c-ctrl-tasks-table-cell-distance"></td>
-                            <td class="c-ctrl-tasks-table-cell-cost"></td>
-                            <td class="c-ctrl-tasks-table-cell-ready-date"></td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-            <!-- /Панель результатов поиска -->
+            <div id="i-ctrl-tacks-container" class="c-page-form-outer-block">
 
-            <!-- Панель навигации по страницам -->
-            <div class="c-ctrl-tasks-navpage-panel">
-                <div id="i-ctrl-tasks-navpage-first" class="c-ctrl-tasks-navpage-panel-link c-ctrl-tasks-navpage-panel-link-disabled" data-page-num=""><i class="fa fa-chevron-circle-left"></i></div>
-                <div id="i-ctrl-tasks-navpage-prev-page" class="c-ctrl-tasks-navpage-panel-link c-ctrl-tasks-navpage-panel-link-disabled" data-page-num=""><i class="fa fa-angle-double-left"></i></div>
-                <div id="i-ctrl-tasks-navpage-prev" class="c-ctrl-tasks-navpage-panel-link c-ctrl-tasks-navpage-panel-link-disabled" data-page-num=""><i class="fa fa-angle-left"></i></div>
-                <div id="i-ctrl-tasks-navpage-pagelink-template" class="c-ctrl-tasks-navpage-panel-link" data-page-num=""></div>
-                <div id="i-ctrl-tasks-navpage-container" class="c-ctrl-tasks-navpage-container"></div>
-                <div id="i-ctrl-tasks-navpage-next" class="c-ctrl-tasks-navpage-panel-link c-ctrl-tasks-navpage-panel-link-disabled" data-page-num=""><i class="fa fa-angle-right"></i></div>
-                <div id="i-ctrl-tasks-navpage-next-page" class="c-ctrl-tasks-navpage-panel-link c-ctrl-tasks-navpage-panel-link-disabled" data-page-num=""><i class="fa fa-angle-double-right"></i></div>
-                <div id="i-ctrl-tasks-navpage-last" class="c-ctrl-tasks-navpage-panel-link c-ctrl-tasks-navpage-panel-link-disabled" data-page-num=""><i class="fa fa-chevron-circle-right"></i></div>
+                <!-- Панель результатов поиска -->
+                <div class="c-table-panel">
+                    <table id="i-ctrl-tasks-table" class="c-tasks-table">                                    
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>№</th>
+                                <th>Откуда</th>
+                                <th>Куда</th>
+                                <th>Тип груза</th>
+                                <th>Вес, кг</th>
+                                <th>Объём, м<sup>3</sup></th>
+                                <th>Дистанция, км</th>
+                                <th>Стоимость</th>
+                                <th>Дата готовности</th>
+                            </tr>
+                            <tr id="i-ctrl-tasks-table-row-template" data-id="" class="hidden">
+                                <td class="c-ctrl-tasks-table-cell-chk"><input type="checkbox" /></td>
+                                <td class="c-ctrl-tasks-table-cell-num"></td>
+                                <td class="c-ctrl-tasks-table-cell-from"></td>
+                                <td class="c-ctrl-tasks-table-cell-to"></td>
+                                <td class="c-ctrl-tasks-table-cell-type"></td>
+                                <td class="c-ctrl-tasks-table-cell-weight"></td>
+                                <td class="c-ctrl-tasks-table-cell-value"></td>
+                                <td class="c-ctrl-tasks-table-cell-distance"></td>
+                                <td class="c-ctrl-tasks-table-cell-cost"></td>
+                                <td class="c-ctrl-tasks-table-cell-ready-date"></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /Панель результатов поиска -->
+
+                <!-- Панель навигации по страницам -->
+                <div class="c-ctrl-tasks-navpage-panel">
+                    <div id="i-ctrl-tasks-navpage-first" class="c-ctrl-tasks-navpage-panel-link c-ctrl-tasks-navpage-panel-link-disabled" data-page-num=""><i class="fa fa-chevron-circle-left"></i></div>
+                    <div id="i-ctrl-tasks-navpage-prev-page" class="c-ctrl-tasks-navpage-panel-link c-ctrl-tasks-navpage-panel-link-disabled" data-page-num=""><i class="fa fa-angle-double-left"></i></div>
+                    <div id="i-ctrl-tasks-navpage-prev" class="c-ctrl-tasks-navpage-panel-link c-ctrl-tasks-navpage-panel-link-disabled" data-page-num=""><i class="fa fa-angle-left"></i></div>
+                    <div id="i-ctrl-tasks-navpage-pagelink-template" class="c-ctrl-tasks-navpage-panel-link" data-page-num=""></div>
+                    <div id="i-ctrl-tasks-navpage-container" class="c-ctrl-tasks-navpage-container"></div>
+                    <div id="i-ctrl-tasks-navpage-next" class="c-ctrl-tasks-navpage-panel-link c-ctrl-tasks-navpage-panel-link-disabled" data-page-num=""><i class="fa fa-angle-right"></i></div>
+                    <div id="i-ctrl-tasks-navpage-next-page" class="c-ctrl-tasks-navpage-panel-link c-ctrl-tasks-navpage-panel-link-disabled" data-page-num=""><i class="fa fa-angle-double-right"></i></div>
+                    <div id="i-ctrl-tasks-navpage-last" class="c-ctrl-tasks-navpage-panel-link c-ctrl-tasks-navpage-panel-link-disabled" data-page-num=""><i class="fa fa-chevron-circle-right"></i></div>
+                </div>
+                <!-- /Панель навигации по страницам -->
+
+                <!-- Индикатор выполнения операции -->
+                <div id="i-ctrl-tasks-table-overlay" class="c-page-form-overlay-container"><div class="fa fa-spinner fa-spin"></div></div>
+                <!-- /Индикатор выполнения операции -->
+
             </div>
-            <!-- /Панель навигации по страницам -->
+
+
+            <!-- Панель опций расчёта маршрута -->
+            <div class="calc-options-panel" id="i-calc-options-panel">
+
+                <div class="calc-param-panel-entry">
+
+                    <div class="c-ctrl-options-option">Параметры машины:</div>
+
+                    <div class="c-ctrl-options-option">Выбрать машину:<br/><select id="i-calc-param-vehicle-select">
+                            <option selected="selected" value="0">Указать вручную</option>
+                        </select>
+                    </div>
+
+                    <div class="c-ctrl-options-option">Максимальный вес<br/><input type="text" id="i-calc-param-max-weight" pattern="^[ 0-9]+$" value="0" />кг</div>
+                    <div class="c-ctrl-options-option">Максимальный объём<br/><input type="text" id="i-calc-param-max-value" pattern="^[ 0-9]+$" value="0" />м<sup>3</sup></div>
+                    <div class="c-ctrl-options-option">Затраты<br/><input type="text" id="i-calc-param-expense" pattern="^[ 0-9]+$" value="0" />руб/км</div>
+                    <div class="c-ctrl-options-option">Свой тариф за 1 кг<br/><input type="text" id="i-calc-param-tax-weight" pattern="^[ .0-9]+$" value="0" />руб/100 км</div>
+                    <div class="c-ctrl-options-option">Свой тариф за 1 м<sup>3</sup><br/><input type="text" id="i-calc-param-tax-value" pattern="^[ .0-9]+$" value="0" />руб/100 км</div>
+
+                </div>
+
+
+                <div class="calc-param-panel-entry">
+
+                    <div class="c-ctrl-options-option">Параметры расчёта:</div>
+
+                    <div class="c-ctrl-options-option">Начало маршрута:<br/><select id="i-calc-auto-param-start-city">
+                            <option>-</option>
+                        </select>
+                    </div>
+                    <div id="i-calc-option-conflict-resolve-criteria" class="c-ctrl-options-option">Максимизация:<br/><input type="radio" name="calc-Conflict-Resolve-Criteria" value="Proceeds" checked="checked" />выручки
+                            <input type="radio" name="calc-Conflict-Resolve-Criteria" value="Profit" />прибыли
+                    </div>
+                    <div id="i-calc-option-loading-strategy" class="c-ctrl-options-option">Наименьший:<br/><input type="radio" name="calc-Loading-Strategy" value="SavingWeight" checked="checked" />вес
+                            <input type="radio" name="calc-Loading-Strategy" value="SavingValue" />объём
+                    </div>
+                    <div class="c-ctrl-options-option">
+                        <input id="i-calc-option-apply-return-path" type="checkbox" name="calc-Apply-Return-Path" /> Учитывать обратный путь
+                    </div>
+                </div>
+
+                <div class="calc-options-panel">
+                    <div class="calc-param-execute-button"><i id="i-calc-auto-param-compute" title="Запустить автоматический расчёт маршрута" class="fa fa-play"></i> Расчитать маршрут</div>
+                </div>
+          
+            </div>
+
+            <!-- /Панель опций расчёта маршрута -->
+
+
+            <div class="calc-route-panel" id="i-calc-route-panel">
+                <div id="i-calc-routes-container-block">
+                     <table id="i-calc-routes-table" class="calc-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="3" class="calc-table-col-up-down"></th>
+                                <th rowspan="3" colspan="3">Маршруты</th>
+                                <th rowspan="3" colspan="2">Пункт</th>
+                                <th rowspan="2" colspan="2">Расстояние, км</th>
+                                <th colspan="4">Груз</th>
+                                <th colspan="2">Резерв</th>
+                                <th colspan="8">Финансы</th>
+                            </tr>
+                            <tr>
+                                <th colspan="2">Изм.</th>
+                                <th colspan="2">Всего</th>
+                                <th rowspan="2">Вес, кг</th>
+                                <th rowspan="2">Объём, м<sup>3</sup></th>
+                                <th colspan="3">Изм., руб</th>
+                                <th colspan="3">Всего, руб</th>
+                                <th rowspan="2">Упущ. выручка, руб</th>
+                                <th rowspan="2">Целевая приб., руб</th>                            
+                            </tr>
+                            <tr>
+                                <th>0</th>
+                                <th>1</th>
+                                <th>кг</th>
+                                <th>м<sup>3</sup></th>
+                                <th>кг</th>
+                                <th>м<sup>3</sup></th>
+                                <th>Выр.</th>
+                                <th>Зат.</th>
+                                <th>Приб.</th>
+                                <th>Выр.</th>
+                                <th>Зат.</th>
+                                <th>Приб.</th>
+
+                            </tr>
+                            <!-- Шаблон строки -->
+                             <tr id="i-calc-routes-table-tr-template" data-task-id="" data-city-id="" class="hidden">
+                                <td class="calc-table-col-show-details"><span class="icon-button ib-toggle-expand"></span></td>
+                                <td class="calc-table-col-up"><span class="icon-button ib-arrow-up icon-gray"></span></td>
+                                <td class="calc-table-col-down"><span class="icon-button ib-arrow-down"></span></td>
+                                <td class="calc-table-col-num"></td>
+                                <td class="calc-table-col-trace"></td>
+                                <td class="calc-table-col-from"></td>
+                                <td class="calc-table-col-distance"></td>
+                                <td class="calc-table-col-sum-distance"></td>
+                                <td class="calc-table-col-weight-load"></td>
+                                <td class="calc-table-col-value-load"></td>
+                                <td class="calc-table-col-sum-weight"></td>
+                                <td class="calc-table-col-sum-value"></td>
+                                <td class="calc-table-col-res-weight"></td>
+                                <td class="calc-table-col-res-value"></td>
+
+                                <td class="calc-table-col-proceeds"></td>
+                                <td class="calc-table-col-expense"></td>
+                                <td class="calc-table-col-profit"></td>
+
+                                <td class="calc-table-col-sum-proceeds"></td>
+                                <td class="calc-table-col-sum-expense"></td>
+                                <td class="calc-table-col-sum-profit"></td>
+                            
+                                <td class="calc-table-col-lost-proceeds"></td>
+                                 <td class="calc-table-col-target-profit"></td>
+                             </tr>
+                            <!-- /Шаблон строки -->                        
+                         </thead>
+                         <tbody>
+                             <tr id="i-calc-routes-table-tr-absent">
+                                 <td colspan="22" class="calc-table-col-num">маршрут отсутствует</td>
+                             </tr>
+                             <tr id="i-calc-routes-table-tr-details" class="hidden">
+                                 <td colspan="22" class="calc-table-col-details">Детальная информация о части маршурта:<br />
+                                 
+                                     <dir>
+                                        <span id="i-calc-route-detail-commited-tasks" class="calc-param-info-panel-entry">
+                                            <span class="calc-param-info-panel-key">Начатые маршруты: <span class="calc-param-info-panel-value"></span></span>                    
+                                        </span>
+
+                                        <span id="i-calc-route-detail-fulfiled-tasks" class="calc-param-info-panel-entry">
+                                            <span class="calc-param-info-panel-key">Завершённые маршруты: <span class="calc-param-info-panel-value"></span></span>                    
+                                        </span>
+                                     </dir>
+
+                                     <dir>
+                                         <span id="i-calc-route-detail-loaded" class="calc-param-info-panel-entry">
+                                            <span class="calc-param-info-panel-key">Загружено: <span class="calc-param-info-panel-value"></span> кг, <span class="calc-param-info-panel-value"></span> м<sup>3</sup></span>                    
+                                         </span>
+                                         <span id="i-calc-route-detail-unloaded" class="calc-param-info-panel-entry">
+                                            <span class="calc-param-info-panel-key">Разгружено: <span class="calc-param-info-panel-value"></span> кг, <span class="calc-param-info-panel-value"></span> м<sup>3</sup></span>                    
+                                         </span>
+                                      </dir>
+                                     <dir>
+                                         <span id="i-calc-route-detail-last-distance" class="calc-param-info-panel-entry">
+                                            <span class="calc-param-info-panel-key">Пройденное расстояние от прошлой точки: <span class="calc-param-info-panel-value"></span> км</span>                    
+                                         </span>
+ 
+                                        <span id="i-calc-route-detail-sum-distance" class="calc-param-info-panel-entry">
+                                            <span class="calc-param-info-panel-key">Всего пройдено: <span class="calc-param-info-panel-value"></span> км</span>                    
+                                         </span>
+                                     </dir>
+
+                                    Параметры догрузки:<br/>
+
+                                     <dir>
+                                         <span id="i-calc-route-detail-can-load" class="calc-param-info-panel-entry">
+                                            <span class="calc-param-info-panel-key">Можно догрузить: <span class="calc-param-info-panel-value"></span> кг, <span class="calc-param-info-panel-value"></span> м<sup>3</sup></span>                    
+                                         </span>
+
+                                         <span id="i-calc-route-detail-path" class="calc-param-info-panel-entry">
+                                            <span class="calc-param-info-panel-key">Перегон: <span class="calc-param-info-panel-value"></span>, <span class="calc-param-info-panel-value"></span> км</span>                    
+                                         </span>
+ 
+                                        <span class="calc-param-info-panel-entry">
+                                            <a href="#">найти маршруты</a>                    
+                                         </span>
+                                     </dir>
+
+                                     Финансовые параметры:<br/>
+
+                                     <dir>
+                                         <span id="i-calc-route-detail-last-expense" class="calc-param-info-panel-entry">
+                                            <span class="calc-param-info-panel-key">Затраты за прошлой перегон: <span class="calc-param-info-panel-value"></span> руб</span>                    
+                                         </span>
+                                 
+                                         <span id="i-calc-route-detail-sum-expense" class="calc-param-info-panel-entry">
+                                            <span class="calc-param-info-panel-key">Суммарные затраты: <span class="calc-param-info-panel-value"></span> руб</span>                    
+                                         </span>
+
+                                         <span id="i-calc-route-detail-last-proceeds" class="calc-param-info-panel-entry">
+                                            <span class="calc-param-info-panel-key">Выручка за прошлой перегон: <span class="calc-param-info-panel-value"></span> руб</span>                    
+                                         </span>
+                                 
+                                         <span id="i-calc-route-detail-sum-proceeds" class="calc-param-info-panel-entry">
+                                            <span class="calc-param-info-panel-key">Суммарная выручка: <span class="calc-param-info-panel-value"></span> руб</span>                    
+                                         </span>
+                                    </dir>
+
+
+                                     <dir>
+                                         <span id="i-calc-route-detail-last-profit" class="calc-param-info-panel-entry">
+                                            <span class="calc-param-info-panel-key">Прибыль с прошлой точки маршрута увеличилась на: <span class="calc-param-info-panel-value"></span> руб</span>                    
+                                         </span>                                 
+
+                                         <span id="i-calc-route-detail-sum-profit" class="calc-param-info-panel-entry">
+                                            <span class="calc-param-info-panel-key">Общая прибыль: <span class="calc-param-info-panel-value"></span> руб</span>                    
+                                         </span>                                 
+                                     </dir>
+
+
+                                     <dir>
+                                         <span id="i-calc-route-detail-last-profit-norm" class="calc-param-info-panel-entry">
+                                            <span class="calc-param-info-panel-key">Норма прибыли за прошлый перегон: <span class="calc-param-info-panel-value"></span> руб/км</span>                    
+                                         </span>                                 
+
+                                         <span id="i-calc-route-detail-profit-norm-avg" class="calc-param-info-panel-entry">
+                                            <span class="calc-param-info-panel-key">Средняя норма прибыли: <span class="calc-param-info-panel-value"></span> руб/км</span>                    
+                                         </span>                                 
+                                     </dir>
+
+                                 </td>
+                             </tr>
+                         </tbody>
+                         <tfoot>
+                             <tr id="i-calc-routes-table-foot-total" class="hidden">
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                                 <td></td>
+                             </tr>
+                         </tfoot>
+                     </table>
+                </div>
+            </div>
+
 
             <!-- Индикатор выполнения операции -->
-            <div id="i-ctrl-tasks-table-overlay" class="c-page-form-overlay-container"><div class="fa fa-spinner fa-spin"></div></div>
+            <div id="i-ctrl-overlay" class="c-page-form-overlay-container"><div class="fa fa-spinner fa-spin"></div></div>
             <!-- /Индикатор выполнения операции -->
-        </div>
 
-
-        <!-- Панель опций расчёта маршрута -->
-        <div class="calc-options-panel" id="i-calc-options-panel">
-
-            <div class="calc-param-panel-entry">
-
-                <div class="c-ctrl-options-option">Параметры машины:</div>
-
-                <div class="c-ctrl-options-option">Выбрать машину:<br/><select id="i-calc-param-vehicle-select">
-                        <option selected="selected" value="0">Указать вручную</option>
-                    </select>
-                </div>
-
-                <div class="c-ctrl-options-option">Максимальный вес<br/><input type="text" id="i-calc-param-max-weight" pattern="^[ 0-9]+$" value="0" />кг</div>
-                <div class="c-ctrl-options-option">Максимальный объём<br/><input type="text" id="i-calc-param-max-value" pattern="^[ 0-9]+$" value="0" />м<sup>3</sup></div>
-                <div class="c-ctrl-options-option">Затраты<br/><input type="text" id="i-calc-param-expense" pattern="^[ 0-9]+$" value="0" />руб/км</div>
-                <div class="c-ctrl-options-option">Свой тариф за 1 кг<br/><input type="text" id="i-calc-param-tax-weight" pattern="^[ .0-9]+$" value="0" />руб/100 км</div>
-                <div class="c-ctrl-options-option">Свой тариф за 1 м<sup>3</sup><br/><input type="text" id="i-calc-param-tax-value" pattern="^[ .0-9]+$" value="0" />руб/100 км</div>
-
-            </div>
-
-
-            <div class="calc-param-panel-entry">
-
-                <div class="c-ctrl-options-option">Параметры расчёта:</div>
-
-                <div class="c-ctrl-options-option">Начало маршрута:<br/><select id="i-calc-auto-param-start-city">
-                        <option>-</option>
-                    </select>
-                </div>
-                <div id="i-calc-option-conflict-resolve-criteria" class="c-ctrl-options-option">Максимизация:<br/><input type="radio" name="calc-Conflict-Resolve-Criteria" value="Proceeds" checked="checked" />выручки
-                        <input type="radio" name="calc-Conflict-Resolve-Criteria" value="Profit" />прибыли
-                </div>
-                <div id="i-calc-option-loading-strategy" class="c-ctrl-options-option">Наименьший:<br/><input type="radio" name="calc-Loading-Strategy" value="SavingWeight" checked="checked" />вес
-                        <input type="radio" name="calc-Loading-Strategy" value="SavingValue" />объём
-                </div>
-                <div class="c-ctrl-options-option">
-                    <input id="i-calc-option-apply-return-path" type="checkbox" name="calc-Apply-Return-Path" /> Учитывать обратный путь
-                </div>
-            </div>
-
-            <div class="calc-options-panel">
-                <div class="calc-param-execute-button"><i id="i-calc-auto-param-compute" title="Запустить автоматический расчёт маршрута" class="fa fa-play"></i> Расчитать маршрут</div>
-            </div>
-          
-        </div>
-
-        <!-- /Панель опций расчёта маршрута -->
-
-
-        <div class="calc-route-panel" id="i-calc-route-panel">
-            <div id="i-calc-routes-container-block">
-                 <table id="i-calc-routes-table" class="calc-table">
-                    <thead>
-                        <tr>
-                            <th rowspan="3" class="calc-table-col-up-down"></th>
-                            <th rowspan="3" colspan="3">Маршруты</th>
-                            <th rowspan="3" colspan="2">Пункт</th>
-                            <th rowspan="2" colspan="2">Расстояние, км</th>
-                            <th colspan="4">Груз</th>
-                            <th colspan="2">Резерв</th>
-                            <th colspan="8">Финансы</th>
-                        </tr>
-                        <tr>
-                            <th colspan="2">Изм.</th>
-                            <th colspan="2">Всего</th>
-                            <th rowspan="2">Вес, кг</th>
-                            <th rowspan="2">Объём, м<sup>3</sup></th>
-                            <th colspan="3">Изм., руб</th>
-                            <th colspan="3">Всего, руб</th>
-                            <th rowspan="2">Упущ. выручка, руб</th>
-                            <th rowspan="2">Целевая приб., руб</th>                            
-                        </tr>
-                        <tr>
-                            <th>0</th>
-                            <th>1</th>
-                            <th>кг</th>
-                            <th>м<sup>3</sup></th>
-                            <th>кг</th>
-                            <th>м<sup>3</sup></th>
-                            <th>Выр.</th>
-                            <th>Зат.</th>
-                            <th>Приб.</th>
-                            <th>Выр.</th>
-                            <th>Зат.</th>
-                            <th>Приб.</th>
-
-                        </tr>
-                        <!-- Шаблон строки -->
-                         <tr id="i-calc-routes-table-tr-template" data-task-id="" data-city-id="" class="hidden">
-                            <td class="calc-table-col-show-details"><span class="icon-button ib-toggle-expand"></span></td>
-                            <td class="calc-table-col-up"><span class="icon-button ib-arrow-up icon-gray"></span></td>
-                            <td class="calc-table-col-down"><span class="icon-button ib-arrow-down"></span></td>
-                            <td class="calc-table-col-num"></td>
-                            <td class="calc-table-col-trace"></td>
-                            <td class="calc-table-col-from"></td>
-                            <td class="calc-table-col-distance"></td>
-                            <td class="calc-table-col-sum-distance"></td>
-                            <td class="calc-table-col-weight-load"></td>
-                            <td class="calc-table-col-value-load"></td>
-                            <td class="calc-table-col-sum-weight"></td>
-                            <td class="calc-table-col-sum-value"></td>
-                            <td class="calc-table-col-res-weight"></td>
-                            <td class="calc-table-col-res-value"></td>
-
-                            <td class="calc-table-col-proceeds"></td>
-                            <td class="calc-table-col-expense"></td>
-                            <td class="calc-table-col-profit"></td>
-
-                            <td class="calc-table-col-sum-proceeds"></td>
-                            <td class="calc-table-col-sum-expense"></td>
-                            <td class="calc-table-col-sum-profit"></td>
-                            
-                            <td class="calc-table-col-lost-proceeds"></td>
-                             <td class="calc-table-col-target-profit"></td>
-                         </tr>
-                        <!-- /Шаблон строки -->                        
-                     </thead>
-                     <tbody>
-                         <tr id="i-calc-routes-table-tr-absent">
-                             <td colspan="22" class="calc-table-col-num">маршрут отсутствует</td>
-                         </tr>
-                         <tr id="i-calc-routes-table-tr-details" class="hidden">
-                             <td colspan="22" class="calc-table-col-details">Детальная информация о части маршурта:<br />
-                                 
-                                 <dir>
-                                    <span id="i-calc-route-detail-commited-tasks" class="calc-param-info-panel-entry">
-                                        <span class="calc-param-info-panel-key">Начатые маршруты: <span class="calc-param-info-panel-value"></span></span>                    
-                                    </span>
-
-                                    <span id="i-calc-route-detail-fulfiled-tasks" class="calc-param-info-panel-entry">
-                                        <span class="calc-param-info-panel-key">Завершённые маршруты: <span class="calc-param-info-panel-value"></span></span>                    
-                                    </span>
-                                 </dir>
-
-                                 <dir>
-                                     <span id="i-calc-route-detail-loaded" class="calc-param-info-panel-entry">
-                                        <span class="calc-param-info-panel-key">Загружено: <span class="calc-param-info-panel-value"></span> кг, <span class="calc-param-info-panel-value"></span> м<sup>3</sup></span>                    
-                                     </span>
-                                     <span id="i-calc-route-detail-unloaded" class="calc-param-info-panel-entry">
-                                        <span class="calc-param-info-panel-key">Разгружено: <span class="calc-param-info-panel-value"></span> кг, <span class="calc-param-info-panel-value"></span> м<sup>3</sup></span>                    
-                                     </span>
-                                  </dir>
-                                 <dir>
-                                     <span id="i-calc-route-detail-last-distance" class="calc-param-info-panel-entry">
-                                        <span class="calc-param-info-panel-key">Пройденное расстояние от прошлой точки: <span class="calc-param-info-panel-value"></span> км</span>                    
-                                     </span>
- 
-                                    <span id="i-calc-route-detail-sum-distance" class="calc-param-info-panel-entry">
-                                        <span class="calc-param-info-panel-key">Всего пройдено: <span class="calc-param-info-panel-value"></span> км</span>                    
-                                     </span>
-                                 </dir>
-
-                                Параметры догрузки:<br/>
-
-                                 <dir>
-                                     <span id="i-calc-route-detail-can-load" class="calc-param-info-panel-entry">
-                                        <span class="calc-param-info-panel-key">Можно догрузить: <span class="calc-param-info-panel-value"></span> кг, <span class="calc-param-info-panel-value"></span> м<sup>3</sup></span>                    
-                                     </span>
-
-                                     <span id="i-calc-route-detail-path" class="calc-param-info-panel-entry">
-                                        <span class="calc-param-info-panel-key">Перегон: <span class="calc-param-info-panel-value"></span>, <span class="calc-param-info-panel-value"></span> км</span>                    
-                                     </span>
- 
-                                    <span class="calc-param-info-panel-entry">
-                                        <a href="#">найти маршруты</a>                    
-                                     </span>
-                                 </dir>
-
-                                 Финансовые параметры:<br/>
-
-                                 <dir>
-                                     <span id="i-calc-route-detail-last-expense" class="calc-param-info-panel-entry">
-                                        <span class="calc-param-info-panel-key">Затраты за прошлой перегон: <span class="calc-param-info-panel-value"></span> руб</span>                    
-                                     </span>
-                                 
-                                     <span id="i-calc-route-detail-sum-expense" class="calc-param-info-panel-entry">
-                                        <span class="calc-param-info-panel-key">Суммарные затраты: <span class="calc-param-info-panel-value"></span> руб</span>                    
-                                     </span>
-
-                                     <span id="i-calc-route-detail-last-proceeds" class="calc-param-info-panel-entry">
-                                        <span class="calc-param-info-panel-key">Выручка за прошлой перегон: <span class="calc-param-info-panel-value"></span> руб</span>                    
-                                     </span>
-                                 
-                                     <span id="i-calc-route-detail-sum-proceeds" class="calc-param-info-panel-entry">
-                                        <span class="calc-param-info-panel-key">Суммарная выручка: <span class="calc-param-info-panel-value"></span> руб</span>                    
-                                     </span>
-                                </dir>
-
-
-                                 <dir>
-                                     <span id="i-calc-route-detail-last-profit" class="calc-param-info-panel-entry">
-                                        <span class="calc-param-info-panel-key">Прибыль с прошлой точки маршрута увеличилась на: <span class="calc-param-info-panel-value"></span> руб</span>                    
-                                     </span>                                 
-
-                                     <span id="i-calc-route-detail-sum-profit" class="calc-param-info-panel-entry">
-                                        <span class="calc-param-info-panel-key">Общая прибыль: <span class="calc-param-info-panel-value"></span> руб</span>                    
-                                     </span>                                 
-                                 </dir>
-
-
-                                 <dir>
-                                     <span id="i-calc-route-detail-last-profit-norm" class="calc-param-info-panel-entry">
-                                        <span class="calc-param-info-panel-key">Норма прибыли за прошлый перегон: <span class="calc-param-info-panel-value"></span> руб/км</span>                    
-                                     </span>                                 
-
-                                     <span id="i-calc-route-detail-profit-norm-avg" class="calc-param-info-panel-entry">
-                                        <span class="calc-param-info-panel-key">Средняя норма прибыли: <span class="calc-param-info-panel-value"></span> руб/км</span>                    
-                                     </span>                                 
-                                 </dir>
-
-                             </td>
-                         </tr>
-                     </tbody>
-                     <tfoot>
-                         <tr id="i-calc-routes-table-foot-total" class="hidden">
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                         </tr>
-                     </tfoot>
-                 </table>
-            </div>
         </div>
     </div>
+
+
+
 </body>
 </html>

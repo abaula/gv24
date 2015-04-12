@@ -193,17 +193,29 @@ class CargoSelectedWebService extends WebServBase
         try
         {
             if(is_null($accountId))
-                $where_sql_definition = $db->parse(' AND user_token_id = ?i ', $userTokenId);
+                $where_sql_definition = $db->parse(' user_token_id = ?i ', $userTokenId);
             else
-                $where_sql_definition = $db->parse(' AND account_id = ?i ', $accountId);
+                $where_sql_definition = $db->parse(' account_id = ?i ', $accountId);
 
-            foreach($data->tasks as $task)
+
+            $ids = AjaxTaskInfoList::GetIds($data->tasks);
+            $idsInSqlString = implode(',', $ids);
+
+
+            // получаем id маршрута для пользователя
+            $sql = 'SELECT id FROM route WHERE ?p';
+            $route_id = $db->getOne($sql, $where_sql_definition);
+
+            if(false != $route_id)
             {
-                // удаляем запись из таблицы выбранных грузов
-                $sql = 'DELETE FROM cargo_selected WHERE cargo_id = ?i ?p';
-
-                $db->query($sql, $task->taskId, $where_sql_definition);
+                // удаляем груз из маршрута
+                $sql = 'DELETE FROM route_point WHERE route_id = ?i AND cargo_id IN (?p)';
+                $db->query($sql, $route_id, $idsInSqlString);
             }
+
+            // удаляем запись из таблицы выбранных грузов
+            $sql = 'DELETE FROM cargo_selected WHERE cargo_id IN (?p) AND ?p';
+            $db->query($sql, $idsInSqlString, $where_sql_definition);
 
 
             $response = new AjaxServerResponse(200, '', '', $data);

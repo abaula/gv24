@@ -43,4 +43,9 @@ module ServerData
     {
         public tasks: AjaxTaskInfo[];
     }
+
+    export class AjaxIdsList
+    {
+        public ids: number[];
+    }
 }

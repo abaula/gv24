@@ -317,9 +317,6 @@ var CargoSelected;
 
         CargoSelectedController.prototype.onAjaxTaskSelectedDataSuccess = function (data, status, jqXHR) {
             //window.console.log("_onAjaxGetAccountDataSuccess");
-            // загрузка компонента произведена успешно
-            CargoSelected.__currentComp.taskData = data.data;
-
             // скрываем иконку загрузки
             CargoSelected.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
         };

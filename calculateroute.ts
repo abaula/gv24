@@ -92,7 +92,7 @@ module CalculateRoute
 
             $.ajax({
                 type: "GET",
-                url: __currentComp.application.getFullUri("api/calculateroute/" + pageNumber.toString()),
+                url: __currentComp.application.getFullUri("api/route/" + pageNumber.toString()),
                 success: __currentComp.onAjaxGetTasksPageDataSuccess,
                 error: __currentComp.onAjaxGetTasksPageDataError
             });
@@ -313,7 +313,41 @@ module CalculateRoute
             var checked: boolean = elem.is(":checked");
             var taskId: number = parseInt(elem.parent().parent().attr("data-id"));
 
-            // TODO добавляем задание в маршрут
+            // создаём список ID обрабатываемых узлов
+            var taskIdsList = new ServerData.AjaxIdsList();
+            taskIdsList.ids = [];
+            taskIdsList.ids.push(taskId); 
+
+
+            // показываем иконку загрузки
+            __currentComp.application.showOverlay("#i-ctrl-overlay", "#i-calc-contents");
+
+            // добавляем задание в маршрут
+            if (checked)
+            {
+                $.ajax({
+                    type: "POST",
+                    url: __currentComp.application.getFullUri("api/route"),
+                    data: JSON.stringify(taskIdsList),
+                    contentType: "application/json",
+                    dataType: "json",
+                    success: __currentComp.onAjaxTaskSelectedDataSuccess,
+                    error: __currentComp.onAjaxTaskSelectedDataError
+                });
+            }
+            // удаляем задание из маршрута
+            else
+            {
+                $.ajax({
+                    type: "DELETE",
+                    url: __currentComp.application.getFullUri("api/route"),
+                    data: JSON.stringify(taskIdsList),
+                    contentType: "application/json",
+                    dataType: "json",
+                    success: __currentComp.onAjaxTaskUnselectedDataSuccess,
+                    error: __currentComp.onAjaxTaskUnselectedDataError
+                });
+            }
 
         }
 
@@ -321,12 +355,17 @@ module CalculateRoute
        
         onAjaxTaskSelectedDataError(jqXHR: JQueryXHR, status: string, message: string): void
         {
-            //window.console.log("_onAjaxError");
+            //window.console.log("onAjaxTaskSelectedDataError");
 
             __currentComp.errorData = <ServerData.AjaxServerResponse>JSON.parse(jqXHR.responseText);
             __currentComp.dataError(__currentComp, __currentComp.errorData);
 
             // TODO обрабатываем ошибки сервера
+
+
+
+            // TODO снимаем галочку у узла в списке
+
 
             // если ошибка "Требуется авторизация", то требуем у Application проверить текущий статус авторизации
             //if (2 == parseInt(__currentTasksProfile.errorData.code))
@@ -334,21 +373,59 @@ module CalculateRoute
 
 
             // скрываем иконку загрузки
-            __currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
+            __currentComp.application.hideOverlay("#i-ctrl-overlay");
 
         }
 
         onAjaxTaskSelectedDataSuccess(data: ServerData.AjaxServerResponse, status: string, jqXHR: JQueryXHR): void
         {
-            //window.console.log("_onAjaxGetAccountDataSuccess");
+            //window.console.log("onAjaxTaskSelectedDataSuccess");
 
-            // загрузка компонента произведена успешно
-            __currentComp.taskData = <ServerData.AjaxTaskList>data.data;
+            // TODO добавление задания в маршрут произведена успешно - необходимо скорректировать таблицу маршрута
 
 
             // скрываем иконку загрузки
-            __currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
+            __currentComp.application.hideOverlay("#i-ctrl-overlay");
         }
+
+
+        onAjaxTaskUnselectedDataError(jqXHR: JQueryXHR, status: string, message: string): void
+        {
+            //window.console.log("onAjaxTaskSelectedDataError");
+
+            __currentComp.errorData = <ServerData.AjaxServerResponse>JSON.parse(jqXHR.responseText);
+            __currentComp.dataError(__currentComp, __currentComp.errorData);
+
+            // TODO обрабатываем ошибки сервера
+
+
+
+            // TODO возвращаем галочку у узла в списке
+
+
+            // если ошибка "Требуется авторизация", то требуем у Application проверить текущий статус авторизации
+            //if (2 == parseInt(__currentTasksProfile.errorData.code))
+            //    __currentTasksProfile.application.checkAuthStatus();
+
+
+            // скрываем иконку загрузки
+            __currentComp.application.hideOverlay("#i-ctrl-overlay");
+
+        }
+
+        onAjaxTaskUnselectedDataSuccess(data: ServerData.AjaxServerResponse, status: string, jqXHR: JQueryXHR): void
+        {
+            //window.console.log("onAjaxTaskSelectedDataSuccess");
+
+            // TODO удаление задания из маршрута произведено успешно - необходимо скорректировать таблицу маршрута
+
+
+            // скрываем иконку загрузки
+            __currentComp.application.hideOverlay("#i-ctrl-overlay");
+        }
+
+
+
 
 
         onPageNavigationClick(event: JQueryEventObject): void

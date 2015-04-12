@@ -371,10 +371,6 @@ module CargoSelected
         {
             //window.console.log("_onAjaxGetAccountDataSuccess");
 
-            // загрузка компонента произведена успешно
-            __currentComp.taskData = <ServerData.AjaxTaskList>data.data;
-
-
             // скрываем иконку загрузки
             __currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
         }

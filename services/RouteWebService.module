@@ -16,23 +16,346 @@ class RouteWebService extends WebServBase
 
     public function onGet($args)
     {
-        // TODO: получаем данные созданного маршрута
+
+        /*
+                         * Возвращаем список выбранных задач для пользователя
+                         *
+                         * */
+
+
+        $accountId = null;
+        $userTokenId = Cookies::getUserTokenId();
+
+        // если пользователь авторизован, то получаем ID акаунта
+        if(true == CurrentUser::isAuthenticated())
+        {
+            $accountId = CurrentUser::getUserId();
+        }
+
+        // возвращаем объекты AjaxTask
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            $page_arg = intval($args[0]);
+            $page = $page_arg > 0 ? $page_arg : 1;
+
+            // TODO Сделать проверку правильности номера страницы полученного с клиента
+
+            $limit = 20;
+            $offset = ($page - 1) * $limit;
+            $allRowCount = 0;
+
+            // получаем количество записей удовлетворяющих условию фильтрации
+            $sql = 'SELECT count(C.id)
+                    FROM cargo C
+                      INNER JOIN cargo_selected CS
+                            ON CS.cargo_id = C.id
+                              AND (CS.account_id = ?i OR CS.user_token_id = ?i)
+                    WHERE C.is_deleted = 0';
+
+            $allRowCount = $db->getOne($sql, $accountId, $userTokenId);
+
+
+            $sql = 'SELECT C.id, GC1.name AS city1, GC2.name AS city2, CT.name AS type,
+                          C.weight, C.value, C.distance, C.cost, C.ready_date
+                    FROM cargo C
+                        INNER JOIN geocities GC1
+                            ON GC1.id = C.city1_id
+                        INNER JOIN geocities GC2
+                            ON GC2.id = C.city2_id
+                        INNER JOIN cargo_type CT
+                            ON CT.id = C.cargo_type_id
+                        INNER JOIN cargo_selected CS
+                            ON CS.cargo_id = C.id
+                              AND (CS.account_id = ?i OR CS.user_token_id = ?i)
+                    WHERE C.is_deleted = 0';
+
+            $result = $db->query($sql, $accountId, $userTokenId);
+            $arr = array();
+
+            if(0 < $db->numRows($result))
+            {
+                while($row = $db->fetch($result))
+                {
+                    $rusReadyDate = Validators::convertMySqlDate2RusDate($row['ready_date']);
+
+                    $entry = new AjaxTask
+                    (
+                        $row['id'], $row['city1'], $row['city2'], $row['type'], $row['weight'], $row['value'], $row['distance'], $row['cost'], $rusReadyDate, false, false
+                    );
+
+                    array_push($arr, $entry);
+                }
+            }
+
+            // на данный момент информацию о страницах не заполняем, т.к. возвращаем все данные
+            $respData = new AjaxTaskList();
+            $respData->offset = $offset;
+            $respData->limit = $limit;
+            $respData->allRowCount = $allRowCount;
+            $respData->page = $page;
+            $respData->tasks = $arr;
+
+            $response = new AjaxServerResponse(200, '', '', $respData);
+            sendHTTPStatus(200);
+            header('Content-type: application/json');
+            echo json_encode($response);
+
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1));
+        }
 
     }
 
+    // Добавляем новую задачу в маршрут
     public function onPost($args, $data)
     {
-        // TODO: пересчитываем данные маршрута
+        // $data = AjaxIdsList
+
+        $idsInSqlString = implode(',', $data->ids);
+
+        $accountId = null;
+        $userTokenId = Cookies::getUserTokenId();
+
+        // если пользователь авторизован, то получаем ID акаунта
+        if(true == CurrentUser::isAuthenticated())
+        {
+            $accountId = CurrentUser::getUserId();
+        }
+
+        // возвращаем объекты AjaxTask
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            if(is_null($accountId))
+                $where_sql_definition = $db->parse(' AND CS.user_token_id = ?i ', $userTokenId);
+            else
+                $where_sql_definition = $db->parse(' AND CS.account_id = ?i ', $accountId);
+
+            // получаем список выбранных грузов - страхуемся от неверных данных
+            $sql = 'SELECT DISTINCT CS.cargo_id, C.city1_id, C.city2_id
+                    FROM cargo_selected CS
+                        INNER JOIN cargo C
+                            ON C.id = CS.cargo_id
+                    WHERE CS.cargo_id IN (?p) ?p';
+
+            $result = $db->query($sql, $idsInSqlString, $where_sql_definition);
+            $arr_cargo = array();
+
+            if(0 < $db->numRows($result))
+            {
+                // модифицируем список переданных идентификаторов
+                $data->ids = array();
+
+                while($row = $db->fetch($result))
+                {
+                    array_push($data->ids, $row['cargo_id']);
+                    $entry = new AjaxTaskShort($row['cargo_id'], $row['city1_id'], $row['city2_id']);
+                    array_push($arr_cargo, $entry);
+                }
+            }
+
+            if(1 > count($arr_cargo))
+            {
+                // возвращаем ошибку
+                $this->returnError(400, array(1014), $data);
+                return;
+            }
+
+
+            $max_order = 0;
+
+            // проверяем, создан ли маршрут и при необходимости создаём его
+            if(is_null($accountId))
+                $where_sql_definition = $db->parse(' user_token_id = ?i ', $userTokenId);
+            else
+                $where_sql_definition = $db->parse(' account_id = ?i ', $accountId);
+
+
+            $sql = 'SELECT id FROM route WHERE ?p';
+
+            $route_id = $db->getOne($sql, $where_sql_definition);
+
+            if(false == $route_id)
+            {
+                // создаём запись маршрута в БД
+                if(is_null($accountId))
+                    $insert_sql_definition = $db->parse(' null, ?i ', $userTokenId);
+                else
+                    $insert_sql_definition = $db->parse(' ?i, null ', $accountId);
+
+
+                $sql = 'INSERT INTO route
+                    (name, account_id, user_token_id)
+                    VALUES
+                    (\'Маршрут по умолчанию\', ?p)';
+
+                $db->query($sql, $insert_sql_definition);
+                $route_id = $db->insertId();
+            }
+            else
+            {
+                // если маршрут уже есть в БД, то проверяем переданные задания на повтор
+                $idsInSqlString = implode(',', $data->ids);
+
+
+                $sql = 'SELECT count(*) FROM route_point
+                        WHERE route_id = ?i AND cargo_id IN(?p)';
+
+                $repeats_num = $db->getOne($sql, $route_id, $idsInSqlString);
+
+                if(0 < $repeats_num)
+                {
+                    // возвращаем ошибку
+                    $this->returnError(400, array(1015), $data);
+                    return;
+                }
+
+                // если маршрут уже есть в БД, то узнаём количество точек в маршруте
+                $sql = 'SELECT max(order_num) FROM route_point WHERE route_id = ?i';
+                $max_order = $db->getOne($sql, $route_id);
+                $max_order++;
+            }
+
+            // вносим все задачи в маршрут
+            foreach ($arr_cargo as $cargo)
+            {
+                // вносим новую задачу в маршрут
+                $sql = 'INSERT INTO route_point (route_id, cargo_id, city_id, order_num)
+                    VALUES (?i, ?i, ?i, ?i)';
+
+                $db->query($sql, $route_id, $cargo->id, $cargo->city1, $max_order++);
+                $db->query($sql, $route_id, $cargo->id, $cargo->city2, $max_order++);
+            }
+
+
+            $response = new AjaxServerResponse(200, '', '', $data);
+            sendHTTPStatus(200);
+            header('Content-type: application/json');
+            echo json_encode($response);
+
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1), $data);
+        }
     }
 
     public function onPut($args, $data)
     {
-        // TODO: Implement onPut() method.
+        // TODO: редактируем порядок маршрутных точек
+
     }
 
+    // Удаляем задачу из маршрута
     public function onDelete($args, $data)
     {
-        // TODO: Implement onDelete() method.
+        // $data = AjaxIdsList
+
+        $idsInSqlString = implode(',', $data->ids);
+
+        $accountId = null;
+        $userTokenId = Cookies::getUserTokenId();
+
+        // если пользователь авторизован, то получаем ID акаунта
+        if(true == CurrentUser::isAuthenticated())
+        {
+            $accountId = CurrentUser::getUserId();
+        }
+
+        // возвращаем объекты AjaxTask
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            if(is_null($accountId))
+                $where_sql_definition = $db->parse(' user_token_id = ?i ', $userTokenId);
+            else
+                $where_sql_definition = $db->parse(' account_id = ?i ', $accountId);
+
+
+            // получаем id маршрута для пользователя
+            $sql = 'SELECT id FROM route WHERE ?p';
+            $route_id = $db->getOne($sql, $where_sql_definition);
+
+            if(false == $route_id)
+            {
+                // возвращаем ошибку
+                $this->returnError(400, array(1014), $data);
+                return;
+            }
+
+            // удаляем указанные маршруты - в данный момент маршрут всегда один поэтому ID маршрута нам не важен
+            $sql = 'DELETE FROM route_point
+                    WHERE route_id = ?i AND cargo_id IN (?p)';
+
+            $db->query($sql, $route_id, $idsInSqlString);
+
+            $response = new AjaxServerResponse(200, '', '', $data);
+            sendHTTPStatus(200);
+            header('Content-type: application/json');
+            echo json_encode($response);
+
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1), $data);
+        }
     }
 
+    /*
+ * Привязываем созданные маршруты к указанному аккаунту
+ *
+ * */
+    public static function mapRouteToAccount($accountId)
+    {
+        $userTokenId = Cookies::getUserTokenId();
+        $db = SqlFactory::getSql();
+
+        // TODO делаем
+        // 1) переносим грузы в маршрут пользователя без дублей
+        // 2) маршрут привязанный к токену после переноса удаляем
+
+        // получаем маршрут привязанный к токену
+        $sql = 'SELECT id FROM route WHERE user_token_id = ?i';
+        $token_route_id = $db->getOne($sql, $userTokenId);
+
+        if(false == $token_route_id)
+        {
+            // маршрута нет, привязывать ничего не нужно
+            return;
+        }
+
+        // получаем маршрут привязанный к пользователю
+        $sql = 'SELECT id FROM route WHERE account_id = ?i';
+        $account_route_id = $db->getOne($sql, $accountId);
+
+        if(false == $account_route_id)
+        {
+            // у пользователя нет маршрута, нужно переключить привязку маршрута от токена к аккаунту
+            $sql = 'UPDATE route SET account_id = ?i, user_token_id = null WHERE id = ?i';
+            $db->query($sql, $accountId, $token_route_id);
+        }
+        else
+        {
+            // TODO переносим задачи из маршрута токена в маршрут аккаунта
+
+
+
+            // TODO удаляем маршрут для токена
+
+
+        }
+
+
+
+
+    }
 }

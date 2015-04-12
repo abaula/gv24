@@ -97,7 +97,7 @@ class AuthWebService extends WebServBase
             // ... 2. верифицируем отложенные грузы
             CargoSelectedWebService::mapSelectedCargoToAccount($accountId);
             // ... 3. верифицируем созданные маршруты
-            CalculateRouteWebService::mapRouteToAccount($accountId);
+            RouteWebService::mapRouteToAccount($accountId);
 
 
             // возвращаем результат

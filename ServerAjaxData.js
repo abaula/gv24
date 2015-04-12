@@ -34,4 +34,11 @@ var ServerData;
         return AjaxTaskInfoList;
     })();
     ServerData.AjaxTaskInfoList = AjaxTaskInfoList;
+
+    var AjaxIdsList = (function () {
+        function AjaxIdsList() {
+        }
+        return AjaxIdsList;
+    })();
+    ServerData.AjaxIdsList = AjaxIdsList;
 })(ServerData || (ServerData = {}));

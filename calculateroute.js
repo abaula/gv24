@@ -74,7 +74,7 @@ var CalculateRoute;
 
             $.ajax({
                 type: "GET",
-                url: CalculateRoute.__currentComp.application.getFullUri("api/calculateroute/" + pageNumber.toString()),
+                url: CalculateRoute.__currentComp.application.getFullUri("api/route/" + pageNumber.toString()),
                 success: CalculateRoute.__currentComp.onAjaxGetTasksPageDataSuccess,
                 error: CalculateRoute.__currentComp.onAjaxGetTasksPageDataError
             });
@@ -273,29 +273,78 @@ else if ("i-page-cargoselected-link" == id)
             var elem = $(event.delegateTarget);
             var checked = elem.is(":checked");
             var taskId = parseInt(elem.parent().parent().attr("data-id"));
-            // TODO добавляем задание в маршрут
+
+            // создаём список ID обрабатываемых узлов
+            var taskIdsList = new ServerData.AjaxIdsList();
+            taskIdsList.ids = [];
+            taskIdsList.ids.push(taskId);
+
+            // показываем иконку загрузки
+            CalculateRoute.__currentComp.application.showOverlay("#i-ctrl-overlay", "#i-calc-contents");
+
+            if (checked) {
+                $.ajax({
+                    type: "POST",
+                    url: CalculateRoute.__currentComp.application.getFullUri("api/route"),
+                    data: JSON.stringify(taskIdsList),
+                    contentType: "application/json",
+                    dataType: "json",
+                    success: CalculateRoute.__currentComp.onAjaxTaskSelectedDataSuccess,
+                    error: CalculateRoute.__currentComp.onAjaxTaskSelectedDataError
+                });
+            } else {
+                $.ajax({
+                    type: "DELETE",
+                    url: CalculateRoute.__currentComp.application.getFullUri("api/route"),
+                    data: JSON.stringify(taskIdsList),
+                    contentType: "application/json",
+                    dataType: "json",
+                    success: CalculateRoute.__currentComp.onAjaxTaskUnselectedDataSuccess,
+                    error: CalculateRoute.__currentComp.onAjaxTaskUnselectedDataError
+                });
+            }
         };
 
         CalculateRouteController.prototype.onAjaxTaskSelectedDataError = function (jqXHR, status, message) {
-            //window.console.log("_onAjaxError");
+            //window.console.log("onAjaxTaskSelectedDataError");
             CalculateRoute.__currentComp.errorData = JSON.parse(jqXHR.responseText);
             CalculateRoute.__currentComp.dataError(CalculateRoute.__currentComp, CalculateRoute.__currentComp.errorData);
 
             // TODO обрабатываем ошибки сервера
+            // TODO снимаем галочку у узла в списке
             // если ошибка "Требуется авторизация", то требуем у Application проверить текущий статус авторизации
             //if (2 == parseInt(__currentTasksProfile.errorData.code))
             //    __currentTasksProfile.application.checkAuthStatus();
             // скрываем иконку загрузки
-            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-overlay");
         };
 
         CalculateRouteController.prototype.onAjaxTaskSelectedDataSuccess = function (data, status, jqXHR) {
-            //window.console.log("_onAjaxGetAccountDataSuccess");
-            // загрузка компонента произведена успешно
-            CalculateRoute.__currentComp.taskData = data.data;
-
+            //window.console.log("onAjaxTaskSelectedDataSuccess");
+            // TODO добавление задания в маршрут произведена успешно - необходимо скорректировать таблицу маршрута
             // скрываем иконку загрузки
-            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-overlay");
+        };
+
+        CalculateRouteController.prototype.onAjaxTaskUnselectedDataError = function (jqXHR, status, message) {
+            //window.console.log("onAjaxTaskSelectedDataError");
+            CalculateRoute.__currentComp.errorData = JSON.parse(jqXHR.responseText);
+            CalculateRoute.__currentComp.dataError(CalculateRoute.__currentComp, CalculateRoute.__currentComp.errorData);
+
+            // TODO обрабатываем ошибки сервера
+            // TODO возвращаем галочку у узла в списке
+            // если ошибка "Требуется авторизация", то требуем у Application проверить текущий статус авторизации
+            //if (2 == parseInt(__currentTasksProfile.errorData.code))
+            //    __currentTasksProfile.application.checkAuthStatus();
+            // скрываем иконку загрузки
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-overlay");
+        };
+
+        CalculateRouteController.prototype.onAjaxTaskUnselectedDataSuccess = function (data, status, jqXHR) {
+            //window.console.log("onAjaxTaskSelectedDataSuccess");
+            // TODO удаление задания из маршрута произведено успешно - необходимо скорректировать таблицу маршрута
+            // скрываем иконку загрузки
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-overlay");
         };
 
         CalculateRouteController.prototype.onPageNavigationClick = function (event) {

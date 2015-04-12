@@ -16,104 +16,13 @@ class CalculateRouteWebService extends WebServBase
 
     public function onGet($args)
     {
-        /*
-                 * Возвращаем список выбранных задач для пользователя
-                 *
-                 * */
+        // TODO: получаем данные созданного маршрута
 
-
-        $accountId = null;
-        $userTokenId = Cookies::getUserTokenId();
-
-        // если пользователь авторизован, то получаем ID акаунта
-        if(true == CurrentUser::isAuthenticated())
-        {
-            $accountId = CurrentUser::getUserId();
-        }
-
-        // возвращаем объекты AjaxTask
-        $db = SqlFactory::getSql();
-
-        try
-        {
-            $page_arg = intval($args[0]);
-            $page = $page_arg > 0 ? $page_arg : 1;
-
-            // TODO Сделать проверку правильности номера страницы полученного с клиента
-
-            $limit = 20;
-            $offset = ($page - 1) * $limit;
-            $allRowCount = 0;
-
-            // получаем количество записей удовлетворяющих условию фильтрации
-            $sql = 'SELECT count(C.id)
-                    FROM cargo C
-                      INNER JOIN cargo_selected CS
-                            ON CS.cargo_id = C.id
-                              AND (CS.account_id = ?i OR CS.user_token_id = ?i)
-                    WHERE C.is_deleted = 0';
-
-            $allRowCount = $db->getOne($sql, $accountId, $userTokenId);
-
-
-            $sql = 'SELECT C.id, GC1.name AS city1, GC2.name AS city2, CT.name AS type,
-                          C.weight, C.value, C.distance, C.cost, C.ready_date
-                    FROM cargo C
-                        INNER JOIN geocities GC1
-                            ON GC1.id = C.city1_id
-                        INNER JOIN geocities GC2
-                            ON GC2.id = C.city2_id
-                        INNER JOIN cargo_type CT
-                            ON CT.id = C.cargo_type_id
-                        INNER JOIN cargo_selected CS
-                            ON CS.cargo_id = C.id
-                              AND (CS.account_id = ?i OR CS.user_token_id = ?i)
-                    WHERE C.is_deleted = 0';
-
-            $result = $db->query($sql, $accountId, $userTokenId);
-            $arr = array();
-
-            if(0 < $db->numRows($result))
-            {
-                $arr = array();
-
-                while($row = $db->fetch($result))
-                {
-                    $rusReadyDate = Validators::convertMySqlDate2RusDate($row['ready_date']);
-
-                    $entry = new AjaxTask
-                    (
-                        $row['id'], $row['city1'], $row['city2'], $row['type'], $row['weight'], $row['value'], $row['distance'], $row['cost'], $rusReadyDate, false, false
-                    );
-
-                    array_push($arr, $entry);
-                }
-            }
-
-            // на данный момент информацию о страницах не заполняем, т.к. возвращаем все данные
-            $respData = new AjaxTaskList();
-            $respData->offset = $offset;
-            $respData->limit = $limit;
-            $respData->allRowCount = $allRowCount;
-            $respData->page = $page;
-            $respData->tasks = $arr;
-
-            $response = new AjaxServerResponse(200, '', '', $respData);
-            sendHTTPStatus(200);
-            header('Content-type: application/json');
-            echo json_encode($response);
-
-        }
-        catch(Exception $ex)
-        {
-            Log::writeSqlExeption($db, $ex);
-            $this->returnError(500, array(1));
-        }
     }
 
     public function onPost($args, $data)
     {
-        // TODO: Добавляем новую задачу в маршрут
+        // TODO: пересчитываем данные маршрута
 
 
 
@@ -122,7 +31,7 @@ class CalculateRouteWebService extends WebServBase
 
     public function onPut($args, $data)
     {
-        // TODO: редактируем порядок маршрутных точек
+
 
 
 
@@ -131,17 +40,10 @@ class CalculateRouteWebService extends WebServBase
 
     public function onDelete($args, $data)
     {
-        // TODO: Удаляем задачу из маршрута
+
 
     }
 
 
-    /*
-     * Привязываем созданные маршруты к указанному аккаунту
-     *
-     * */
-    public static function mapRouteToAccount($accountId)
-    {
-        // TODO делаем
-    }
+
 }
