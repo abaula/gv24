@@ -57,8 +57,8 @@ class RouteWebService extends WebServBase
             $allRowCount = $db->getOne($sql, $accountId, $userTokenId);
 
 
-            $sql = 'SELECT C.id, GC1.name AS city1, GC2.name AS city2, CT.name AS type,
-                          C.weight, C.value, C.distance, C.cost, C.ready_date
+            $sql = 'SELECT DISTINCT C.id, GC1.name AS city1, GC2.name AS city2, CT.name AS type,
+                          C.weight, C.value, C.distance, C.cost, C.ready_date, CS.id AS selectedId, RP.cargo_selected_id AS route_point_cargo_selected_id
                     FROM cargo C
                         INNER JOIN geocities GC1
                             ON GC1.id = C.city1_id
@@ -69,6 +69,8 @@ class RouteWebService extends WebServBase
                         INNER JOIN cargo_selected CS
                             ON CS.cargo_id = C.id
                               AND (CS.account_id = ?i OR CS.user_token_id = ?i)
+                        LEFT OUTER JOIN route_point RP
+                            ON RP.cargo_selected_id = CS.id
                     WHERE C.is_deleted = 0';
 
             $result = $db->query($sql, $accountId, $userTokenId);
@@ -79,10 +81,11 @@ class RouteWebService extends WebServBase
                 while($row = $db->fetch($result))
                 {
                     $rusReadyDate = Validators::convertMySqlDate2RusDate($row['ready_date']);
+                    $selected = intval($row['route_point_cargo_selected_id']) > 0;
 
                     $entry = new AjaxTask
                     (
-                        $row['id'], $row['city1'], $row['city2'], $row['type'], $row['weight'], $row['value'], $row['distance'], $row['cost'], $rusReadyDate, false, false
+                        $row['id'], $row['city1'], $row['city2'], $row['type'], $row['weight'], $row['value'], $row['distance'], $row['cost'], $rusReadyDate, $selected, $row['selectedId']
                     );
 
                     array_push($arr, $entry);
@@ -138,7 +141,7 @@ class RouteWebService extends WebServBase
                 $where_sql_definition = $db->parse(' AND CS.account_id = ?i ', $accountId);
 
             // получаем список выбранных грузов - страхуемся от неверных данных
-            $sql = 'SELECT DISTINCT CS.cargo_id, C.city1_id, C.city2_id
+            $sql = 'SELECT DISTINCT CS.id, CS.cargo_id, C.city1_id, C.city2_id
                     FROM cargo_selected CS
                         INNER JOIN cargo C
                             ON C.id = CS.cargo_id
@@ -149,13 +152,13 @@ class RouteWebService extends WebServBase
 
             if(0 < $db->numRows($result))
             {
-                // модифицируем список переданных идентификаторов
+                // модифицируем список переданных идентификаторов - вносим только корректные идентификаторы
                 $data->ids = array();
 
                 while($row = $db->fetch($result))
                 {
                     array_push($data->ids, $row['cargo_id']);
-                    $entry = new AjaxTaskShort($row['cargo_id'], $row['city1_id'], $row['city2_id']);
+                    $entry = new AjaxTaskShort($row['id'], $row['city1_id'], $row['city2_id']);
                     array_push($arr_cargo, $entry);
                 }
             }
@@ -205,7 +208,7 @@ class RouteWebService extends WebServBase
 
 
                 $sql = 'SELECT count(*) FROM route_point
-                        WHERE route_id = ?i AND cargo_id IN(?p)';
+                        WHERE route_id = ?i AND cargo_selected_id IN(?p)';
 
                 $repeats_num = $db->getOne($sql, $route_id, $idsInSqlString);
 
@@ -217,7 +220,7 @@ class RouteWebService extends WebServBase
                 }
 
                 // если маршрут уже есть в БД, то узнаём количество точек в маршруте
-                $sql = 'SELECT max(order_num) FROM route_point WHERE route_id = ?i';
+                $sql = 'SELECT ifnull(max(order_num),0) FROM route_point WHERE route_id = ?i';
                 $max_order = $db->getOne($sql, $route_id);
                 $max_order++;
             }
@@ -226,7 +229,7 @@ class RouteWebService extends WebServBase
             foreach ($arr_cargo as $cargo)
             {
                 // вносим новую задачу в маршрут
-                $sql = 'INSERT INTO route_point (route_id, cargo_id, city_id, order_num)
+                $sql = 'INSERT INTO route_point (route_id, cargo_selected_id, city_id, order_num)
                     VALUES (?i, ?i, ?i, ?i)';
 
                 $db->query($sql, $route_id, $cargo->id, $cargo->city1, $max_order++);
@@ -280,7 +283,7 @@ class RouteWebService extends WebServBase
                 $where_sql_definition = $db->parse(' account_id = ?i ', $accountId);
 
 
-            // получаем id маршрута для пользователя
+            // 1. получаем id маршрута для пользователя
             $sql = 'SELECT id FROM route WHERE ?p';
             $route_id = $db->getOne($sql, $where_sql_definition);
 
@@ -291,10 +294,8 @@ class RouteWebService extends WebServBase
                 return;
             }
 
-            // удаляем указанные маршруты - в данный момент маршрут всегда один поэтому ID маршрута нам не важен
-            $sql = 'DELETE FROM route_point
-                    WHERE route_id = ?i AND cargo_id IN (?p)';
-
+            // 2. удаляем указанные маршруты
+            $sql = 'DELETE FROM route_point WHERE route_id = ?i AND cargo_selected_id IN (?p)';
             $db->query($sql, $route_id, $idsInSqlString);
 
             $response = new AjaxServerResponse(200, '', '', $data);
@@ -346,12 +347,57 @@ class RouteWebService extends WebServBase
         else
         {
             // TODO переносим задачи из маршрута токена в маршрут аккаунта
+            $ids_to_delete = array();
+            $ids_to_move = array();
 
 
+            // получаем все задачи из маршрута токена, которых нет в маршруте аккаунта
+            $sql = 'SELECT RP_TOKEN.id, RP_TOKEN.cargo_id, RP_ACCOUNT.id AS account_route_point_id
+                    FROM route_point RP_TOKEN
+                        LEFT OUTER JOIN route_point RP_ACCOUNT
+                            ON RP_ACCOUNT.cargo_id = RP_TOKEN.cargo_id
+                                AND RP_ACCOUNT.route_id = ?i
+                                AND RP_TOKEN.route_id = ?i
+                    ORDER BY RP_TOKEN.order_num';
 
-            // TODO удаляем маршрут для токена
+            $result = $db->query($sql, $account_route_id, $token_route_id);
 
+            while($row = $db->fetch($result))
+            {
+                if(is_null($row['account_route_point_id']))
+                {
+                    array_push($ids_to_move, $row['id']);
+                }
+                else
+                {
+                    array_push($ids_to_delete, $row['id']);
+                }
+            }
 
+            // получаем максимальный номер точки в маршруте аккаунта
+            $sql = 'SELECT ifnull(max(order_num),0) FROM route_point WHERE route_id = ?i';
+            $max_order = $db->getOne($sql, $account_route_id);
+            $max_order++;
+
+            // переносим точки маршрута в маршрут аккаунта
+            $sql = 'UPDATE route_point
+                        SET route_id = ?i, order_num = ?i
+                    WHERE route_id = ?i AND id = ?i';
+
+            foreach($ids_to_move as $id)
+            {
+                $db->query($sql, $account_route_id, $max_order++, $token_route_id, $id);
+            }
+
+            // TODO удаляем точки из маршрут для токена
+            $idsInSqlString = implode(',', $ids_to_delete);
+
+            $sql = 'DELETE FROM route_point WHERE id IN (?p)';
+            $db->query($sql, $idsInSqlString);
+
+            // TODO удаляем маршрут токена
+            $sql = 'DELETE FROM route WHERE user_token_id = ?i';
+            $db->query($sql, $token_route_id);
         }
 
 

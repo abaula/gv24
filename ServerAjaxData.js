@@ -1,4 +1,4 @@
-var ServerData;
+﻿var ServerData;
 (function (ServerData) {
     var AjaxServerResponse = (function () {
         function AjaxServerResponse() {

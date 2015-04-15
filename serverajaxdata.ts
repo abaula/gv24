@@ -14,6 +14,7 @@ module ServerData
     export class AjaxTask
     {
         public id: number;
+        public selectedId: number;
         public city1: string;
         public city2: string;
         public type: string;

@@ -92,13 +92,7 @@ class AuthWebService extends WebServBase
             CurrentUser::setUser($accountId, $accountName);
 
             // Выполняем действия после авторизации пользователя
-            // ... 1. привязываем cookie к акаунту
-            Cookies::mapAccountToUserToken($accountId);
-            // ... 2. верифицируем отложенные грузы
-            CargoSelectedWebService::mapSelectedCargoToAccount($accountId);
-            // ... 3. верифицируем созданные маршруты
-            RouteWebService::mapRouteToAccount($accountId);
-
+            $this->_postAuthorizationRoutine($accountId);
 
             // возвращаем результат
             $respData = new AjaxAuthResponse($accountName);
@@ -141,4 +135,32 @@ class AuthWebService extends WebServBase
             sendHTTPStatus(424);
         }
     }
+
+    private function _postAuthorizationRoutine($accountId)
+    {
+        // 1. привязываем cookie к акаунту
+        Cookies::mapAccountToUserToken($accountId);
+
+        // 2. переносим записи из cargo_selected
+
+        // 3. переносим записи из route_point
+
+        // 4. переносим записи из route
+
+        // 5. удаляем записи из route_point
+
+        // 6. удаляем записи из route
+
+        // 7. удаляем записи из cargo_selected
+
+
+
+        // ... 2. верифицируем отложенные грузы и созданые маршруты
+        CargoSelectedWebService::mapSelectedCargoToAccount($accountId);
+        // ... 3. верифицируем созданные маршруты
+        RouteWebService::mapRouteToAccount($accountId);
+
+    }
+
+
 }

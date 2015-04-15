@@ -230,6 +230,7 @@ class AjaxVehicle
 class AjaxTask
 {
     public $id;
+    public $selectedId;
     public $city1;
     public $city2;
     public $type;
@@ -240,9 +241,10 @@ class AjaxTask
     public $readyDate;
     public $selected;
 
-    function __construct($id, $city1, $city2, $type, $distance, $value, $weight, $cost, $readyDate, $selected)
+    function __construct($id, $city1, $city2, $type, $distance, $value, $weight, $cost, $readyDate, $selected, $selectedId = 0)
     {
         $this->id = $id;
+        $this->selectedId = $selectedId;
         $this->city1 = $city1;
         $this->city2 = $city2;
         $this->type = $type;

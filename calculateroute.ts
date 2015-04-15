@@ -171,6 +171,7 @@ module CalculateRoute
                 row.removeAttr("id").removeClass("hidden");
 
                 row.attr("data-id", task.id);
+                row.attr("data-selected-id", task.selectedId);
                 $("td.c-ctrl-tasks-table-cell-chk > :checkbox", row).prop("checked", task.selected);
                 $("td.c-ctrl-tasks-table-cell-num", row).text(task.id);
                 $("td.c-ctrl-tasks-table-cell-from", row).text(task.city1);
@@ -312,12 +313,11 @@ module CalculateRoute
             var elem: JQuery = $(event.delegateTarget);
             var checked: boolean = elem.is(":checked");
             var taskId: number = parseInt(elem.parent().parent().attr("data-id"));
+            var taskSelectedId: number = parseInt(elem.parent().parent().attr("data-selected-id"));
 
             // создаём список ID обрабатываемых узлов
             var taskIdsList = new ServerData.AjaxIdsList();
             taskIdsList.ids = [];
-            taskIdsList.ids.push(taskId); 
-
 
             // показываем иконку загрузки
             __currentComp.application.showOverlay("#i-ctrl-overlay", "#i-calc-contents");
@@ -325,6 +325,8 @@ module CalculateRoute
             // добавляем задание в маршрут
             if (checked)
             {
+                taskIdsList.ids.push(taskId); 
+
                 $.ajax({
                     type: "POST",
                     url: __currentComp.application.getFullUri("api/route"),
@@ -338,6 +340,8 @@ module CalculateRoute
             // удаляем задание из маршрута
             else
             {
+                taskIdsList.ids.push(taskSelectedId); 
+
                 $.ajax({
                     type: "DELETE",
                     url: __currentComp.application.getFullUri("api/route"),

@@ -56,7 +56,7 @@ class CargoSelectedWebService extends WebServBase
 
 
             $sql = 'SELECT C.id, GC1.name AS city1, GC2.name AS city2, CT.name AS type,
-                          C.weight, C.value, C.distance, C.cost, C.ready_date
+                          C.weight, C.value, C.distance, C.cost, C.ready_date, CS.id AS selectedId
                     FROM cargo C
                         INNER JOIN geocities GC1
                             ON GC1.id = C.city1_id
@@ -82,7 +82,7 @@ class CargoSelectedWebService extends WebServBase
 
                     $entry = new AjaxTask
                     (
-                        $row['id'], $row['city1'], $row['city2'], $row['type'], $row['weight'], $row['value'], $row['distance'], $row['cost'], $rusReadyDate, false, false
+                        $row['id'], $row['city1'], $row['city2'], $row['type'], $row['weight'], $row['value'], $row['distance'], $row['cost'], $rusReadyDate, true, $row['selectedId']
                     );
 
                     array_push($arr, $entry);
@@ -197,25 +197,37 @@ class CargoSelectedWebService extends WebServBase
             else
                 $where_sql_definition = $db->parse(' account_id = ?i ', $accountId);
 
-
+            // 1. получаем все идентификаторы записей выбранных грузов для удаления
             $ids = AjaxTaskInfoList::GetIds($data->tasks);
             $idsInSqlString = implode(',', $ids);
 
+            $sql = 'SELECT id FROM cargo_selected WHERE cargo_id IN(?p) AND ?p';
+            $result = $db->query($sql, $idsInSqlString, $where_sql_definition);
 
-            // получаем id маршрута для пользователя
+            $ids_to_delete  = array();
+
+            while($row = $db->fetch($result))
+            {
+                array_push($ids_to_delete, $row['id']);
+            }
+
+            // 2. создаём список идентификаторов записей выбранных задач
+            $cargo_selected_idsInSqlString = implode(',', $ids_to_delete);
+
+            // 3. получаем id маршрута для пользователя
             $sql = 'SELECT id FROM route WHERE ?p';
             $route_id = $db->getOne($sql, $where_sql_definition);
 
             if(false != $route_id)
             {
-                // удаляем груз из маршрута
-                $sql = 'DELETE FROM route_point WHERE route_id = ?i AND cargo_id IN (?p)';
-                $db->query($sql, $route_id, $idsInSqlString);
+                // 4. удаляем груз из маршрута
+                $sql = 'DELETE FROM route_point WHERE route_id = ?i AND cargo_selected_id IN (?p)';
+                $db->query($sql, $route_id, $cargo_selected_idsInSqlString);
             }
 
-            // удаляем запись из таблицы выбранных грузов
-            $sql = 'DELETE FROM cargo_selected WHERE cargo_id IN (?p) AND ?p';
-            $db->query($sql, $idsInSqlString, $where_sql_definition);
+            // 5. удаляем запись из таблицы выбранных грузов
+            $sql = 'DELETE FROM cargo_selected WHERE id IN (?p) AND ?p';
+            $db->query($sql, $cargo_selected_idsInSqlString, $where_sql_definition);
 
 
             $response = new AjaxServerResponse(200, '', '', $data);

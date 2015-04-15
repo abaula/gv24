@@ -137,6 +137,7 @@ var CargoSelected;
                 row.removeAttr("id").removeClass("hidden");
 
                 row.attr("data-id", task.id);
+                row.attr("data-selected-id", task.selectedId);
                 $("td.c-ctrl-tasks-table-cell-chk > :checkbox", row).prop("checked", task.selected);
                 $("td.c-ctrl-tasks-table-cell-num", row).text(task.id);
                 $("td.c-ctrl-tasks-table-cell-from", row).text(task.city1);
