@@ -46,15 +46,21 @@ class RouteWebService extends WebServBase
             $offset = ($page - 1) * $limit;
             $allRowCount = 0;
 
+            if(is_null($accountId))
+                $where_sql_definition = $db->parse(' CS.user_token_id = ?i ', $userTokenId);
+            else
+                $where_sql_definition = $db->parse(' CS.account_id = ?i ', $accountId);
+
+
             // получаем количество записей удовлетворяющих условию фильтрации
             $sql = 'SELECT count(C.id)
                     FROM cargo C
                       INNER JOIN cargo_selected CS
                             ON CS.cargo_id = C.id
-                              AND (CS.account_id = ?i OR CS.user_token_id = ?i)
+                              AND ?p
                     WHERE C.is_deleted = 0';
 
-            $allRowCount = $db->getOne($sql, $accountId, $userTokenId);
+            $allRowCount = $db->getOne($sql, $where_sql_definition);
 
 
             $sql = 'SELECT DISTINCT C.id, GC1.name AS city1, GC2.name AS city2, CT.name AS type,
@@ -68,12 +74,12 @@ class RouteWebService extends WebServBase
                             ON CT.id = C.cargo_type_id
                         INNER JOIN cargo_selected CS
                             ON CS.cargo_id = C.id
-                              AND (CS.account_id = ?i OR CS.user_token_id = ?i)
+                              AND ?p
                         LEFT OUTER JOIN route_point RP
                             ON RP.cargo_selected_id = CS.id
                     WHERE C.is_deleted = 0';
 
-            $result = $db->query($sql, $accountId, $userTokenId);
+            $result = $db->query($sql, $where_sql_definition);
             $arr = array();
 
             if(0 < $db->numRows($result))
@@ -311,97 +317,5 @@ class RouteWebService extends WebServBase
         }
     }
 
-    /*
- * Привязываем созданные маршруты к указанному аккаунту
- *
- * */
-    public static function mapRouteToAccount($accountId)
-    {
-        $userTokenId = Cookies::getUserTokenId();
-        $db = SqlFactory::getSql();
 
-        // TODO делаем
-        // 1) переносим грузы в маршрут пользователя без дублей
-        // 2) маршрут привязанный к токену после переноса удаляем
-
-        // получаем маршрут привязанный к токену
-        $sql = 'SELECT id FROM route WHERE user_token_id = ?i';
-        $token_route_id = $db->getOne($sql, $userTokenId);
-
-        if(false == $token_route_id)
-        {
-            // маршрута нет, привязывать ничего не нужно
-            return;
-        }
-
-        // получаем маршрут привязанный к пользователю
-        $sql = 'SELECT id FROM route WHERE account_id = ?i';
-        $account_route_id = $db->getOne($sql, $accountId);
-
-        if(false == $account_route_id)
-        {
-            // у пользователя нет маршрута, нужно переключить привязку маршрута от токена к аккаунту
-            $sql = 'UPDATE route SET account_id = ?i, user_token_id = null WHERE id = ?i';
-            $db->query($sql, $accountId, $token_route_id);
-        }
-        else
-        {
-            // TODO переносим задачи из маршрута токена в маршрут аккаунта
-            $ids_to_delete = array();
-            $ids_to_move = array();
-
-
-            // получаем все задачи из маршрута токена, которых нет в маршруте аккаунта
-            $sql = 'SELECT RP_TOKEN.id, RP_TOKEN.cargo_id, RP_ACCOUNT.id AS account_route_point_id
-                    FROM route_point RP_TOKEN
-                        LEFT OUTER JOIN route_point RP_ACCOUNT
-                            ON RP_ACCOUNT.cargo_id = RP_TOKEN.cargo_id
-                                AND RP_ACCOUNT.route_id = ?i
-                                AND RP_TOKEN.route_id = ?i
-                    ORDER BY RP_TOKEN.order_num';
-
-            $result = $db->query($sql, $account_route_id, $token_route_id);
-
-            while($row = $db->fetch($result))
-            {
-                if(is_null($row['account_route_point_id']))
-                {
-                    array_push($ids_to_move, $row['id']);
-                }
-                else
-                {
-                    array_push($ids_to_delete, $row['id']);
-                }
-            }
-
-            // получаем максимальный номер точки в маршруте аккаунта
-            $sql = 'SELECT ifnull(max(order_num),0) FROM route_point WHERE route_id = ?i';
-            $max_order = $db->getOne($sql, $account_route_id);
-            $max_order++;
-
-            // переносим точки маршрута в маршрут аккаунта
-            $sql = 'UPDATE route_point
-                        SET route_id = ?i, order_num = ?i
-                    WHERE route_id = ?i AND id = ?i';
-
-            foreach($ids_to_move as $id)
-            {
-                $db->query($sql, $account_route_id, $max_order++, $token_route_id, $id);
-            }
-
-            // TODO удаляем точки из маршрут для токена
-            $idsInSqlString = implode(',', $ids_to_delete);
-
-            $sql = 'DELETE FROM route_point WHERE id IN (?p)';
-            $db->query($sql, $idsInSqlString);
-
-            // TODO удаляем маршрут токена
-            $sql = 'DELETE FROM route WHERE user_token_id = ?i';
-            $db->query($sql, $token_route_id);
-        }
-
-
-
-
-    }
 }

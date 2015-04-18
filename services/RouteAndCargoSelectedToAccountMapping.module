@@ -1,0 +1,319 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 17.04.15
+ * Time: 18:42
+ * To change this template use File | Settings | File Templates.
+ */
+
+
+class RoutePointMap
+{
+    public $id;
+    public $route_id;
+    public $cargo_selected_id;
+    public $order_num;
+
+    function __construct($id, $route_id, $cargo_selected_id, $order_num)
+    {
+        $this->id = $id;
+        $this->route_id = $route_id;
+        $this->cargo_selected_id = $cargo_selected_id;
+        $this->order_num = $order_num;
+    }
+}
+
+
+
+class RouteAndCargoSelectedToAccountMapping
+{
+    /*
+     * Алгоритм действий такой:
+     * 1) переносим из токена в акаунт все данные, которых нет в акаунте
+     * 2) все данные, которые не перенесли, удаляем из токена
+     *
+     * */
+    public static function MapTokenDataToAccount($userTokenId, $accountId)
+    {
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            $db->query("START TRANSACTION");
+
+            // 1. Создаём карту привязок точек маршрута к акаунту
+            // ... 1.1 получаем данные о маршрутных точках из токена пользователя
+            $routePointMaps = self::_getRoutePointMappingByUserToken($userTokenId, $db);
+
+            if(0 < count($routePointMaps))
+            {
+                // ... 1.2 удаляем данные о маршрутных точках, которые уже есть в аккаунте пользователя
+                // Результат: имеем список маршрутных точек, которых нет в акаунте и которые нужно добавить в акаунт
+                self::_deleteRoutePointMappingIfExistsInAccount($routePointMaps, $accountId, $db);
+
+                // ... 1.3 заменяем cargo_selected_id на аналоги из акаунта, если такие есть в акаунте
+                self::_updateCargoSelectedMappingIfExistsInAccount($routePointMaps, $accountId, $db);
+
+                // ... 1.4 заменяем route_id на аналоги из акаунта, при необходимости создаём route для акаунта
+                self::_updateRouteMappingForAccount($routePointMaps, $accountId, $db);
+
+                // ... 1.5 обновляем order_num - новые записи для акаунта должны попасть в конец маршрута
+                self::_updateOrderMappingForAccount($routePointMaps, $accountId, $db);
+
+                // 2. Обновляем route_point
+                self::_updateRoutePointForAccount($routePointMaps, $accountId, $db);
+            }
+
+            // 3. Обновляем cargo_selected
+            self::_updateCargoSelectedForAccount($userTokenId, $accountId, $db);
+
+            // 4. Удаляем route_point для токена - всё, что осталось привязанным к токену, удаляется
+            self::_deleteRoutePointFromToken($userTokenId, $db);
+
+            // 5. Удаляем cargo_selected для токена - всё, что осталось привязанным к токену, удаляется
+            self::_deleteCargoSelectedFromToken($userTokenId, $db);
+
+            // 6. Удаляем route для токена
+            self::_deleteRouteFromToken($userTokenId, $db);
+
+            $db->query("COMMIT");
+        }
+        catch(Exception $ex)
+        {
+            $db->query("ROLLBACK");
+            throw new Exception('Ошибка при переносе данных', 0, $ex);
+        }
+    }
+
+    private static function _deleteRouteFromToken($userTokenId, $db)
+    {
+        $sql = 'DELETE FROM route WHERE user_token_id = ?i AND account_id is null';
+        $db->query($sql, $userTokenId);
+    }
+
+
+    private static function _deleteCargoSelectedFromToken($userTokenId, $db)
+    {
+        $sql = 'DELETE FROM cargo_selected WHERE user_token_id = ?i AND account_id is null';
+        $db->query($sql, $userTokenId);
+    }
+
+
+
+    private static function _deleteRoutePointFromToken($userTokenId, $db)
+    {
+        $sql = 'DELETE D
+                FROM route_point D
+	              INNER JOIN route R
+		            ON R.id = D.route_id
+			          AND R.user_token_id = ?i';
+
+        $db->query($sql, $userTokenId);
+    }
+
+    private static function _updateCargoSelectedForAccount($userTokenId, $accountId, $db)
+    {
+        // 1. Получаем id записей выбранных грузов из токена, которых нет в акаунте, для их переноса в акаунт
+        $sql = 'SELECT UT_CS.id AS token_cargo_selected_id, AC_CS.id AS account_cargo_selected_id
+                FROM cargo_selected UT_CS
+                  LEFT OUTER JOIN cargo_selected AC_CS
+                    ON AC_CS.cargo_id = UT_CS.cargo_id
+                      AND AC_CS.account_id = ?i
+                      AND UT_CS.user_token_id = ?i';
+
+        $result = $db->query($sql, $accountId, $userTokenId);
+
+        if(0 < $db->numRows($result))
+        {
+            // список выбранных грузов, которых нет в акаунте
+            $arr_ids = array();
+
+            while($row = $db->fetch($result))
+            {
+                $accountCargoSelectedId = $row['account_cargo_selected_id'];
+                $tokenCargoSelectedId = $row['token_cargo_selected_id'];
+
+                if(is_null($accountCargoSelectedId))
+                {
+                    array_push($arr_ids, $tokenCargoSelectedId);
+                }
+            }
+
+            // 2. привязываем выбранные грузы к акаунту
+            foreach($arr_ids as $id)
+            {
+                $sql = 'UPDATE cargo_selected
+                            SET account_id = ?i, user_token_id = null
+                        WHERE id = ?i';
+
+                $db->query($sql, $accountId, $id);
+            }
+        }
+    }
+
+
+
+    private static function _updateRoutePointForAccount(&$routePointMaps, $accountId, $db)
+    {
+        foreach($routePointMaps as $map)
+        {
+            $sql = 'UPDATE route_point
+                      SET route_id = ?i, cargo_selected_id = ?i, order_num = ?i
+                    WHERE id = ?i';
+
+            $db->query($sql, $map->route_id, $map->cargo_selected_id, $map->order_num, $map->id);
+        }
+    }
+
+    private static function _updateOrderMappingForAccount(&$routePointMaps, $accountId, $db)
+    {
+        // 1. получаем максимальный order в маршруте акаунта
+        $sql = 'SELECT ifnull(max(RP.order_num),0)
+                FROM route_point RP
+                    INNER JOIN route R
+                        ON R.id = RP.route_id
+                            AND R.account_id = ?i';
+        $max_order = $db->getOne($sql, $accountId);
+        $max_order++;
+
+        // 2. обновляем порядковый номер в карте
+        foreach($routePointMaps as $map)
+        {
+            $map->order_num = $max_order++;
+        }
+    }
+
+    private static function _updateRouteMappingForAccount(&$routePointMaps, $accountId, $db)
+    {
+        // 1. получаем id маршрута для акаунта
+        $sql = 'SELECT id FROM route WHERE account_id = ?i';
+        $accountRouteId = $db->getOne($sql, $accountId);
+
+        // 2. если маршрут отсутствует, то создаём его
+        if(false == $accountRouteId)
+        {
+            $sql = 'INSERT INTO route (name, account_id, user_token_id)
+                    VALUES (\'Маршрут по умолчанию\', ?i, null)';
+
+            $db->query($sql, $accountId);
+            $accountRouteId = $db->insertId();
+        }
+
+        // 3. обновляем id маршрута в карте
+        foreach($routePointMaps as $map)
+        {
+            $map->route_id = $accountRouteId;
+        }
+    }
+
+
+    private static function _updateCargoSelectedMappingIfExistsInAccount(&$routePointMaps, $accountId, $db)
+    {
+        // 1. Получаем ссылки на выбранные грузы из акаунта, которые присутствуют в токене
+        $sql = 'SELECT AC_CS.id as account_cargo_selected_id,
+                      UT_CS.id as user_token_cargo_selected_id
+                FROM cargo_selected AC_CS
+                  INNER JOIN cargo_selected UT_CS
+                    ON UT_CS.cargo_id = AC_CS.cargo_id
+                      AND AC_CS.account_id = ?i
+                      AND UT_CS.id IN (?p)';
+
+        $cargoSelectedIds = self::_getCargoSelectedIds($routePointMaps);
+        $routePointInSqlString = implode(',', $cargoSelectedIds);
+
+        $result = $db->query($sql, $accountId, $routePointInSqlString);
+
+        if(0 < $db->numRows($result))
+        {
+            // 2. обновляем маршрутные точки в карте - из токена на акаунт
+            while($row = $db->fetch($result))
+            {
+                $accountCargoSelectedId = $row['account_cargo_selected_id'];
+                $tokenCargoSelectedId = $row['user_token_cargo_selected_id'];
+
+                foreach($routePointMaps as $map)
+                {
+                    if($tokenCargoSelectedId == $map->cargo_selected_id)
+                    {
+                        $map->cargo_selected_id = $accountCargoSelectedId;
+                    }
+                }
+            }
+        }
+    }
+
+
+    private static function _deleteRoutePointMappingIfExistsInAccount(&$routePointMaps, $accountId, $db)
+    {
+        // 1. получаем точки маршрута которые есть и в акаунте и в токене
+        $sql = 'SELECT UT_RP.id
+                FROM route_point AC_RP
+                  INNER JOIN cargo_selected AC_CS
+                    ON AC_CS.id = AC_RP.cargo_selected_id
+                      AND AC_CS.account_id = ?i
+                  INNER JOIN cargo_selected UT_CS
+                    ON UT_CS.cargo_id = AC_CS.cargo_id
+                      AND UT_CS.id IN(?p)
+                  INNER JOIN route_point UT_RP
+                    ON UT_RP.cargo_selected_id = UT_CS.id';
+
+        $cargoSelectedIds = self::_getCargoSelectedIds($routePointMaps);
+        $routePointInSqlString = implode(',', $cargoSelectedIds);
+
+        $result = $db->query($sql, $accountId, $routePointInSqlString);
+
+        if(0 < $db->numRows($result))
+        {
+            // 2. удалем точки из карты - оставляем только те, которых нет в акаунте
+            while($row = $db->fetch($result))
+            {
+                $routePointId = $row['id'];
+                unset($routePointMaps[$routePointId]);
+            }
+        }
+
+    }
+
+
+    private static function _getRoutePointMappingByUserToken($userTokenId, $db)
+    {
+        $sql = 'SELECT RP.id, RP.route_id, RP.cargo_selected_id, RP.order_num
+                FROM route_point RP
+                  INNER JOIN route R
+                    ON R.id = RP.route_id
+                WHERE R.user_token_id = ?i
+                    AND R.account_id is NULL
+                ORDER BY RP.order_num';
+
+        $result = $db->query($sql, $userTokenId);
+
+        if(0 < $db->numRows($result))
+        {
+            $arr_map = array();
+
+            while($row = $db->fetch($result))
+            {
+                $routePointMap = new RoutePointMap($row['id'], $row['route_id'], $row['cargo_selected_id'], $row['order_num']);
+                $arr_map[$routePointMap->id] = $routePointMap;
+            }
+
+            return $arr_map;
+        }
+
+        return null;
+    }
+
+    private static function _getCargoSelectedIds(&$routePointMaps)
+    {
+        $arrCargoSelected = array();
+
+        foreach($routePointMaps as $map)
+        {
+            $arrCargoSelected[$map->cargo_selected_id] = $map->cargo_selected_id;
+        }
+
+        return $arrCargoSelected;
+    }
+
+}

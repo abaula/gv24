@@ -44,15 +44,21 @@ class CargoSelectedWebService extends WebServBase
             $offset = ($page - 1) * $limit;
             $allRowCount = 0;
 
+
+            if(is_null($accountId))
+                $where_sql_definition = $db->parse(' CS.user_token_id = ?i ', $userTokenId);
+            else
+                $where_sql_definition = $db->parse(' CS.account_id = ?i ', $accountId);
+
             // получаем количество записей удовлетворяющих условию фильтрации
             $sql = 'SELECT count(C.id)
                     FROM cargo C
                       INNER JOIN cargo_selected CS
                             ON CS.cargo_id = C.id
-                              AND (CS.account_id = ?i OR CS.user_token_id = ?i)
+                              AND ?p
                     WHERE C.is_deleted = 0';
 
-            $allRowCount = $db->getOne($sql, $accountId, $userTokenId);
+            $allRowCount = $db->getOne($sql, $where_sql_definition);
 
 
             $sql = 'SELECT C.id, GC1.name AS city1, GC2.name AS city2, CT.name AS type,
@@ -66,10 +72,10 @@ class CargoSelectedWebService extends WebServBase
                             ON CT.id = C.cargo_type_id
                         INNER JOIN cargo_selected CS
                             ON CS.cargo_id = C.id
-                              AND (CS.account_id = ?i OR CS.user_token_id = ?i)
+                              AND ?p
                     WHERE C.is_deleted = 0';
 
-            $result = $db->query($sql, $accountId, $userTokenId);
+            $result = $db->query($sql, $where_sql_definition);
             $arr = array();
 
             if(0 < $db->numRows($result))
@@ -243,57 +249,4 @@ class CargoSelectedWebService extends WebServBase
         }
     }
 
-
-
-    /*
-     * Привязываем созданные записи об отлолженных грузах к указанному аккаунту
-     *
-     * */
-    public static function mapSelectedCargoToAccount($accountId)
-    {
-        $userTokenId = Cookies::getUserTokenId();
-        $db = SqlFactory::getSql();
-
-        try
-        {
-            // 1. Удаляем дубли выбора грузов
-
-            // ... получаем идентификаторы строк для удаления
-            $sql = 'SELECT CS_UT.id
-                    FROM cargo_selected CS_UT
-                        INNER JOIN cargo_selected CS_AC
-                            ON CS_UT.cargo_id = CS_AC.cargo_id
-                                AND CS_UT.user_token_id = ?i
-                                AND CS_AC.account_id = ?i';
-
-            $result = $db->query($sql, $userTokenId, $accountId);
-
-            if(0 < $db->numRows($result))
-            {
-               $arr_ids = array();
-
-               // ... собираем полученные идентификаторы
-               while($row = $db->fetch($result))
-               {
-                   array_push($arr_ids, $row['id']);
-               }
-
-                // ... удаляем дубли строк из таблицы
-               if(0 < count($arr_ids))
-               {
-                   $in_sql_definition = implode(',', $arr_ids);
-                   $sql = 'DELETE FROM cargo_selected WHERE id IN(' . $in_sql_definition . ')';
-                   $db->query($sql);
-               }
-            }
-
-            // 2. Обновляем запись о выбранном грузе - назначаем владельцем записи акаунт пользователя
-            $sql = 'UPDATE cargo_selected SET user_token_id = null, account_id=?i WHERE user_token_id=?i';
-            $db->query($sql, $accountId, $userTokenId);
-        }
-        catch(Exception $ex)
-        {
-            Log::writeSqlExeption($db, $ex);
-        }
-    }
 }

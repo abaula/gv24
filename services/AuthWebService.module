@@ -8,6 +8,7 @@
  */
 require_once("WebServBase.module");
 require_once("Log.module");
+require_once("RouteAndCargoSelectedToAccountMapping.module");
 
 
 
@@ -138,29 +139,13 @@ class AuthWebService extends WebServBase
 
     private function _postAuthorizationRoutine($accountId)
     {
+        $userTokenId = Cookies::getUserTokenId();
+
         // 1. привязываем cookie к акаунту
         Cookies::mapAccountToUserToken($accountId);
 
-        // 2. переносим записи из cargo_selected
-
-        // 3. переносим записи из route_point
-
-        // 4. переносим записи из route
-
-        // 5. удаляем записи из route_point
-
-        // 6. удаляем записи из route
-
-        // 7. удаляем записи из cargo_selected
-
-
-
-        // ... 2. верифицируем отложенные грузы и созданые маршруты
-        CargoSelectedWebService::mapSelectedCargoToAccount($accountId);
-        // ... 3. верифицируем созданные маршруты
-        RouteWebService::mapRouteToAccount($accountId);
-
+        // 2. переносим записи о выделенных узлах и маршрутных точках из токена пользователя в аккаунт пользователя
+        // Прим. - переносим только те записи которые отсутствуют в акаунте пользователя
+        RouteAndCargoSelectedToAccountMapping::MapTokenDataToAccount($userTokenId, $accountId);
     }
-
-
 }
