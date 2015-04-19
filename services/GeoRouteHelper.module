@@ -1,0 +1,102 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 19.04.15
+ * Time: 13:33
+ * To change this template use File | Settings | File Templates.
+ */
+
+class GeoRouteDistance
+{
+    public $city1Id;
+    public $city2Id;
+    public $distance;
+
+    function __construct($city1, $city2, $distance)
+    {
+        $this->city1 = $city1;
+        $this->city2 = $city2;
+        $this->distance = $distance;
+    }
+}
+
+
+class GeoRouteDistanceList
+{
+    public $geoRouteDistanceList;
+
+    public function GetRouteDistance($city1, $city2)
+    {
+        foreach($this->geoRouteDistanceList as $geoRouteDistance)
+        {
+            if(($geoRouteDistance->city1 == $city1 && $geoRouteDistance->city2 == $city2)
+                || ($geoRouteDistance->city1 == $city2 && $geoRouteDistance->city2 == $city1))
+            {
+                return $geoRouteDistance;
+            }
+
+        }
+
+        return null;
+    }
+
+
+    public function GetDistanceFromList($city1Id, $city2Id)
+    {
+        $geoRouteDistance = $this->GetRouteDistance($city1Id, $city2Id);
+
+        if(! is_null($geoRouteDistance))
+            return $geoRouteDistance->distance;
+
+        return 0;
+    }
+}
+
+
+
+class GeoRouteHelper
+{
+    public static function GetDistance($city1Id, $city2Id, $db)
+    {
+        $arr = array();
+        array_push($arr, $city1Id);
+        array_push($arr, $city2Id);
+
+        $list = self::GetDistanceList($arr, $db);
+        $distance = $list->GetDistanceFromList($city1Id, $city2Id);
+
+        return $distance;
+    }
+
+
+    public static function GetDistanceList($cities, $db)
+    {
+        $sql = 'SELECT GR.cityId1, GR.cityId2, GR.distance
+                FROM georoute GR
+                WHERE GR.cityId1 in (?p)
+	              AND GR.cityId2 in (?p)';
+
+        $sqlCitiesInString = implode(',', $cities);
+        $result = $db->query($sql, $sqlCitiesInString, $sqlCitiesInString);
+
+        $list = new GeoRouteDistanceList();
+        $list->geoRouteDistanceList = array();
+
+        if(0 < $db->numRows($result))
+        {
+            while($row = $db->fetch($result))
+            {
+                $entry = new GeoRouteDistance($row['cityId1'], $row['cityId2'], $row['distance']);
+                array_push($list->geoRouteDistanceList, $entry);
+            }
+
+            return $list;
+        }
+
+        return null;
+    }
+
+
+
+}
