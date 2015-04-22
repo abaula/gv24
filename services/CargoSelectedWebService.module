@@ -20,15 +20,10 @@ class CargoSelectedWebService extends WebServBase
          *
          * */
 
-
         $accountId = null;
-        $userTokenId = Cookies::getUserTokenId();
+        $userTokenId = null;
+        CurrentUser::FillUserIdentities($accountId, $userTokenId);
 
-        // если пользователь авторизован, то получаем ID акаунта
-        if(true == CurrentUser::isAuthenticated())
-        {
-            $accountId = CurrentUser::getUserId();
-        }
 
         // возвращаем объекты AjaxTask
         $db = SqlFactory::getSql();
@@ -122,13 +117,9 @@ class CargoSelectedWebService extends WebServBase
         // AjaxTaskInfo
 
         $accountId = null;
-        $userTokenId = Cookies::getUserTokenId();
+        $userTokenId = null;
+        CurrentUser::FillUserIdentities($accountId, $userTokenId);
 
-        // если пользователь авторизован, то получаем ID акаунта
-        if(true == CurrentUser::isAuthenticated())
-        {
-            $accountId = CurrentUser::getUserId();
-        }
 
         $db = SqlFactory::getSql();
 
@@ -186,13 +177,9 @@ class CargoSelectedWebService extends WebServBase
         // AjaxTaskInfo
 
         $accountId = null;
-        $userTokenId = Cookies::getUserTokenId();
+        $userTokenId = null;
+        CurrentUser::FillUserIdentities($accountId, $userTokenId);
 
-        // если пользователь авторизован, то получаем ID акаунта
-        if(true == CurrentUser::isAuthenticated())
-        {
-            $accountId = CurrentUser::getUserId();
-        }
 
         $db = SqlFactory::getSql();
 

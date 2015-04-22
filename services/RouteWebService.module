@@ -10,6 +10,7 @@ require_once("WebServBase.module");
 require_once("Headers.module");
 require_once("Contract.module");
 require_once("GeoRouteHelper.module");
+require_once("RouteHelper.module");
 
 
 class RouteWebService extends WebServBase
@@ -19,19 +20,14 @@ class RouteWebService extends WebServBase
     {
 
         /*
-                         * Возвращаем список выбранных задач для пользователя
-                         *
-                         * */
+         * Возвращаем список выбранных задач для пользователя
+         *
+         * */
 
 
         $accountId = null;
-        $userTokenId = Cookies::getUserTokenId();
-
-        // если пользователь авторизован, то получаем ID акаунта
-        if(true == CurrentUser::isAuthenticated())
-        {
-            $accountId = CurrentUser::getUserId();
-        }
+        $userTokenId = null;
+        CurrentUser::FillUserIdentities($accountId, $userTokenId);
 
         // возвращаем объекты AjaxTask
         $db = SqlFactory::getSql();
@@ -129,13 +125,9 @@ class RouteWebService extends WebServBase
         $idsInSqlString = implode(',', $data->ids);
 
         $accountId = null;
-        $userTokenId = Cookies::getUserTokenId();
+        $userTokenId = null;
+        CurrentUser::FillUserIdentities($accountId, $userTokenId);
 
-        // если пользователь авторизован, то получаем ID акаунта
-        if(true == CurrentUser::isAuthenticated())
-        {
-            $accountId = CurrentUser::getUserId();
-        }
 
         $db = SqlFactory::getSql();
 
@@ -181,31 +173,12 @@ class RouteWebService extends WebServBase
             $lastCityId = 0;
 
             // 4. проверяем, создан ли маршрут и при необходимости создаём его
-            if(is_null($accountId))
-                $where_sql_definition = $db->parse(' user_token_id = ?i ', $userTokenId);
-            else
-                $where_sql_definition = $db->parse(' account_id = ?i ', $accountId);
-
-            $sql = 'SELECT id FROM route WHERE ?p';
-
-            $route_id = $db->getOne($sql, $where_sql_definition);
+            $route_id = RouteHelper::GetRouteId($accountId, $userTokenId, $db);
 
             if(false == $route_id)
             {
                 // создаём запись маршрута в БД
-                if(is_null($accountId))
-                    $insert_sql_definition = $db->parse(' null, ?i ', $userTokenId);
-                else
-                    $insert_sql_definition = $db->parse(' ?i, null ', $accountId);
-
-
-                $sql = 'INSERT INTO route
-                    (name, account_id, user_token_id)
-                    VALUES
-                    (\'Маршрут по умолчанию\', ?p)';
-
-                $db->query($sql, $insert_sql_definition);
-                $route_id = $db->insertId();
+                $route_id = RouteHelper::CreateRoute($accountId, $userTokenId, $db);
             }
             else
             {
@@ -269,17 +242,22 @@ class RouteWebService extends WebServBase
                 $cargo = $arr_cargo[$i];
 
                 $distance = $distanceList->GetDistanceFromList($lastCityId, $cargo->city1);
-                $db->query($sql, $route_id, $cargo->id, $cargo->city1, $distance, 0, $max_order++);
+                $db->query($sql, $route_id, $cargo->id, $cargo->city1, $distance, 1, $max_order++);
 
                 $distance = $distanceList->GetDistanceFromList($cargo->city1, $cargo->city2);
-                $db->query($sql, $route_id, $cargo->id, $cargo->city2, $distance, 1, $max_order++);
+                $db->query($sql, $route_id, $cargo->id, $cargo->city2, $distance, 0, $max_order++);
 
                 $lastCityId = $cargo->city2;
             }
 
+            // 10. Получаем обновлённый маршрут
+            $routePointList = CalculateRouteWebService::GetRouteData($accountId, $userTokenId, $db);
 
-            // 10. Возвращаем ответ клиенту
-            $response = new AjaxServerResponse(200, '', '', $data);
+            // 11. Возвращаем ответ клиенту
+            $responseData = new AjaxIdsListAndRoutePointList();
+            $responseData->idsList = $data;
+            $responseData->routePointList = $routePointList;
+            $response = new AjaxServerResponse(200, '', '', $responseData);
             sendHTTPStatus(200);
             header('Content-type: application/json');
             echo json_encode($response);
@@ -294,7 +272,104 @@ class RouteWebService extends WebServBase
 
     public function onPut($args, $data)
     {
+        // AjaxRoutePointPlace
+
         // TODO: редактируем порядок маршрутных точек
+
+        $accountId = null;
+        $userTokenId = null;
+        CurrentUser::FillUserIdentities($accountId, $userTokenId);
+
+
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            // 1. получаем id маршрута для пользователя
+            $route_id = RouteHelper::GetRouteId($accountId, $userTokenId, $db);
+
+            if(false == $route_id)
+            {
+                // возвращаем ошибку
+                $this->returnError(400, array(1014), $data);
+                return;
+            }
+
+            $routePointId = $data->routePointId;
+            $afterRoutePointId = $data->afterRoutePointId;
+
+            // 2. проверяем, что переданные точки маршрута принадлежат маршруту пользователя
+            $pointIds = array();
+            array_push($pointIds, $routePointId);
+            array_push($pointIds, $afterRoutePointId);
+            $arePointsInRoute = RouteHelper::AreAllPointsInRoute($route_id, $pointIds, $db);
+
+            if(false == $arePointsInRoute)
+            {
+                // возвращаем ошибку
+                $this->returnError(400, array(1014), $data);
+                return;
+            }
+
+            // 3. получаем данные маршрута
+            $routePoints = RouteHelper::GetRouteData($route_id, $db);
+            $routePointToInsert = $routePoints[$routePointId];
+            $routePointToInsertAfter = $routePoints[$afterRoutePointId];
+
+            // 4. проверяем, что новая позиция точки маршрута не меняет направление маршрута - первая точка маршрута в списке должна находиться перед второй точкой маршрута
+            $isValidPosition = RouteHelper::CheckRoutePointPositionInArray($routePointToInsert, $routePointToInsertAfter, $routePoints);
+
+            if(false == $isValidPosition)
+            {
+                // возвращаем ошибку
+                $this->returnError(400, array(1016), $data);
+                return;
+            }
+
+            // 5. меняем порядок точек маршрута
+            $routePoints = RouteHelper::ChangeRoutePointPositionInArray($routePointToInsert, $routePointToInsertAfter, $routePoints);
+
+            // 6. пересчитываем дистанции маршрута
+            // ... 6.1 получаем список дистанций между городами
+            $arr_cities = RouteHelper::GetUniqueCitiesFromRoutePointsArray($routePoints);
+            $distanceList = GeoRouteHelper::GetDistanceList($arr_cities, $db);
+
+            // ... 6.2 пересчитываем дистанции и вносим изменения в список точек маршрута
+            $order_num = 1;
+            $lastCityId = 0;
+
+            // ... шаблон запроса
+            $sql = 'UPDATE route_point
+                      SET  distance = ?i, order_num = ?i
+                    WHERE id = ?i';
+
+            foreach ($routePoints as $routePoint)
+            {
+                $distance = $distanceList->GetDistanceFromList($lastCityId, $routePoint->cityId);
+                $db->query($sql, $distance, $order_num++, $routePoint->id);
+
+                $lastCityId = $routePoint->cityId;
+            }
+
+
+            // 7. Получаем обновлённый маршрут
+            $routePointList = CalculateRouteWebService::GetRouteData($accountId, $userTokenId, $db);
+
+            // 8. возвращаем ответ клиенту
+            $responseData = new AjaxRoutePointPlaceAndRoutePointList();
+            $responseData->routePointPlace = $data;
+            $responseData->routePointList = $routePointList;
+            $response = new AjaxServerResponse(200, '', '', $responseData);
+            sendHTTPStatus(200);
+            header('Content-type: application/json');
+            echo json_encode($response);
+
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1), $data);
+        }
 
     }
 
@@ -306,28 +381,16 @@ class RouteWebService extends WebServBase
         $idsInSqlString = implode(',', $data->ids);
 
         $accountId = null;
-        $userTokenId = Cookies::getUserTokenId();
+        $userTokenId = null;
+        CurrentUser::FillUserIdentities($accountId, $userTokenId);
 
-        // если пользователь авторизован, то получаем ID акаунта
-        if(true == CurrentUser::isAuthenticated())
-        {
-            $accountId = CurrentUser::getUserId();
-        }
 
-        // возвращаем объекты AjaxTask
         $db = SqlFactory::getSql();
 
         try
         {
-            if(is_null($accountId))
-                $where_sql_definition = $db->parse(' user_token_id = ?i ', $userTokenId);
-            else
-                $where_sql_definition = $db->parse(' account_id = ?i ', $accountId);
-
-
             // 1. получаем id маршрута для пользователя
-            $sql = 'SELECT id FROM route WHERE ?p';
-            $route_id = $db->getOne($sql, $where_sql_definition);
+            $route_id = RouteHelper::GetRouteId($accountId, $userTokenId, $db);
 
             if(false == $route_id)
             {
@@ -356,8 +419,14 @@ class RouteWebService extends WebServBase
                 $db->query($sql, $route_point_id);
             }
 
-            // 4. возвращаем ответ клиенту
-            $response = new AjaxServerResponse(200, '', '', $data);
+            // 4. Получаем обновлённый маршрут
+            $routePointList = CalculateRouteWebService::GetRouteData($accountId, $userTokenId, $db);
+
+            // 5. возвращаем ответ клиенту
+            $responseData = new AjaxIdsListAndRoutePointList();
+            $responseData->idsList = $data;
+            $responseData->routePointList = $routePointList;
+            $response = new AjaxServerResponse(200, '', '', $responseData);
             sendHTTPStatus(200);
             header('Content-type: application/json');
             echo json_encode($response);

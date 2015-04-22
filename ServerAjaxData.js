@@ -41,4 +41,38 @@
         return AjaxIdsList;
     })();
     ServerData.AjaxIdsList = AjaxIdsList;
+
+    var AjaxRoutePoint = (function () {
+        function AjaxRoutePoint() {
+        }
+        return AjaxRoutePoint;
+    })();
+    ServerData.AjaxRoutePoint = AjaxRoutePoint;
+
+    var AjaxRoutePointList = (function () {
+        function AjaxRoutePointList() {
+        }
+        return AjaxRoutePointList;
+    })();
+    ServerData.AjaxRoutePointList = AjaxRoutePointList;
+
+    var AjaxIdsListAndRoutePointList = (function () {
+        function AjaxIdsListAndRoutePointList() {
+        }
+        return AjaxIdsListAndRoutePointList;
+    })();
+    ServerData.AjaxIdsListAndRoutePointList = AjaxIdsListAndRoutePointList;
+
+    var AjaxRoutePointPlace = (function () {
+        function AjaxRoutePointPlace() {
+        }
+        return AjaxRoutePointPlace;
+    })();
+    ServerData.AjaxRoutePointPlace = AjaxRoutePointPlace;
+
+    var AjaxRoutePointPlaceAndRoutePointList = (function () {
+        function AjaxRoutePointPlaceAndRoutePointList() {
+        }
+        return AjaxRoutePointPlaceAndRoutePointList;
+    })();
 })(ServerData || (ServerData = {}));

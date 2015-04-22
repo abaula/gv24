@@ -49,4 +49,44 @@ module ServerData
     {
         public ids: number[];
     }
+
+    export class AjaxRoutePoint
+    {
+        public routePointId: number;
+        public cargoId: number;
+        public cargoIsDeleted: boolean;
+        public routePointDistance: number;
+        public cityId: number;
+        public cityName: string;
+        public weight: number;
+        public value: number;
+        public cost: number;
+        public readyDate: string;
+    }
+
+    export class AjaxRoutePointList
+    {
+        public routePoints: AjaxRoutePoint[];
+    }
+
+
+    export class AjaxIdsListAndRoutePointList
+    {
+        public idsList: AjaxIdsList;
+        public routePointList: AjaxRoutePointList;
+    }
+
+    export class AjaxRoutePointPlace
+    {
+        public routePointId: number;
+        public afterRoutePointId: number;
+    }
+
+
+    class AjaxRoutePointPlaceAndRoutePointList
+    {
+        public routePointPlace: number;
+        public routePointList: number;
+    }
+
 }

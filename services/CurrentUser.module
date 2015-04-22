@@ -6,8 +6,11 @@
  * Time: 17:50
  * To change this template use File | Settings | File Templates.
  */
+require_once('Cookies.module');
 
-class CurrentUser {
+
+class CurrentUser
+{
 
     public static function isAuthenticated()
     {
@@ -43,5 +46,16 @@ class CurrentUser {
     public static function getUserName()
     {
         return $_SESSION[SESSION_USERNAME];
+    }
+
+    public static function FillUserIdentities(&$accountId, &$userTokenId)
+    {
+        $userTokenId = Cookies::getUserTokenId();
+
+        // если пользователь авторизован, то получаем ID акаунта
+        if(true == CurrentUser::isAuthenticated())
+        {
+            $accountId = CurrentUser::getUserId();
+        }
     }
 }

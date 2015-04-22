@@ -327,3 +327,63 @@ class AjaxIdsList
         $this->ids = null;
     }
 }
+
+class AjaxRoutePoint
+{
+    public $routePointId;
+    public $cargoId;
+    public $cargoIsDeleted;
+    public $routePointDistance;
+    public $cityId;
+    public $cityName;
+    public $weight;
+    public $value;
+    public $cost;
+    public $readyDate;
+
+    function __construct($routePointId, $cargoId, $cargoIsDeleted, $cityId, $cityName, $routePointDistance, $weight, $value, $cost, $readyDate)
+    {
+        $this->cargoId = $cargoId;
+        $this->cargoIsDeleted = $cargoIsDeleted;
+        $this->cityId = $cityId;
+        $this->cityName = $cityName;
+        $this->cost = $cost;
+        $this->readyDate = $readyDate;
+        $this->routePointDistance = $routePointDistance;
+        $this->routePointId = $routePointId;
+        $this->value = $value;
+        $this->weight = $weight;
+    }
+}
+
+
+class AjaxRoutePointList
+{
+    public $routePoints;
+
+    function __construct()
+    {
+        $this->routePoints = array();
+    }
+}
+
+
+class AjaxIdsListAndRoutePointList
+{
+    public $idsList;
+    public $routePointList;
+}
+
+
+class AjaxRoutePointPlace
+{
+    public $routePointId;
+    public $afterRoutePointId;
+}
+
+
+class AjaxRoutePointPlaceAndRoutePointList
+{
+    public $routePointPlace;
+    public $routePointList;
+}

@@ -23,17 +23,10 @@ class SearchTasksWebService extends WebServBase
         //var_dump($args);
 
         $accountId = null;
-        $userTokenId = Cookies::getUserTokenId();
+        $userTokenId = null;
+        CurrentUser::FillUserIdentities($accountId, $userTokenId);
 
-
-
-        // проверяем авторизован ли пользователь
-        if(true == CurrentUser::isAuthenticated())
-        {
-            $accountId = CurrentUser::getUserId();
-            // TODO получаем параметры поиска сохранённые в профиле пользователя
-
-        }
+        // TODO получаем параметры поиска сохранённые в профиле пользователя
 
         $db = SqlFactory::getSql();
 

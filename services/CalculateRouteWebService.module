@@ -10,14 +10,37 @@
 require_once("WebServBase.module");
 require_once("Headers.module");
 require_once("Contract.module");
+require_once("RouteHelper.module");
 
 class CalculateRouteWebService extends WebServBase
 {
 
     public function onGet($args)
     {
-        // TODO: получаем данные созданного маршрута
+        // получаем данные созданного маршрута
 
+        $accountId = null;
+        $userTokenId = null;
+        CurrentUser::FillUserIdentities($accountId, $userTokenId);
+
+
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            $list = self::GetRouteData($accountId, $userTokenId, $db);
+
+            $response = new AjaxServerResponse(200, '', '', $list);
+            sendHTTPStatus(200);
+            header('Content-type: application/json');
+            echo json_encode($response);
+
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1));
+        }
     }
 
     public function onPost($args, $data)
@@ -31,19 +54,65 @@ class CalculateRouteWebService extends WebServBase
 
     public function onPut($args, $data)
     {
-
-
-
-
-
+        // HTTP/1.1 405 Method Not Allowed
+        sendHTTPStatus(405);
+        header('Allow: GET,POST');
     }
 
     public function onDelete($args, $data)
     {
-
-
+        // HTTP/1.1 405 Method Not Allowed
+        sendHTTPStatus(405);
+        header('Allow: GET,POST');
     }
 
+    public static function GetRouteData($accountId, $userTokenId, $db)
+    {
+        $list = new AjaxRoutePointList();
+
+        // 1. получаем идентификатор маршрута
+        $routeId = RouteHelper::GetRouteId($accountId, $userTokenId, $db);
+
+        // 2. получаем данные маршрута
+        $sql = 'SELECT
+                    RP.id AS route_point_id,
+                    C.id AS cargo_id,
+                    C.is_deleted AS cargo_is_deleted,
+                    RP.distance AS route_point_distance,
+                    RP.city_id,
+                    GC.name AS city_name,
+                    CASE RP.is_first_point_of_pair WHEN 1 THEN C.weight ELSE (- C.weight) END AS weight,
+                    CASE RP.is_first_point_of_pair WHEN 1 THEN C.value ELSE (- C.value) END AS value,
+                    CASE RP.is_first_point_of_pair WHEN 0 THEN C.cost ELSE 0 END AS cost,
+                    CASE RP.is_first_point_of_pair WHEN 1 THEN C.ready_date ELSE null END AS ready_date
+                FROM route_point RP
+                    INNER JOIN geocities GC
+                        ON GC.id = RP.city_id
+                    INNER JOIN cargo_selected CS
+                        ON CS.id = RP.cargo_selected_id
+                    INNER JOIN cargo C
+                        ON C.id = CS.cargo_id
+                WHERE RP.route_id = ?i
+                ORDER BY RP.order_num';
+
+        $result = $db->query($sql, $routeId);
+
+        if(0 < $db->numRows($result))
+        {
+            while($row = $db->fetch($result))
+            {
+                $entry = new AjaxRoutePoint
+                (
+                    $row['route_point_id'], $row['cargo_id'], $row['cargo_is_deleted'], $row['city_id'], $row['city_name'],
+                    $row['route_point_distance'], $row['weight'], $row['value'], $row['cost'], $row['ready_date']
+                );
+
+                array_push($list->routePoints, $entry);
+            }
+        }
+
+        return $list;
+    }
 
 
 }
