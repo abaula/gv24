@@ -127,23 +127,54 @@ class RouteHelper
     }
 
 
-    public static function CheckRoutePointPositionInArray($routePointToInsert, $routePointToInsertAfter, &$routePoints)
+    public static function CheckIfRoutePointPositionInArrayIsCorrect($routePointId, $afterRoutePointId, &$routePoints)
     {
+        $routePointToInsert = $routePoints[$routePointId];
+        $isFirstPointOfPair = $routePointToInsert->isFirstPointOfPair;
 
+        // если переносим точку в начало, то это должна быть начальная точка маршрута
+        if(is_null($afterRoutePointId))
+            return $isFirstPointOfPair;
+
+        // проверяем другие случаи
+        foreach($routePoints as $routePoint)
+        {
+            // нашли вторую точку одного и того же задания на перевозку. Нашли точку раньше, чем дошли до позиции вставки
+            if($routePointToInsert->cargoSelectedId == $routePoint->cargoSelectedId && $routePointToInsert->id != $routePoint->id)
+            {
+                // принимаем решение: если вторая точка является начальной точкой маршрута, то всё нормально, иначе очерёдность меняется местами и это неправильно.
+                return ! $isFirstPointOfPair;
+            }
+
+            // дошли до позиции вставки
+            if($routePoint->id == $afterRoutePointId)
+            {
+                // принимаем решение: если вставляемая точка это первая точка маршрута, то всё нормально, иначе очерёдность меняется местами и это неправильно.
+                return $isFirstPointOfPair;
+            }
+        }
+
+
+        return false;
     }
 
-    public static function ChangeRoutePointPositionInArray($routePointToInsert, $routePointToInsertAfter, &$routePoints)
+    public static function ChangeRoutePointPositionInArray($routePointId, $afterRoutePointId, &$routePoints)
     {
+        $routePointToInsert = $routePoints[$routePointId];
+
         $list = array();
+
+        if(is_null($afterRoutePointId))
+            array_push($list, $routePointToInsert);
 
         foreach($routePoints as $routePoint)
         {
-            if($routePoint->id == $routePointToInsert->id)
+            if($routePoint->id == $routePointId)
                 continue;
 
             array_push($list, $routePoint);
 
-            if($routePoint->id == $routePointToInsertAfter->id)
+            if($routePoint->id == $afterRoutePointId)
             {
                 array_push($list, $routePointToInsert);
             }

@@ -301,7 +301,10 @@ class RouteWebService extends WebServBase
             // 2. проверяем, что переданные точки маршрута принадлежат маршруту пользователя
             $pointIds = array();
             array_push($pointIds, $routePointId);
-            array_push($pointIds, $afterRoutePointId);
+
+            if(! is_null($afterRoutePointId))
+                array_push($pointIds, $afterRoutePointId);
+
             $arePointsInRoute = RouteHelper::AreAllPointsInRoute($route_id, $pointIds, $db);
 
             if(false == $arePointsInRoute)
@@ -313,11 +316,9 @@ class RouteWebService extends WebServBase
 
             // 3. получаем данные маршрута
             $routePoints = RouteHelper::GetRouteData($route_id, $db);
-            $routePointToInsert = $routePoints[$routePointId];
-            $routePointToInsertAfter = $routePoints[$afterRoutePointId];
 
             // 4. проверяем, что новая позиция точки маршрута не меняет направление маршрута - первая точка маршрута в списке должна находиться перед второй точкой маршрута
-            $isValidPosition = RouteHelper::CheckRoutePointPositionInArray($routePointToInsert, $routePointToInsertAfter, $routePoints);
+            $isValidPosition = RouteHelper::CheckIfRoutePointPositionInArrayIsCorrect($routePointId, $afterRoutePointId, $routePoints);
 
             if(false == $isValidPosition)
             {
@@ -327,7 +328,7 @@ class RouteWebService extends WebServBase
             }
 
             // 5. меняем порядок точек маршрута
-            $routePoints = RouteHelper::ChangeRoutePointPositionInArray($routePointToInsert, $routePointToInsertAfter, $routePoints);
+            $routePoints = RouteHelper::ChangeRoutePointPositionInArray($routePointId, $afterRoutePointId, $routePoints);
 
             // 6. пересчитываем дистанции маршрута
             // ... 6.1 получаем список дистанций между городами
