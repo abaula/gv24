@@ -75,4 +75,12 @@
         }
         return AjaxRoutePointPlaceAndRoutePointList;
     })();
+    ServerData.AjaxRoutePointPlaceAndRoutePointList = AjaxRoutePointPlaceAndRoutePointList;
+
+    var AjaxRoutePointListAndAjaxTaskList = (function () {
+        function AjaxRoutePointListAndAjaxTaskList() {
+        }
+        return AjaxRoutePointListAndAjaxTaskList;
+    })();
+    ServerData.AjaxRoutePointListAndAjaxTaskList = AjaxRoutePointListAndAjaxTaskList;
 })(ServerData || (ServerData = {}));

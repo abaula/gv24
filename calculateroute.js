@@ -96,10 +96,13 @@ var CalculateRoute;
         CalculateRouteController.prototype.onAjaxGetTasksPageDataSuccess = function (data, status, jqXHR) {
             //window.console.log("_onAjaxGetAccountDataSuccess");
             // загрузка компонента произведена успешно
-            CalculateRoute.__currentComp.taskData = data.data;
+            var resp = data.data;
+            CalculateRoute.__currentComp.taskData = resp.ajaxTaskList;
+            CalculateRoute.__currentComp.routeData = resp.routePointList;
 
             // помещаем данные в контролы
             CalculateRoute.__currentComp.drawTasksList();
+            CalculateRoute.__currentComp.drawRouteTable();
 
             if (false == CalculateRoute.__currentComp.isComponentLoaded) {
                 CalculateRoute.__currentComp.onComponentLoaded();
@@ -120,13 +123,13 @@ var CalculateRoute;
             CalculateRoute.__currentComp.clearPageNavigation();
 
             // отображаем в таблице полученные с сервера данные
-            CalculateRoute.__currentComp.drawTableRows();
+            CalculateRoute.__currentComp.drawTaskTableRows();
 
             // рисуем панель навигации по страницам
             CalculateRoute.__currentComp.drawPageNavigation();
         };
 
-        CalculateRouteController.prototype.drawTableRows = function () {
+        CalculateRouteController.prototype.drawTaskTableRows = function () {
             var tbody = $("#i-ctrl-tasks-table > tbody");
 
             var rowTempl = $("#i-ctrl-tasks-table-row-template");
@@ -326,7 +329,10 @@ else if ("i-page-cargoselected-link" == id)
 
         CalculateRouteController.prototype.onAjaxTaskSelectedDataSuccess = function (data, status, jqXHR) {
             //window.console.log("onAjaxTaskSelectedDataSuccess");
-            // TODO добавление задания в маршрут произведена успешно - необходимо скорректировать таблицу маршрута
+            // добавление задания в маршрут произведена успешно - необходимо скорректировать таблицу маршрута
+            CalculateRoute.__currentComp.routeData = (data.data).routePointList;
+            CalculateRoute.__currentComp.drawRouteTable();
+
             // скрываем иконку загрузки
             CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-overlay");
         };
@@ -347,7 +353,10 @@ else if ("i-page-cargoselected-link" == id)
 
         CalculateRouteController.prototype.onAjaxTaskUnselectedDataSuccess = function (data, status, jqXHR) {
             //window.console.log("onAjaxTaskSelectedDataSuccess");
-            // TODO удаление задания из маршрута произведено успешно - необходимо скорректировать таблицу маршрута
+            // удаление задания из маршрута произведено успешно - необходимо скорректировать таблицу маршрута
+            CalculateRoute.__currentComp.routeData = (data.data).routePointList;
+            CalculateRoute.__currentComp.drawRouteTable();
+
             // скрываем иконку загрузки
             CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-overlay");
         };
@@ -385,6 +394,138 @@ else if ("i-page-cargoselected-link" == id)
 
             // удаляем все контейнеры навигации
             divs.remove();
+        };
+
+        CalculateRouteController.prototype.drawRouteTable = function () {
+            var route = CalculateRoute.__currentComp.routeData.routePoints;
+
+            // очищаем таблицу маршрута
+            CalculateRoute.__currentComp.clearRouteTable();
+
+            if (route.length < 1) {
+                CalculateRoute.__currentComp.showHideRouteTableAbsentRow(true);
+                return;
+            }
+
+            // рисуем строки маршрута
+            CalculateRoute.__currentComp.showHideRouteTableAbsentRow(false);
+
+            var tbody = $("#i-calc-routes-table > tbody");
+
+            for (var i = 0; i < route.length; i++) {
+                var entry = route[i];
+                var row = CalculateRoute.__currentComp.createRouteEntryRow(entry);
+
+                // подсветка колонок суммарного веса и объёма
+                // Добавляем строку в таблицу
+                row.appendTo(tbody);
+            }
+        };
+
+        CalculateRouteController.prototype.createRouteEntryRow = function (routeEntry) {
+            var rowTemplate = $("#i-calc-routes-table-tr-template");
+
+            // создаём новую строку
+            var row = rowTemplate.clone();
+            row.removeAttr("id");
+            row.removeClass("hidden");
+
+            // заполняем данными строку
+            row.attr("data-point-id", routeEntry.routePointId);
+            row.attr("data-cargo-id", routeEntry.cargoId);
+            row.attr("data-city-id", routeEntry.cityId);
+
+            $("td.calc-table-col-num", row).text(routeEntry.cargoId);
+            $("td.calc-table-col-from", row).text(routeEntry.cityName);
+
+            $("td.calc-table-col-weight-load", row).text(routeEntry.weight);
+            $("td.calc-table-col-value-load", row).text(routeEntry.value);
+
+            /*
+            if (routeEntry.sumWeightPc == Number.POSITIVE_INFINITY || routeEntry.sumValuePc == Number.POSITIVE_INFINITY
+            || isNaN(routeEntry.sumWeightPc) || isNaN(routeEntry.sumValuePc))
+            {
+            $("td.calc-table-col-sum-weight", row).text(routeEntry.sumWeight);
+            $("td.calc-table-col-sum-value", row).text(routeEntry.sumValue);
+            }
+            else
+            {
+            $("td.calc-table-col-sum-weight", row).text(routeEntry.sumWeight + " (" + routeEntry.sumWeightPc + "%)");
+            $("td.calc-table-col-sum-value", row).text(routeEntry.sumValue + " (" + routeEntry.sumValuePc + "%)");
+            }
+            
+            
+            if (routeEntry.resWeightPc == Number.NEGATIVE_INFINITY || routeEntry.resValuePc == Number.NEGATIVE_INFINITY
+            || isNaN(routeEntry.resWeightPc) || isNaN(routeEntry.resValuePc))
+            {
+            $("td.calc-table-col-res-weight", row).text(routeEntry.resWeight);
+            $("td.calc-table-col-res-value", row).text(routeEntry.resValue);
+            }
+            else
+            {
+            $("td.calc-table-col-res-weight", row).text(routeEntry.resWeight + " (" + routeEntry.resWeightPc + "%)");
+            $("td.calc-table-col-res-value", row).text(routeEntry.resValue + " (" + routeEntry.resValuePc + "%)");
+            }
+            */
+            $("td.calc-table-col-distance", row).text(routeEntry.routePointDistance);
+
+            $("td.calc-table-col-sum-proceeds", row).text(routeEntry.cost);
+
+            /*
+            $("td.calc-table-col-sum-distance", row).text(routeEntry.sumDistance);
+            
+            $("td.calc-table-col-expense", row).text(routeEntry.expense.toFixed(0));
+            $("td.calc-table-col-sum-expense", row).text(routeEntry.sumExpense.toFixed(0));
+            
+            if (null != routeEntry.task && routeEntry.task.customTaxUsed)
+            $("td.calc-table-col-proceeds", row).text(routeEntry.proceeds.toFixed(0)).addClass("calc-table-col-val-custom");
+            else
+            $("td.calc-table-col-proceeds", row).text(routeEntry.proceeds.toFixed(0));
+            
+            $("td.calc-table-col-sum-proceeds", row).text(routeEntry.sumProceeds.toFixed(0));
+            
+            $("td.calc-table-col-profit", row).text(routeEntry.profit.toFixed(0));
+            $("td.calc-table-col-sum-profit", row).text(routeEntry.sumProfit.toFixed(0));
+            
+            $("td.calc-table-col-lost-proceeds", row).text(routeEntry.lostProceeds.toFixed(0));
+            $("td.calc-table-col-target-profit", row).text(routeEntry.targetProfit.toFixed(0));
+            */
+            /*
+            // подключаем обработчики событий
+            if (isBackWayRow)
+            {
+            $("td.calc-table-col-up > span.icon-button", row).remove();
+            $("td.calc-table-col-down > span.icon-button", row).remove();
+            $("td.calc-table-col-show-details > span.icon-button", row).remove();
+            }
+            else
+            {
+            $("td.calc-table-col-up > span.icon-button", row).click("up", CalcController.prototype._onUpDownClick);
+            $("td.calc-table-col-down > span.icon-button", row).click("down", CalcController.prototype._onUpDownClick);
+            $("td.calc-table-col-show-details > span.icon-button", row).click(CalcController.prototype._onDetailsClick);
+            }
+            
+            row.click(CalcController.prototype._onRouteTableRowClick);
+            */
+            return row;
+        };
+
+        CalculateRouteController.prototype.clearRouteTable = function () {
+            $("#i-calc-routes-table > tbody > tr[data-point-id] > td > span").unbind();
+            $("#i-calc-routes-table > tbody > tr[data-point-id]").unbind().remove();
+        };
+
+        CalculateRouteController.prototype.showHideRouteTableAbsentRow = function (show) {
+            var rowRouteAbsent = $("#i-calc-routes-table-tr-absent");
+            var rowTotal = $("#i-calc-routes-table-foot-total");
+
+            if (show) {
+                rowRouteAbsent.removeClass("hidden");
+                rowTotal.addClass("hidden");
+            } else {
+                rowRouteAbsent.addClass("hidden");
+                rowTotal.removeClass("hidden");
+            }
         };
 
         CalculateRouteController.prototype.onDocumentReady = function () {

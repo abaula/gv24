@@ -387,3 +387,10 @@ class AjaxRoutePointPlaceAndRoutePointList
     public $routePointPlace;
     public $routePointList;
 }
+
+
+class AjaxRoutePointListAndAjaxTaskList
+{
+    public $ajaxTaskList;
+    public $routePointList;
+}

@@ -11,7 +11,7 @@ module CalculateRoute
         public state: Application.IState = null;
         public errorData: ServerData.AjaxServerResponse = null;
         public taskData: ServerData.AjaxTaskList;
-
+        public routeData: ServerData.AjaxRoutePointList;
 
         onLoad(app: Application.IApplication, parent: Application.IComponent, state: Application.IState): void
         {
@@ -123,10 +123,14 @@ module CalculateRoute
             //window.console.log("_onAjaxGetAccountDataSuccess");
 
             // загрузка компонента произведена успешно
-            __currentComp.taskData = <ServerData.AjaxTaskList>data.data;
+            var resp: ServerData.AjaxRoutePointListAndAjaxTaskList = <ServerData.AjaxRoutePointListAndAjaxTaskList>data.data;
+            __currentComp.taskData = resp.ajaxTaskList;
+            __currentComp.routeData = resp.routePointList;
+            
 
             // помещаем данные в контролы
             __currentComp.drawTasksList();
+            __currentComp.drawRouteTable();
 
             if (false == __currentComp.isComponentLoaded)
             {
@@ -152,13 +156,13 @@ module CalculateRoute
             __currentComp.clearPageNavigation();
 
             // отображаем в таблице полученные с сервера данные
-            __currentComp.drawTableRows();
+            __currentComp.drawTaskTableRows();
 
             // рисуем панель навигации по страницам
             __currentComp.drawPageNavigation();
         }
 
-        drawTableRows(): void
+        drawTaskTableRows(): void
         {
             var tbody: JQuery = $("#i-ctrl-tasks-table > tbody");
 
@@ -385,8 +389,9 @@ module CalculateRoute
         {
             //window.console.log("onAjaxTaskSelectedDataSuccess");
 
-            // TODO добавление задания в маршрут произведена успешно - необходимо скорректировать таблицу маршрута
-
+            // добавление задания в маршрут произведена успешно - необходимо скорректировать таблицу маршрута
+            __currentComp.routeData = (<ServerData.AjaxIdsListAndRoutePointList>data.data).routePointList;
+            __currentComp.drawRouteTable();
 
             // скрываем иконку загрузки
             __currentComp.application.hideOverlay("#i-ctrl-overlay");
@@ -421,7 +426,9 @@ module CalculateRoute
         {
             //window.console.log("onAjaxTaskSelectedDataSuccess");
 
-            // TODO удаление задания из маршрута произведено успешно - необходимо скорректировать таблицу маршрута
+            // удаление задания из маршрута произведено успешно - необходимо скорректировать таблицу маршрута
+            __currentComp.routeData = (<ServerData.AjaxIdsListAndRoutePointList>data.data).routePointList;
+            __currentComp.drawRouteTable();
 
 
             // скрываем иконку загрузки
@@ -465,6 +472,154 @@ module CalculateRoute
             divs.unbind("click", __currentComp.onPageNavigationClick);
             // удаляем все контейнеры навигации
             divs.remove();
+        }
+
+        drawRouteTable(): void
+        {
+            var route: ServerData.AjaxRoutePoint[] = __currentComp.routeData.routePoints;
+
+            // очищаем таблицу маршрута
+            __currentComp.clearRouteTable();
+
+            if (route.length < 1)
+            {
+                __currentComp.showHideRouteTableAbsentRow(true);
+                return;
+            }
+
+            // рисуем строки маршрута
+            __currentComp.showHideRouteTableAbsentRow(false);
+
+            var tbody: JQuery = $("#i-calc-routes-table > tbody");
+
+            for (var i: number = 0; i < route.length; i++)
+            {
+                var entry: ServerData.AjaxRoutePoint = route[i];
+                var row: JQuery = __currentComp.createRouteEntryRow(entry);
+
+                // подсветка колонок суммарного веса и объёма
+
+                // Добавляем строку в таблицу
+                row.appendTo(tbody);
+            }
+            
+
+        }
+
+        createRouteEntryRow(routeEntry: ServerData.AjaxRoutePoint): JQuery
+        {
+            var rowTemplate: JQuery = $("#i-calc-routes-table-tr-template");
+            // создаём новую строку 
+            var row: JQuery = rowTemplate.clone();
+            row.removeAttr("id");
+            row.removeClass("hidden");
+
+            // заполняем данными строку
+            row.attr("data-point-id", routeEntry.routePointId);
+            row.attr("data-cargo-id", routeEntry.cargoId);
+            row.attr("data-city-id", routeEntry.cityId);
+
+            $("td.calc-table-col-num", row).text(routeEntry.cargoId);
+            $("td.calc-table-col-from", row).text(routeEntry.cityName);
+
+            $("td.calc-table-col-weight-load", row).text(routeEntry.weight);
+            $("td.calc-table-col-value-load", row).text(routeEntry.value);
+
+
+            /*
+            if (routeEntry.sumWeightPc == Number.POSITIVE_INFINITY || routeEntry.sumValuePc == Number.POSITIVE_INFINITY
+                || isNaN(routeEntry.sumWeightPc) || isNaN(routeEntry.sumValuePc))
+            {
+                $("td.calc-table-col-sum-weight", row).text(routeEntry.sumWeight);
+                $("td.calc-table-col-sum-value", row).text(routeEntry.sumValue);
+            }
+            else
+            {
+                $("td.calc-table-col-sum-weight", row).text(routeEntry.sumWeight + " (" + routeEntry.sumWeightPc + "%)");
+                $("td.calc-table-col-sum-value", row).text(routeEntry.sumValue + " (" + routeEntry.sumValuePc + "%)");
+            }
+
+
+            if (routeEntry.resWeightPc == Number.NEGATIVE_INFINITY || routeEntry.resValuePc == Number.NEGATIVE_INFINITY
+                || isNaN(routeEntry.resWeightPc) || isNaN(routeEntry.resValuePc))
+            {
+                $("td.calc-table-col-res-weight", row).text(routeEntry.resWeight);
+                $("td.calc-table-col-res-value", row).text(routeEntry.resValue);
+            }
+            else
+            {
+                $("td.calc-table-col-res-weight", row).text(routeEntry.resWeight + " (" + routeEntry.resWeightPc + "%)");
+                $("td.calc-table-col-res-value", row).text(routeEntry.resValue + " (" + routeEntry.resValuePc + "%)");
+            }
+            */
+
+            $("td.calc-table-col-distance", row).text(routeEntry.routePointDistance);
+
+            $("td.calc-table-col-sum-proceeds", row).text(routeEntry.cost);
+
+            /*
+            $("td.calc-table-col-sum-distance", row).text(routeEntry.sumDistance);
+
+            $("td.calc-table-col-expense", row).text(routeEntry.expense.toFixed(0));
+            $("td.calc-table-col-sum-expense", row).text(routeEntry.sumExpense.toFixed(0));
+
+            if (null != routeEntry.task && routeEntry.task.customTaxUsed)
+                $("td.calc-table-col-proceeds", row).text(routeEntry.proceeds.toFixed(0)).addClass("calc-table-col-val-custom");
+            else
+                $("td.calc-table-col-proceeds", row).text(routeEntry.proceeds.toFixed(0));
+
+            $("td.calc-table-col-sum-proceeds", row).text(routeEntry.sumProceeds.toFixed(0));
+
+            $("td.calc-table-col-profit", row).text(routeEntry.profit.toFixed(0));
+            $("td.calc-table-col-sum-profit", row).text(routeEntry.sumProfit.toFixed(0));
+
+            $("td.calc-table-col-lost-proceeds", row).text(routeEntry.lostProceeds.toFixed(0));
+            $("td.calc-table-col-target-profit", row).text(routeEntry.targetProfit.toFixed(0));
+            */
+
+            /*
+            // подключаем обработчики событий
+            if (isBackWayRow)
+            {
+                $("td.calc-table-col-up > span.icon-button", row).remove();
+                $("td.calc-table-col-down > span.icon-button", row).remove();
+                $("td.calc-table-col-show-details > span.icon-button", row).remove();
+            }
+            else
+            {
+                $("td.calc-table-col-up > span.icon-button", row).click("up", CalcController.prototype._onUpDownClick);
+                $("td.calc-table-col-down > span.icon-button", row).click("down", CalcController.prototype._onUpDownClick);
+                $("td.calc-table-col-show-details > span.icon-button", row).click(CalcController.prototype._onDetailsClick);
+            }
+
+            row.click(CalcController.prototype._onRouteTableRowClick);
+            */
+
+            return row;
+        }
+
+
+        clearRouteTable(): void
+        {
+            $("#i-calc-routes-table > tbody > tr[data-point-id] > td > span").unbind();
+            $("#i-calc-routes-table > tbody > tr[data-point-id]").unbind().remove();
+        }
+
+        showHideRouteTableAbsentRow(show: boolean): void
+        {
+            var rowRouteAbsent: JQuery = $("#i-calc-routes-table-tr-absent");
+            var rowTotal: JQuery = $("#i-calc-routes-table-foot-total");
+
+            if (show)
+            {
+                rowRouteAbsent.removeClass("hidden");
+                rowTotal.addClass("hidden");
+            }
+            else
+            {
+                rowRouteAbsent.addClass("hidden");
+                rowTotal.removeClass("hidden");
+            }
         }
 
 

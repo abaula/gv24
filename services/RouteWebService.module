@@ -88,7 +88,7 @@ class RouteWebService extends WebServBase
 
                     $entry = new AjaxTask
                     (
-                        $row['id'], $row['city1'], $row['city2'], $row['type'], $row['weight'], $row['value'], $row['distance'], $row['cost'], $rusReadyDate, $selected, $row['selectedId']
+                        $row['id'], $row['city1'], $row['city2'], $row['type'], $row['distance'], $row['value'], $row['weight'], $row['cost'], $rusReadyDate, $selected, $row['selectedId']
                     );
 
                     array_push($arr, $entry);
@@ -96,12 +96,20 @@ class RouteWebService extends WebServBase
             }
 
             // на данный момент информацию о страницах не заполняем, т.к. возвращаем все данные
-            $respData = new AjaxTaskList();
-            $respData->offset = $offset;
-            $respData->limit = $limit;
-            $respData->allRowCount = $allRowCount;
-            $respData->page = $page;
-            $respData->tasks = $arr;
+            $taskListData = new AjaxTaskList();
+            $taskListData->offset = $offset;
+            $taskListData->limit = $limit;
+            $taskListData->allRowCount = $allRowCount;
+            $taskListData->page = $page;
+            $taskListData->tasks = $arr;
+
+            // получаем данные маршрута
+            $routePointList = CalculateRouteWebService::GetRouteData($accountId, $userTokenId, $db);
+
+            // подготавливаем данные для отправки клиенту
+            $respData = new AjaxRoutePointListAndAjaxTaskList();
+            $respData->ajaxTaskList = $taskListData;
+            $respData->routePointList = $routePointList;
 
             $response = new AjaxServerResponse(200, '', '', $respData);
             sendHTTPStatus(200);
