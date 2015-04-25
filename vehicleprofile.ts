@@ -1,37 +1,20 @@
 ﻿///<reference path="Scripts\typings\jquery\jquery.d.ts"/>
-///<reference path="ServerAjaxData.d.ts"/>
+///<reference path="ServerAjaxData.ts"/>
 ///<reference path="application.ts"/>
 ///<reference path="profile.ts"/>
 ///<reference path="validators.ts"/>
 
 module VehicleProfile
 {
-    export class AjaxVehicle
-    {
-        id: number;
-        typeId: number;
-        name: string;
-        maxValue: number;
-        maxWeight: number;
-        expences: number;
-        taxWeight: number;
-        taxValue: number;
-    }
-
-    export class AjaxVehicleList
-    {
-        vehicles: AjaxVehicle[] = [];
-    }
-
     export class VehicleProfileController implements Application.IComponent
     {
         public isComponentLoaded: boolean = false;
         public application: Application.IApplication = null;
         public parent: Application.IComponent = null;
 
-        public vehicleData: AjaxVehicleList = null;
+        public vehicleData: ServerData.AjaxVehicleList = null;
         public errorData: ServerData.AjaxServerResponse = null;
-        public currentVehicle: AjaxVehicle = null;
+        public currentVehicle: ServerData.AjaxVehicle = null;
         public currentDeleteId: number = 0;
 
         // вызовы от IApplication
@@ -94,11 +77,11 @@ module VehicleProfile
 
         /////////////////////////////////////////
         // внутренние методы класса
-        addVehicleToList(vehicle: AjaxVehicle): void
+        addVehicleToList(vehicle: ServerData.AjaxVehicle): void
         {
             if (null == __currentVehProfile.vehicleData)
             {
-                __currentVehProfile.vehicleData = new AjaxVehicleList();
+                __currentVehProfile.vehicleData = new ServerData.AjaxVehicleList();
                 __currentVehProfile.vehicleData.vehicles = [];
             }
 
@@ -180,7 +163,7 @@ module VehicleProfile
             //window.console.log("_onAjaxGetAccountDataSuccess");
             
             // загрузка компонента произведена успешно
-            __currentVehProfile.vehicleData = <AjaxVehicleList>data.data;
+            __currentVehProfile.vehicleData = <ServerData.AjaxVehicleList>data.data;
             
             // помещаем данные в контролы
             __currentVehProfile.drawVehicleList();
@@ -229,7 +212,7 @@ module VehicleProfile
 
                 for (var i: number = 0; i < __currentVehProfile.vehicleData.vehicles.length; i++)
                 {
-                    var vehicle: AjaxVehicle = __currentVehProfile.vehicleData.vehicles[i];
+                    var vehicle: ServerData.AjaxVehicle = __currentVehProfile.vehicleData.vehicles[i];
                     var row: JQuery = rowTempl.clone();
                     row.removeAttr("id").removeClass("hidden");
 
@@ -260,15 +243,15 @@ module VehicleProfile
         }
 
 
-        getVehicleById(id: number): AjaxVehicle
+        getVehicleById(id: number): ServerData.AjaxVehicle
         {
-            var v: AjaxVehicle = null;
+            var v: ServerData.AjaxVehicle = null;
 
             if (null != __currentVehProfile.vehicleData)
             {
                 for (var i: number = 0; i < __currentVehProfile.vehicleData.vehicles.length; i++)
                 {
-                    var vehicle: AjaxVehicle = __currentVehProfile.vehicleData.vehicles[i];
+                    var vehicle: ServerData.AjaxVehicle = __currentVehProfile.vehicleData.vehicles[i];
 
                     if (id == vehicle.id)
                     {
@@ -281,13 +264,13 @@ module VehicleProfile
             return v;
         }
 
-        updateLocalVehicleData(vehicle: AjaxVehicle): void
+        updateLocalVehicleData(vehicle: ServerData.AjaxVehicle): void
         {
             if (null != __currentVehProfile.vehicleData)
             {
                 for (var i: number = 0; i < __currentVehProfile.vehicleData.vehicles.length; i++)
                 {
-                    var v: AjaxVehicle = __currentVehProfile.vehicleData.vehicles[i];
+                    var v: ServerData.AjaxVehicle = __currentVehProfile.vehicleData.vehicles[i];
 
                     if (v.id == vehicle.id)
                     {
@@ -305,7 +288,7 @@ module VehicleProfile
             {
                 for (var i: number = 0; i < __currentVehProfile.vehicleData.vehicles.length; i++)
                 {
-                    var v: AjaxVehicle = __currentVehProfile.vehicleData.vehicles[i];
+                    var v: ServerData.AjaxVehicle = __currentVehProfile.vehicleData.vehicles[i];
 
                     if (v.id == id)
                     {
@@ -349,7 +332,7 @@ module VehicleProfile
 
         onVehicleDeleteConfirmClick(event: JQueryEventObject): void
         {
-            var vehicle: AjaxVehicle = __currentVehProfile.getVehicleById(__currentVehProfile.currentDeleteId);
+            var vehicle: ServerData.AjaxVehicle = __currentVehProfile.getVehicleById(__currentVehProfile.currentDeleteId);
             // прячем сообщение об ошибке
             __currentVehProfile.application.switchFormPropertyErrorVisibility("#i-ctrl-vehicle-table-row-confirm-error-message", "", false);
             // показываем иконку загрузки
@@ -372,7 +355,7 @@ module VehicleProfile
             __currentVehProfile.application.hideOverlay("#i-ctrl-vehicle-table-block-overlay");
 
             var response: ServerData.AjaxServerResponse = <ServerData.AjaxServerResponse>JSON.parse(jqXHR.responseText);
-            var data: AjaxVehicle = <AjaxVehicle>response.data;
+            var data: ServerData.AjaxVehicle = <ServerData.AjaxVehicle>response.data;
 
             var errCode: string[] = response.code.split(";");
             var errMsg: string[] = response.userMessage.split(";");
@@ -393,7 +376,7 @@ module VehicleProfile
         {
             __currentVehProfile.application.hideOverlay("#i-ctrl-vehicle-table-block-overlay");
 
-            var vehicle: AjaxVehicle = <AjaxVehicle>data.data;
+            var vehicle: ServerData.AjaxVehicle = <ServerData.AjaxVehicle>data.data;
             // чистим данные об автомобиле
             __currentVehProfile.removeLocalVehicleById(vehicle.id);
 
@@ -454,7 +437,7 @@ module VehicleProfile
 
             //////////////////////////////////
             // собираем данные
-            var vehicle = new AjaxVehicle();
+            var vehicle = new ServerData.AjaxVehicle();
             vehicle.name = $("#i-ctrl-vehicle-form-name-txt").val().trim();
             vehicle.typeId = parseInt($("#i-ctrl-vehicle-form-type-select").val());
             vehicle.maxWeight = parseInt($("#i-ctrl-vehicle-form-max-weight-txt").val().trim());
@@ -524,7 +507,7 @@ module VehicleProfile
             }
         }
 
-        createNewVehicle(data: AjaxVehicle): void
+        createNewVehicle(data: ServerData.AjaxVehicle): void
         {
             $.ajax({
                 type: "POST",
@@ -542,7 +525,7 @@ module VehicleProfile
             __currentVehProfile.application.hideOverlay("#i-ctrl-vehicle-form-overlay");
             
             var response: ServerData.AjaxServerResponse = <ServerData.AjaxServerResponse>JSON.parse(jqXHR.responseText);
-            var data: AjaxVehicle = <AjaxVehicle>response.data;
+            var data: ServerData.AjaxVehicle = <ServerData.AjaxVehicle>response.data;
 
             var errCode: string[] = response.code.split(";");
             var errMsg: string[] = response.userMessage.split(";");
@@ -562,7 +545,7 @@ module VehicleProfile
         {
             __currentVehProfile.application.hideOverlay("#i-ctrl-vehicle-form-overlay");
             
-            var vehicle: AjaxVehicle = <AjaxVehicle>data.data;
+            var vehicle: ServerData.AjaxVehicle = <ServerData.AjaxVehicle>data.data;
 
             // запоминаем данные об автомобиле
             __currentVehProfile.addVehicleToList(vehicle);
@@ -574,7 +557,7 @@ module VehicleProfile
             __currentVehProfile.showEditForm(false);
         }
 
-        updateVehicle(data: AjaxVehicle): void
+        updateVehicle(data: ServerData.AjaxVehicle): void
         {
             $.ajax({
                 type: "PUT",
@@ -593,7 +576,7 @@ module VehicleProfile
             __currentVehProfile.application.hideOverlay("#i-ctrl-vehicle-form-overlay");
 
             var response: ServerData.AjaxServerResponse = <ServerData.AjaxServerResponse>JSON.parse(jqXHR.responseText);
-            var data: AjaxVehicle = <AjaxVehicle>response.data;
+            var data: ServerData.AjaxVehicle = <ServerData.AjaxVehicle>response.data;
 
             var errCode: string[] = response.code.split(";");
             var errMsg: string[] = response.userMessage.split(";");
@@ -613,7 +596,7 @@ module VehicleProfile
         {
             __currentVehProfile.application.hideOverlay("#i-ctrl-vehicle-form-overlay");
 
-            var vehicle: AjaxVehicle = <AjaxVehicle>data.data;
+            var vehicle: ServerData.AjaxVehicle = <ServerData.AjaxVehicle>data.data;
             
             // обновляем данные об автомобиле
             __currentVehProfile.updateLocalVehicleData(vehicle);
@@ -639,7 +622,7 @@ module VehicleProfile
             {
                 if (null != __currentVehProfile.currentVehicle)
                 {
-                    var v: AjaxVehicle = __currentVehProfile.currentVehicle;
+                    var v: ServerData.AjaxVehicle = __currentVehProfile.currentVehicle;
                     $("#i-ctrl-vehicle-form-name-txt").val(v.name);
                     $("#i-ctrl-vehicle-form-type-select").val(v.typeId);
                     $("#i-ctrl-vehicle-form-max-weight-txt").val(v.maxWeight);

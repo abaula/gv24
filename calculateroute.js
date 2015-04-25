@@ -3,6 +3,18 @@
 ///<reference path="application.ts"/>
 var CalculateRoute;
 (function (CalculateRoute) {
+    var VehicleParams = (function () {
+        function VehicleParams() {
+            this.maxValue = 82;
+            this.maxWeight = 20000;
+            this.expences = 25;
+            this.taxWeight = 125;
+            this.taxValue = 30.5;
+        }
+        return VehicleParams;
+    })();
+    CalculateRoute.VehicleParams = VehicleParams;
+
     var CalculateRouteController = (function () {
         function CalculateRouteController() {
             this.isComponentLoaded = false;
@@ -23,6 +35,10 @@ var CalculateRoute;
 
             // Получаем первую страницу из списка грузов
             CalculateRoute.__currentComp.getTasksPageData(1);
+
+            // TODO переделать на загрузку сохранённых данных из базы
+            CalculateRoute.__currentComp.vehicleParams = new VehicleParams();
+            CalculateRoute.__currentComp.fillVehicleParams();
             // Сообщаем приложению, что компонент загружен.
             //__currentComp.onComponentLoaded();
         };
@@ -113,6 +129,14 @@ var CalculateRoute;
 
             // скрываем иконку загрузки
             CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-tasks-table-overlay");
+        };
+
+        CalculateRouteController.prototype.fillVehicleParams = function () {
+            $("#i-calc-param-max-weight").val(CalculateRoute.__currentComp.vehicleParams.maxWeight);
+            $("#i-calc-param-max-value").val(CalculateRoute.__currentComp.vehicleParams.maxValue);
+            $("#i-calc-param-expense").val(CalculateRoute.__currentComp.vehicleParams.expences);
+            $("#i-calc-param-tax-weight").val(CalculateRoute.__currentComp.vehicleParams.taxWeight);
+            $("#i-calc-param-tax-value").val(CalculateRoute.__currentComp.vehicleParams.taxValue);
         };
 
         CalculateRouteController.prototype.drawTasksList = function () {
@@ -411,12 +435,121 @@ else if ("i-page-cargoselected-link" == id)
             CalculateRoute.__currentComp.showHideRouteTableAbsentRow(false);
 
             var tbody = $("#i-calc-routes-table > tbody");
+            var commulativeDistance = 0;
+            var commulativeCost = 0;
+            var commulativeExpences = 0;
+            var commulativeProfit = 0;
+            var currentWeight = 0;
+            var currentValue = 0;
+            var prevResWeight = 0;
+            var prevResValue = 0;
+            var traceStop = false;
 
             for (var i = 0; i < route.length; i++) {
                 var entry = route[i];
                 var row = CalculateRoute.__currentComp.createRouteEntryRow(entry);
 
-                // подсветка колонок суммарного веса и объёма
+                // накопленная дистанция
+                commulativeDistance = commulativeDistance + parseFloat(entry.routePointDistance);
+                $("td.calc-table-col-sum-distance", row).text(commulativeDistance.toFixed(0));
+
+                // текущий вес груза
+                currentWeight = currentWeight + parseFloat(entry.weight);
+                $("td.calc-table-col-sum-weight", row).text(currentWeight.toFixed(0));
+
+                // подсветка текущего веса груза
+                var currentWeightPrc = (currentWeight / CalculateRoute.__currentComp.vehicleParams.maxWeight) * 100;
+
+                if (currentWeightPrc > 100) {
+                    $("td.calc-table-col-sum-weight", row).addClass("calc-table-col-res-empty");
+                } else {
+                    $("td.calc-table-col-sum-weight", row).addClass("calc-table-col-weight-value-pc").css("background-size", currentWeightPrc + "% 100%");
+                }
+
+                // текущий объём груза
+                currentValue = currentValue + parseFloat(entry.value);
+                $("td.calc-table-col-sum-value", row).text(currentValue.toFixed(2));
+
+                // подсветка текущего объёма груза
+                var currentValuePrc = (currentValue / CalculateRoute.__currentComp.vehicleParams.maxValue) * 100;
+
+                if (currentValuePrc > 100) {
+                    $("td.calc-table-col-sum-value", row).addClass("calc-table-col-res-empty");
+                } else {
+                    $("td.calc-table-col-sum-value", row).addClass("calc-table-col-weight-value-pc").css("background-size", currentValuePrc + "% 100%");
+                }
+
+                // резерв веса
+                var resWeight = CalculateRoute.__currentComp.vehicleParams.maxWeight - currentWeight;
+                $("td.calc-table-col-res-weight", row).text(resWeight.toFixed(0));
+
+                if (resWeight < 0) {
+                    $("td.calc-table-col-res-weight", row).addClass("calc-table-col-res-empty");
+                } else {
+                    var resWeightPrc = (resWeight / CalculateRoute.__currentComp.vehicleParams.maxWeight) * 100;
+                    $("td.calc-table-col-res-weight", row).addClass("calc-table-col-res-pc").css("background-size", resWeightPrc + "% 100%");
+                }
+
+                // резерв объёма
+                var resValue = CalculateRoute.__currentComp.vehicleParams.maxValue - currentValue;
+                $("td.calc-table-col-res-value", row).text(resValue.toFixed(2));
+
+                if (resValue < 0) {
+                    $("td.calc-table-col-res-value", row).addClass("calc-table-col-res-empty");
+                } else {
+                    var resValuePrc = (resValue / CalculateRoute.__currentComp.vehicleParams.maxValue) * 100;
+                    $("td.calc-table-col-res-value", row).addClass("calc-table-col-res-pc").css("background-size", resValuePrc + "% 100%");
+                }
+
+                if (resWeight < 0 || resValue < 0 || true == traceStop) {
+                    $("td.calc-table-col-trace", row).addClass("trace-stop");
+                    traceStop = true;
+                } else {
+                    $("td.calc-table-col-trace", row).addClass("trace-pass");
+                }
+
+                // затраты
+                var exprences = parseFloat(entry.routePointDistance) * CalculateRoute.__currentComp.vehicleParams.expences;
+                $("td.calc-table-col-expense", row).text(exprences.toFixed(0));
+
+                // прибыль
+                var profit = parseFloat(entry.cost) - exprences;
+                $("td.calc-table-col-profit", row).text(profit.toFixed(0));
+
+                if (profit < 0)
+                    $("td.calc-table-col-profit", row).addClass("calc-table-col-val-empty");
+
+                // накопленная выручка
+                commulativeCost += parseFloat(entry.cost);
+                $("td.calc-table-col-sum-proceeds", row).text(commulativeCost.toFixed(0));
+
+                // накопленные затраты
+                commulativeExpences += exprences;
+                $("td.calc-table-col-sum-expense", row).text(commulativeExpences.toFixed(0));
+
+                // накопленная прибыль
+                commulativeProfit += profit;
+                $("td.calc-table-col-sum-profit", row).text(commulativeProfit.toFixed(0));
+
+                if (commulativeProfit < 0)
+                    $("td.calc-table-col-sum-profit", row).addClass("calc-table-col-val-empty");
+
+                // упущенная выручка
+                var lostProceedsForWeight = prevResWeight / 1000 * parseFloat(entry.routePointDistance) / 100 * CalculateRoute.__currentComp.vehicleParams.taxWeight;
+                var lostProceedsForValue = prevResValue * parseFloat(entry.routePointDistance) / 100 * CalculateRoute.__currentComp.vehicleParams.taxValue;
+                var lostProceeds = Math.max(lostProceedsForWeight, lostProceedsForValue);
+                $("td.calc-table-col-lost-proceeds", row).text(lostProceeds.toFixed(0));
+
+                // целевая прибыль
+                var targetProfitForWeight = commulativeDistance / 100 * CalculateRoute.__currentComp.vehicleParams.maxWeight / 1000 * CalculateRoute.__currentComp.vehicleParams.taxWeight - commulativeExpences;
+                var targetProfitForValue = commulativeDistance / 100 * CalculateRoute.__currentComp.vehicleParams.maxValue * CalculateRoute.__currentComp.vehicleParams.taxValue - commulativeExpences;
+                var targetProfit = Math.max(targetProfitForWeight, targetProfitForValue);
+                $("td.calc-table-col-target-profit", row).text(targetProfit.toFixed(0));
+
+                // сохраняем данные о резерве загрузки машины в прошлой точке маршрута
+                prevResWeight = resWeight;
+                prevResValue = resValue;
+
                 // Добавляем строку в таблицу
                 row.appendTo(tbody);
             }
@@ -435,11 +568,19 @@ else if ("i-page-cargoselected-link" == id)
             row.attr("data-cargo-id", routeEntry.cargoId);
             row.attr("data-city-id", routeEntry.cityId);
 
-            $("td.calc-table-col-num", row).text(routeEntry.cargoId);
+            var num = routeEntry.cargoId.toString();
+
+            if (routeEntry.cost > 0)
+                num += ".2";
+else
+                num += ".1";
+
+            $("td.calc-table-col-num", row).text(num);
+
             $("td.calc-table-col-from", row).text(routeEntry.cityName);
 
-            $("td.calc-table-col-weight-load", row).text(routeEntry.weight);
-            $("td.calc-table-col-value-load", row).text(routeEntry.value);
+            $("td.calc-table-col-weight-load", row).text(parseFloat(routeEntry.weight).toFixed(0));
+            $("td.calc-table-col-value-load", row).text(parseFloat(routeEntry.value).toFixed(2));
 
             /*
             if (routeEntry.sumWeightPc == Number.POSITIVE_INFINITY || routeEntry.sumValuePc == Number.POSITIVE_INFINITY
@@ -467,9 +608,9 @@ else if ("i-page-cargoselected-link" == id)
             $("td.calc-table-col-res-value", row).text(routeEntry.resValue + " (" + routeEntry.resValuePc + "%)");
             }
             */
-            $("td.calc-table-col-distance", row).text(routeEntry.routePointDistance);
+            $("td.calc-table-col-distance", row).text(parseFloat(routeEntry.routePointDistance).toFixed(0));
 
-            $("td.calc-table-col-sum-proceeds", row).text(routeEntry.cost);
+            $("td.calc-table-col-proceeds", row).text(parseFloat(routeEntry.cost).toFixed(0));
 
             /*
             $("td.calc-table-col-sum-distance", row).text(routeEntry.sumDistance);

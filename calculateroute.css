@@ -119,22 +119,30 @@
 }
 
 .calc-table-col-up, .calc-table-col-down {
-    width: 22px;
+    width: 10pt;
 }
 
-.calc-table-col-show-details {
-
+.calc-table-col-up i, .calc-table-col-down i {
+    color: green;
+    cursor: pointer;
+    text-align: center;
+    
 }
+
+.calc-table-col-drag {
+    width: 4pt;
+    cursor: move;
+    font-size: 12pt;
+    color: #c0c0c0;
+    text-align: center;
+}
+
 
 .calc-table-col-details {
     
 }
 
-.calc-table-col-up A, .calc-table-col-down A {
-    color: green;
-    text-decoration:none;
-    
-}
+
 
 
 .calc-table-col-chk {
@@ -144,6 +152,8 @@
 .calc-table-col-num {
     text-align: center;
 }
+
+
 
 .calc-table-col-trace {
     width: 5px;
@@ -170,12 +180,6 @@
 
 .calc-table-col-sum-distance {
     text-align: center;
-}
-
-.calc-table-col-sum-distance:before {
-    position: relative;
-    content: url(resources/arrow-up-icon.png);
-    top: 4px;
 }
 
 .calc-table-col-weight-load {

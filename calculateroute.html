@@ -110,7 +110,7 @@
                     <div class="c-ctrl-options-option">Максимальный вес<br/><input type="text" id="i-calc-param-max-weight" pattern="^[ 0-9]+$" value="0" />кг</div>
                     <div class="c-ctrl-options-option">Максимальный объём<br/><input type="text" id="i-calc-param-max-value" pattern="^[ 0-9]+$" value="0" />м<sup>3</sup></div>
                     <div class="c-ctrl-options-option">Затраты<br/><input type="text" id="i-calc-param-expense" pattern="^[ 0-9]+$" value="0" />руб/км</div>
-                    <div class="c-ctrl-options-option">Свой тариф за 1 кг<br/><input type="text" id="i-calc-param-tax-weight" pattern="^[ .0-9]+$" value="0" />руб/100 км</div>
+                    <div class="c-ctrl-options-option">Свой тариф за 1 т<br/><input type="text" id="i-calc-param-tax-weight" pattern="^[ .0-9]+$" value="0" />руб/100 км</div>
                     <div class="c-ctrl-options-option">Свой тариф за 1 м<sup>3</sup><br/><input type="text" id="i-calc-param-tax-value" pattern="^[ .0-9]+$" value="0" />руб/100 км</div>
 
                 </div>
@@ -184,9 +184,9 @@
                             </tr>
                             <!-- Шаблон строки -->
                              <tr id="i-calc-routes-table-tr-template" data-point-id="" data-cargo-id="" data-city-id="" class="hidden">
-                                <td class="calc-table-col-show-details"><span class="icon-button ib-toggle-expand"></span></td>
-                                <td class="calc-table-col-up"><span class="icon-button ib-arrow-up icon-gray"></span></td>
-                                <td class="calc-table-col-down"><span class="icon-button ib-arrow-down"></span></td>
+                                <td class="calc-table-col-drag">.</td>
+                                <td class="calc-table-col-up"><i class="fa fa-level-up"></i></td>
+                                <td class="calc-table-col-down"><i class="fa fa-level-down"></i></td>
                                 <td class="calc-table-col-num"></td>
                                 <td class="calc-table-col-trace"></td>
                                 <td class="calc-table-col-from"></td>

@@ -1,5 +1,20 @@
 ﻿var ServerData;
 (function (ServerData) {
+    var AjaxVehicle = (function () {
+        function AjaxVehicle() {
+        }
+        return AjaxVehicle;
+    })();
+    ServerData.AjaxVehicle = AjaxVehicle;
+
+    var AjaxVehicleList = (function () {
+        function AjaxVehicleList() {
+            this.vehicles = [];
+        }
+        return AjaxVehicleList;
+    })();
+    ServerData.AjaxVehicleList = AjaxVehicleList;
+
     var AjaxServerResponse = (function () {
         function AjaxServerResponse() {
         }

@@ -2,6 +2,22 @@
 
 module ServerData
 {
+    export class AjaxVehicle
+    {
+        id: number;
+        typeId: number;
+        name: string;
+        maxValue: number;
+        maxWeight: number;
+        expences: number;
+        taxWeight: number;
+        taxValue: number;
+    }
+
+    export class AjaxVehicleList
+    {
+        vehicles: AjaxVehicle[] = [];
+    }
 
     export class AjaxServerResponse
     {
