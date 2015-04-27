@@ -310,7 +310,7 @@ class RouteWebService extends WebServBase
             $pointIds = array();
             array_push($pointIds, $routePointId);
 
-            if(! is_null($afterRoutePointId))
+            if(intval($afterRoutePointId) > 0)
                 array_push($pointIds, $afterRoutePointId);
 
             $arePointsInRoute = RouteHelper::AreAllPointsInRoute($route_id, $pointIds, $db);

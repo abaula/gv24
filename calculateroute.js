@@ -631,8 +631,12 @@ else
             $("td.calc-table-col-lost-proceeds", row).text(routeEntry.lostProceeds.toFixed(0));
             $("td.calc-table-col-target-profit", row).text(routeEntry.targetProfit.toFixed(0));
             */
-            /*
             // подключаем обработчики событий
+            $("td.calc-table-col-up", row).click(CalculateRoute.__currentComp.onRoutePointUpDownClick);
+            $("td.calc-table-col-down", row).click(CalculateRoute.__currentComp.onRoutePointUpDownClick);
+
+            /*
+            
             if (isBackWayRow)
             {
             $("td.calc-table-col-up > span.icon-button", row).remove();
@@ -643,7 +647,7 @@ else
             {
             $("td.calc-table-col-up > span.icon-button", row).click("up", CalcController.prototype._onUpDownClick);
             $("td.calc-table-col-down > span.icon-button", row).click("down", CalcController.prototype._onUpDownClick);
-            $("td.calc-table-col-show-details > span.icon-button", row).click(CalcController.prototype._onDetailsClick);
+            //$("td.calc-table-col-show-details > span.icon-button", row).click(CalcController.prototype._onDetailsClick);
             }
             
             row.click(CalcController.prototype._onRouteTableRowClick);
@@ -667,6 +671,71 @@ else
                 rowRouteAbsent.addClass("hidden");
                 rowTotal.removeClass("hidden");
             }
+        };
+
+        CalculateRouteController.prototype.onRoutePointUpDownClick = function (event) {
+            var elem = $(event.delegateTarget);
+            var className = elem.attr("class");
+            var row = elem.parent();
+            var rowInsertAfter = null;
+
+            if ("calc-table-col-up" == className) {
+                // нужно переместить строку вверх через 1 строку
+                rowInsertAfter = row.prev();
+
+                if (null != rowInsertAfter)
+                    rowInsertAfter = rowInsertAfter.prev();
+            }
+
+            if ("calc-table-col-down" == className) {
+                // нужно переместить строку вниз на 1 строку
+                rowInsertAfter = row.next();
+            }
+
+            // подготавливаем структуцру данных для отправки на сервер
+            var place = new ServerData.AjaxRoutePointPlace();
+            place.routePointId = parseInt(row.attr("data-point-id"));
+            place.afterRoutePointId = 0;
+
+            if (null != rowInsertAfter)
+                place.afterRoutePointId = parseInt(rowInsertAfter.attr("data-point-id"));
+
+            // показываем иконку загрузки
+            CalculateRoute.__currentComp.application.showOverlay("#i-ctrl-overlay", "#i-calc-contents");
+
+            // отправляем данные на сервер
+            $.ajax({
+                type: "PUT",
+                url: CalculateRoute.__currentComp.application.getFullUri("api/route"),
+                data: JSON.stringify(place),
+                contentType: "application/json",
+                dataType: "json",
+                success: CalculateRoute.__currentComp.onAjaxPointUpDownSuccess,
+                error: CalculateRoute.__currentComp.onAjaxPointUpDownError
+            });
+        };
+
+        CalculateRouteController.prototype.onAjaxPointUpDownError = function (jqXHR, status, message) {
+            //window.console.log("onAjaxTaskSelectedDataError");
+            CalculateRoute.__currentComp.errorData = JSON.parse(jqXHR.responseText);
+            CalculateRoute.__currentComp.dataError(CalculateRoute.__currentComp, CalculateRoute.__currentComp.errorData);
+
+            // TODO обрабатываем ошибки сервера
+            // если ошибка "Требуется авторизация", то требуем у Application проверить текущий статус авторизации
+            //if (2 == parseInt(__currentTasksProfile.errorData.code))
+            //    __currentTasksProfile.application.checkAuthStatus();
+            // скрываем иконку загрузки
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-overlay");
+        };
+
+        CalculateRouteController.prototype.onAjaxPointUpDownSuccess = function (data, status, jqXHR) {
+            //window.console.log("onAjaxTaskSelectedDataSuccess");
+            // удаление задания из маршрута произведено успешно - необходимо скорректировать таблицу маршрута
+            CalculateRoute.__currentComp.routeData = (data.data).routePointList;
+            CalculateRoute.__currentComp.drawRouteTable();
+
+            // скрываем иконку загрузки
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-overlay");
         };
 
         CalculateRouteController.prototype.onDocumentReady = function () {

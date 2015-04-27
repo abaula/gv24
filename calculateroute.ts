@@ -754,8 +754,13 @@ module CalculateRoute
             $("td.calc-table-col-target-profit", row).text(routeEntry.targetProfit.toFixed(0));
             */
 
-            /*
+
             // подключаем обработчики событий
+            $("td.calc-table-col-up", row).click(__currentComp.onRoutePointUpDownClick);
+            $("td.calc-table-col-down", row).click(__currentComp.onRoutePointUpDownClick);
+
+            /*
+            
             if (isBackWayRow)
             {
                 $("td.calc-table-col-up > span.icon-button", row).remove();
@@ -766,7 +771,7 @@ module CalculateRoute
             {
                 $("td.calc-table-col-up > span.icon-button", row).click("up", CalcController.prototype._onUpDownClick);
                 $("td.calc-table-col-down > span.icon-button", row).click("down", CalcController.prototype._onUpDownClick);
-                $("td.calc-table-col-show-details > span.icon-button", row).click(CalcController.prototype._onDetailsClick);
+                //$("td.calc-table-col-show-details > span.icon-button", row).click(CalcController.prototype._onDetailsClick);
             }
 
             row.click(CalcController.prototype._onRouteTableRowClick);
@@ -798,6 +803,95 @@ module CalculateRoute
                 rowTotal.removeClass("hidden");
             }
         }
+
+
+        onRoutePointUpDownClick(event: JQueryEventObject): void
+        {
+            var elem: JQuery = $(event.delegateTarget);
+            var className: string = elem.attr("class");
+            var row: JQuery = elem.parent();
+            var rowInsertAfter: JQuery = null;
+
+            if ("calc-table-col-up" == className)
+            {
+                // нужно переместить строку вверх через 1 строку
+                rowInsertAfter = row.prev();
+
+                if (null != rowInsertAfter)
+                    rowInsertAfter = rowInsertAfter.prev();
+            }
+
+            if ("calc-table-col-down" == className)
+            {
+                // нужно переместить строку вниз на 1 строку
+                rowInsertAfter = row.next();
+            }
+
+
+            // подготавливаем структуцру данных для отправки на сервер
+            var place: ServerData.AjaxRoutePointPlace = new ServerData.AjaxRoutePointPlace();
+            place.routePointId = parseInt(row.attr("data-point-id"));
+            place.afterRoutePointId = 0;
+
+            if (null != rowInsertAfter)
+                place.afterRoutePointId = parseInt(rowInsertAfter.attr("data-point-id"));
+
+            // показываем иконку загрузки
+            __currentComp.application.showOverlay("#i-ctrl-overlay", "#i-calc-contents");
+
+            // отправляем данные на сервер
+            $.ajax({
+                type: "PUT",
+                url: __currentComp.application.getFullUri("api/route"),
+                data: JSON.stringify(place),
+                contentType: "application/json",
+                dataType: "json",
+                success: __currentComp.onAjaxPointUpDownSuccess,
+                error: __currentComp.onAjaxPointUpDownError
+            });
+
+
+        }
+
+
+        onAjaxPointUpDownError(jqXHR: JQueryXHR, status: string, message: string): void
+        {
+            //window.console.log("onAjaxTaskSelectedDataError");
+
+            __currentComp.errorData = <ServerData.AjaxServerResponse>JSON.parse(jqXHR.responseText);
+            __currentComp.dataError(__currentComp, __currentComp.errorData);
+
+            // TODO обрабатываем ошибки сервера
+
+
+
+            // если ошибка "Требуется авторизация", то требуем у Application проверить текущий статус авторизации
+            //if (2 == parseInt(__currentTasksProfile.errorData.code))
+            //    __currentTasksProfile.application.checkAuthStatus();
+
+
+            // скрываем иконку загрузки
+            __currentComp.application.hideOverlay("#i-ctrl-overlay");
+
+        }
+
+        onAjaxPointUpDownSuccess(data: ServerData.AjaxServerResponse, status: string, jqXHR: JQueryXHR): void
+        {
+            //window.console.log("onAjaxTaskSelectedDataSuccess");
+
+            // удаление задания из маршрута произведено успешно - необходимо скорректировать таблицу маршрута
+            __currentComp.routeData = (<ServerData.AjaxRoutePointPlaceAndRoutePointList>data.data).routePointList;
+            __currentComp.drawRouteTable();
+
+
+            // скрываем иконку загрузки
+            __currentComp.application.hideOverlay("#i-ctrl-overlay");
+        }
+
+
+
+
+
 
 
         onDocumentReady(): void

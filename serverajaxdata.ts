@@ -101,8 +101,8 @@ module ServerData
 
     export class AjaxRoutePointPlaceAndRoutePointList
     {
-        public routePointPlace: number;
-        public routePointList: number;
+        public routePointPlace: AjaxRoutePointPlace;
+        public routePointList: AjaxRoutePointList;
     }
 
     export class AjaxRoutePointListAndAjaxTaskList
