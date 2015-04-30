@@ -730,7 +730,7 @@ else
 
         CalculateRouteController.prototype.onAjaxPointUpDownSuccess = function (data, status, jqXHR) {
             //window.console.log("onAjaxTaskSelectedDataSuccess");
-            // удаление задания из маршрута произведено успешно - необходимо скорректировать таблицу маршрута
+            // изменение порядка заданий маршрута произведено успешно - необходимо скорректировать таблицу маршрута
             CalculateRoute.__currentComp.routeData = (data.data).routePointList;
             CalculateRoute.__currentComp.drawRouteTable();
 

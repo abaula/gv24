@@ -879,7 +879,7 @@ module CalculateRoute
         {
             //window.console.log("onAjaxTaskSelectedDataSuccess");
 
-            // удаление задания из маршрута произведено успешно - необходимо скорректировать таблицу маршрута
+            // изменение порядка заданий маршрута произведено успешно - необходимо скорректировать таблицу маршрута
             __currentComp.routeData = (<ServerData.AjaxRoutePointPlaceAndRoutePointList>data.data).routePointList;
             __currentComp.drawRouteTable();
 
