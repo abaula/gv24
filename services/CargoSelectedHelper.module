@@ -1,0 +1,44 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 02.05.15
+ * Time: 15:12
+ * To change this template use File | Settings | File Templates.
+ */
+
+class CargoSelectedHelper
+{
+    private static $_cargoToCargoSelectedMap = null;
+
+    public static function CreateMap($accountId, $userTokenId, $db)
+    {
+        if(is_null($accountId))
+            $where_sql_definition = $db->parse(' user_token_id = ?i ', $userTokenId);
+        else
+            $where_sql_definition = $db->parse(' account_id = ?i ', $accountId);
+
+
+        $sql = 'SELECT id, cargo_id FROM cargo_selected WHERE ?p';
+
+        $result = $db->query($sql, $where_sql_definition);
+
+        if(0 < $db->numRows($result))
+        {
+            self::$_cargoToCargoSelectedMap = array();
+
+            while($row = $db->fetch($result))
+            {
+                self::$_cargoToCargoSelectedMap[$row['cargo_id']] = $row['id'];
+            }
+        }
+    }
+
+
+    public static function GetCargoSelectedIdByCargoId($cargoId)
+    {
+        return self::$_cargoToCargoSelectedMap[$cargoId];
+    }
+
+
+}

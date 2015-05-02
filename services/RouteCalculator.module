@@ -1,13 +1,13 @@
 <?php
 /**
- * Created by JetBrains PhpStorm->
+ * Created by JetBrains PhpStorm.
  * User: Anton
- * Date: 28->04->15
+ * Date: 28.04.15
  * Time: 14:00
- * To change this template use File | Settings | File Templates->
+ * To change this template use File | Settings | File Templates.
  */
 
-require_once('GeoRouteHelper->module');
+require_once('GeoRouteHelper.module');
 
 
 
@@ -314,6 +314,8 @@ class UndirectedGraph
             $this->_vertices[$vertex->getId()] = $vertex;
         }
 
+        //var_dump($this->_vertices);
+
         // сохраняем рёбра
         foreach ($edges as $edge)
         {
@@ -477,7 +479,7 @@ class RouteTaskList
             $task->bindVerticesToThisTask();
 
             // сохраняем задание
-            $this->_tasks->setValue($task->getId(), $task);
+            $this->_tasks[$task->getId()] = $task;
         }
     }
 
@@ -489,7 +491,7 @@ class RouteTaskList
         {
             // вершина с данным Id уже сохранена ранее, поэтому
             // подменяем вершину в задании на сохранённую ранее
-            $savedVertex = $this->_vertices->getValue($vertex->getId());
+            $savedVertex = $this->_vertices[$vertex->getId()];
 
             if ($isA)
                 $task->setVertexA($savedVertex);
@@ -499,7 +501,7 @@ class RouteTaskList
         else
         {
             // сохраняем вершину
-            $this->_vertices->setValue($vertex->getId(), $vertex);
+            $this->_vertices[$vertex->getId()] = $vertex;
         }
 
     }
@@ -895,7 +897,7 @@ class Ant
             // обрабатываем событие посещения вершины A (загружаем муравья)
             $routeEntry = $this->_handleVertexAVisited($vertex);
             // отмечаем вершину как посещённую
-            $this->_visitedVertices->setValue($vertex->getId(), $vertex);
+            $this->_visitedVertices[$vertex->getId()] = $vertex;
             // получаем список возможных путей
             $edges = $this->_getAccessibleEdges($vertex);
 
@@ -925,7 +927,7 @@ class Ant
     {
         $commited = array_key_exists($task->getId(), $this->_commitedTasks);
 
-        return commited;
+        return $commited;
     }
 
     // добавляем отдельно в Route->Route отдельный Route->RouteEntry из последней точки маршрута к первой точке маршрута
@@ -966,6 +968,10 @@ class Ant
         $selectedTaskList = array();
 
         $vertexTasks = $vertex->getRouteTasks();
+
+        //print_r($vertex);
+        //exit();
+
         $valueToLoad = 0;
         $weightToLoad = 0;
 
@@ -973,12 +979,16 @@ class Ant
         {
             if ($task->getVertexA()->isEqual($vertex))
             {
+
                 $selectedTaskList[$task->getId()] = $task;
                 // подсчитываем суммарные значения груза подлежащего загрузке
                 $valueToLoad += $task->getValue();
                 $weightToLoad += $task->getWeight();
             }
         }
+
+        //print_r($selectedTaskList);
+        //exit();
 
         $selectedTasks = array_values($selectedTaskList);
 
@@ -1018,6 +1028,7 @@ class Ant
             $selectedTasks = $commitedTasks;
         }
 
+
         // принимаем в работу все задания, которые остались после обработки конфликта
         $valueToLoad = 0;
         $weightToLoad = 0;
@@ -1025,7 +1036,7 @@ class Ant
         foreach ($selectedTasks as $task)
         {
             // отмечаем принятые в работы задания
-            $this->_commitedTasks->setValue($task->getId(), $task);
+            $this->_commitedTasks[$task->getId()] = $task;
             // отмечаем принятые в работы задания в части маршрута
             $entry->addCommitedTask($task);
 
@@ -1059,12 +1070,13 @@ class Ant
             if ($task->getVertexB()->isEqual($vertex))
             {
                 // если задание не было принято в работу, то пропускаем его
-                if (false == $this->_commitedTasks->containsKey($task->getId()))
+                if (false == array_key_exists($task->getId(), $this->_commitedTasks))
                     continue;
 
                 // вносим в маршрут только те задания, которые были приняты в работу
+
                 // удаляем принятое ранее в работу задание из списка
-                $this->_commitedTasks->remove($task->getId());
+                unset($this->_commitedTasks[$task->getId()]);
                 // вносим выполненное задание в часть маршрута
                 $routeEntry->addFulfiledTask($task);
                 // уменьшаем текущие значения загрузки муравья
@@ -1225,7 +1237,7 @@ class Ant
             $nextV = $edge->getAnotherVertex($vertex);
 
             // исключаем вершины, которые уже посещали
-            if ($this->_visitedVertices->containsKey($nextV->getId()))
+            if (array_key_exists($nextV->getId(), $this->_visitedVertices))
                 continue;
 
             // для кажого ребра определены 2 возможных состояния после перехода по ребру:
@@ -1377,7 +1389,7 @@ class Ant
 
         foreach ($edges as $edge)
         {
-            $pheromoneE = $pheromones->getValue($edge->getId());
+            $pheromoneE = $pheromones[$edge->getId()];
 
             //////////////////////////////////////
             // расчитаем вес вершины

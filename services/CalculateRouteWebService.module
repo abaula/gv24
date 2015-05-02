@@ -11,6 +11,8 @@ require_once("WebServBase.module");
 require_once("Headers.module");
 require_once("Contract.module");
 require_once("RouteHelper.module");
+require_once("CargoSelectedHelper.module");
+require_once("RouteCalculator.module");
 
 class CalculateRouteWebService extends WebServBase
 {
@@ -18,11 +20,9 @@ class CalculateRouteWebService extends WebServBase
     public function onGet($args)
     {
         // получаем данные созданного маршрута
-
         $accountId = null;
         $userTokenId = null;
         CurrentUser::FillUserIdentities($accountId, $userTokenId);
-
 
         $db = SqlFactory::getSql();
 
@@ -50,6 +50,38 @@ class CalculateRouteWebService extends WebServBase
 
 
 
+        $accountId = null;
+        $userTokenId = null;
+        CurrentUser::FillUserIdentities($accountId, $userTokenId);
+
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            // TODO заменить на данные полученные с клиента
+            $options = null;
+            $userTokenId = 1;
+
+            // 1. пересчитываем маршрут
+            $route = self::CalculateRoute($accountId, $userTokenId, $options, $db);
+
+            // 2. Обновляем маршрут пользователя
+            self::UpdateRoute($accountId, $userTokenId, $route, $db);
+
+            // возвращаем данные марщрута
+            $list = self::GetRouteData($accountId, $userTokenId, $db);
+
+            $response = new AjaxServerResponse(200, '', '', $list);
+            sendHTTPStatus(200);
+            header('Content-type: application/json');
+            echo json_encode($response);
+
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1));
+        }
     }
 
     public function onPut($args, $data)
@@ -66,7 +98,7 @@ class CalculateRouteWebService extends WebServBase
         header('Allow: GET,POST');
     }
 
-    public static function GetRouteData($accountId, $userTokenId, $db)
+    static function GetRouteData($accountId, $userTokenId, $db)
     {
         $list = new AjaxRoutePointList();
 
@@ -114,5 +146,167 @@ class CalculateRouteWebService extends WebServBase
         return $list;
     }
 
+
+    static function CalculateRoute($accountId, $userTokenId, $options, $db)
+    {
+        // 1. получаем идентификатор маршрута
+        $routeId = RouteHelper::GetRouteId($accountId, $userTokenId, $db);
+
+        // 2. получаем данные маршрута - TaskInfo[]
+        $routeTasksInfoList = RouteHelper::GetCargoInRouteData($routeId, $db);
+
+        // 3. создаём список ограничений
+        // TODO заменить на значения полученные из клиента
+        $routeRestrictions = new RouteRestrictions(82, 20000, ConflictResolveCriteria::MaxProceeds, LoadingStrategy::SavingWeight);
+
+        // 4. создаём список заданий на перевозку - RouteTask, RouteTaskList
+        $list = array();
+
+        foreach($routeTasksInfoList as $routeTaskInfo)
+        {
+            $vertexA = new GVertex($routeTaskInfo->cityId1, $routeTaskInfo->city1Name, $routeTaskInfo->city1Latitude, $routeTaskInfo->city1Longitude);
+            $vertexB = new GVertex($routeTaskInfo->cityId2, $routeTaskInfo->city2Name, $routeTaskInfo->city2Latitude, $routeTaskInfo->city2Longitude);
+            $task = new RouteTask($routeTaskInfo->id, $routeTaskInfo->name, $vertexA, $vertexB, $routeTaskInfo->cost, $routeTaskInfo->value, $routeTaskInfo->weight, $routeTaskInfo->distance);
+            array_push($list, $task);
+        }
+
+        $routeTaskList = new RouteTaskList();
+        $routeTaskList->addRouteTasks($list);
+
+        //print_r($routeTaskList);
+
+        // 5. получаем список уникальных вершин для графа - GVertex[]
+        $vertices = $routeTaskList->getVertices();
+
+        //print_r($vertices);
+
+        // 6. получаем список городов.
+        // ВАЖНО: В текущей реализации id вершины = id города
+        $cityIds = array();
+
+        foreach($vertices as $vertex)
+            array_push($cityIds, $vertex->getId());
+
+        //print_r($cityIds);
+
+        // 7. получаем дистанцию между городами
+        $distanceList = GeoRouteHelper::GetDistanceList($cityIds, $db);
+
+        //print_r($distanceList);
+
+        // 8. создание массива рёбер для графа - GEdge[]
+        // ВАЖНО: В текущей реализации id вершины = id города
+        $edges = array();
+        $edgeId = 1;
+
+        foreach($distanceList->geoRouteDistanceList as $geoDistance)
+        {
+            $edge = new GEdge($edgeId++, '', $geoDistance->city1Id, $geoDistance->city2Id, $geoDistance->distance);
+            array_push($edges, $edge);
+        }
+
+        // 9. создаём граф
+        $graph = new UndirectedGraph();
+        $graph->init($vertices, $edges);
+
+        //print_r($graph);
+
+        // TODO заменить на параметры полученные с клиента
+        // 10. получаем вершину с которой начинается наш маршрут
+        // - город Новоалтайск 2200000800000
+        $startVertex = $vertices['2200000800000'];
+
+        //print_r($startVertex);
+
+        // 11. расчитываем маршрут
+        $calculator = new RouteCalculator($routeTaskList, $routeRestrictions, $graph);
+        $calculator->calculateRoute($startVertex);
+        // всегда получаем оптимальный маршрут рассчитанный без учёта обратного пути
+        $route = $calculator->getRoute();
+
+        //print_r($route);
+
+        // 12. Возвращаем рассчитанный маршрут
+        return $route;
+    }
+
+
+    static function UpdateRoute($accountId, $userTokenId, $routeData, $db)
+    {
+        // 1. получаем идентификатор маршрута
+        $routeId = RouteHelper::GetRouteId($accountId, $userTokenId, $db);
+
+        // 2. если маршрут отсутствует то создаём его
+        if(1 > $routeId)
+        {
+            $routeId = RouteHelper::CreateRoute($accountId, $userTokenId, $db);
+        }
+
+        // 3. Удаляем данные маршрута
+        RouteHelper::ClearRoute($routeId, $db);
+
+        // 4. Вносим данные в маршрут
+
+        // ... 4.1 создаём карту cargoId к cargoSelectedId
+        CargoSelectedHelper::CreateMap($accountId, $userTokenId, $db);
+
+        // ... 4.2 получаем список рёбер маршрута - RouteEntry[]
+        $routes = $routeData->getEntries();
+
+        //print_r($routes);
+
+        // ... 4.3 обрабатываем данные каждого ребра маршрута
+        $distance = 0;
+        $num = 1;
+        // ... шаблон запроса
+        $sql = 'INSERT INTO route_point (route_id, cargo_selected_id, city_id, distance, is_first_point_of_pair, order_num)
+                        VALUES (?i, ?i, ?i, ?i, ?i, ?i)';
+
+
+        foreach($routes as $routeEntry)
+        {
+            $edge = $routeEntry->getEdge();
+            $vertexA = $edge->getVertexA();
+            $vertexB = $edge->getVertexB();
+
+            // сохраняем все точки на загрузку
+            // print_r($vertexA);
+            // printf("%s\n", $vertexA->getId());
+
+            // список загруженных грузов в точке А
+            $vertexATasks = $routeEntry->getCommitedTasks();
+
+            foreach($vertexATasks as $taskA)
+            {
+                // printf("\t%d\n", $taskA->getId());
+                $cargoSelectedId = CargoSelectedHelper::GetCargoSelectedIdByCargoId($taskA->getId());
+                $db->query($sql, $routeId, $cargoSelectedId, $vertexA->getId(), $distance, 1, $num++);
+
+                // обнуляем дистанцию - дистанция указывается, только при смене города, т.е. для 1-го задания из точки А ребра
+                $distance = 0;
+            }
+
+            // printf("%s\n", $vertexB->getId());
+
+            // для первого груза в точке B указываем дистанцию
+            $distance = $edge->getDistance();
+
+            // список выгруженных грузов в точке B
+            $vertexBTasks = $routeEntry->getFulfiledTasks();
+
+            foreach($vertexBTasks as $taskB)
+            {
+                // printf("\t%d\n", $taskB->getId());
+                $cargoSelectedId = CargoSelectedHelper::GetCargoSelectedIdByCargoId($taskB->getId());
+                $db->query($sql, $routeId, $cargoSelectedId, $vertexB->getId(), $distance, 0, $num++);
+
+                // обнуляем дистанцию - дистанция указывается, только при смене города, т.е. для 1-го задания из точки B ребра
+                $distance = 0;
+            }
+
+
+            //print_r($routeEntry);
+        }
+    }
 
 }

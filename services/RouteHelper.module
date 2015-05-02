@@ -7,7 +7,51 @@
  * To change this template use File | Settings | File Templates.
  */
 
+class TaskInfo
+{
+    public $id;
+    public $name;
 
+    public $cityId1;
+    public $city1Name;
+    public $city1Longitude;
+    public $city1Latitude;
+
+    public $cityId2;
+    public $city2Name;
+    public $city2Longitude;
+    public $city2Latitude;
+
+    public $type;
+    public $weight;
+    public $value;
+    public $distance;
+    public $cost;
+    public $readyDate;
+
+    function __construct($id, $name, $cityId1, $city1Name, $city1Longitude, $city1Latitude, $cityId2, $city2Name, $city2Longitude, $city2Latitude, $type, $distance, $value, $weight, $cost, $readyDate)
+    {
+        $this->id = $id;
+        $this->name = $name;
+
+        $this->cityId1 = $cityId1;
+        $this->city1Name = $city1Name;
+        $this->city1Longitude = $city1Longitude;
+        $this->city1Latitude = $city1Latitude;
+
+        $this->cityId2 = $cityId2;
+        $this->city2Name = $city2Name;
+        $this->city2Longitude = $city2Longitude;
+        $this->city2Latitude = $city2Latitude;
+
+        $this->type = $type;
+        $this->distance = $distance;
+        $this->value = $value;
+        $this->weight = $weight;
+        $this->cost = $cost;
+        $this->readyDate = $readyDate;
+    }
+}
 
 class RoutePoint
 {
@@ -32,20 +76,27 @@ class RoutePoint
 
 class RouteHelper
 {
+    private static $_routeId = null;
+
 
     public static function GetRouteId($accountId, $userTokenId, $db)
     {
+        if(null == self::$_routeId)
+        {
 
-        if(is_null($accountId))
-            $where_sql_definition = $db->parse(' user_token_id = ?i ', $userTokenId);
-        else
-            $where_sql_definition = $db->parse(' account_id = ?i ', $accountId);
+            if(is_null($accountId))
+                $where_sql_definition = $db->parse(' user_token_id = ?i ', $userTokenId);
+            else
+                $where_sql_definition = $db->parse(' account_id = ?i ', $accountId);
 
-        $sql = 'SELECT id FROM route WHERE ?p';
+            $sql = 'SELECT id FROM route WHERE ?p';
 
-        $route_id = $db->getOne($sql, $where_sql_definition);
+            $route_id = $db->getOne($sql, $where_sql_definition);
 
-        return $route_id;
+            self::$_routeId = (false == $route_id) ? 0 : $route_id;
+        }
+
+        return self::$_routeId;
     }
 
     public static function CreateRoute($accountId, $userTokenId, $db)
@@ -67,6 +118,13 @@ class RouteHelper
 
         return $route_id;
     }
+
+    public static function ClearRoute($routeId, $db)
+    {
+        $sql = 'DELETE FROM route_point WHERE route_id = ?i';
+        $db->query($sql, $routeId);
+    }
+
 
     public static function AreAllPointsInRoute($routeId, &$pointIds, $db)
     {
@@ -104,6 +162,51 @@ class RouteHelper
                 $entry = new RoutePoint
                 (
                     $row['id'], $row['cargo_selected_id'], $row['city_id'], $row['distance'], $row['is_first_point_of_pair'], $row['order_num']
+                );
+
+                $list[$entry->id] = $entry;
+            }
+        }
+
+        return $list;
+    }
+
+
+    // возвращает TaskInfo[]
+    public static function GetCargoInRouteData($routeId, $db)
+    {
+        $list = array();
+
+        $sql = 'SELECT DISTINCT C.id, C.name,
+                          C.city1_id, GC1.name as city1_name, (GC1.latitude / 10000000) as city1_latitude, (GC1.longitude / 10000000) as city1_longitude,
+                          C.city2_id, GC2.name as city2_name, (GC2.latitude / 10000000) as city2_latitude, (GC2.longitude / 10000000) as city2_longitude,
+                          CT.name AS type, C.weight, C.value, C.distance, C.cost, C.ready_date
+                    FROM cargo C
+                        INNER JOIN geocities GC1
+                          ON GC1.id = C.city1_id
+                        INNER JOIN geocities GC2
+                          ON GC2.id = C.city2_id
+                        INNER JOIN cargo_type CT
+                            ON CT.id = C.cargo_type_id
+                        INNER JOIN cargo_selected CS
+                            ON CS.cargo_id = C.id
+                        INNER JOIN route_point RP
+                            ON RP.cargo_selected_id = CS.id
+                              AND RP.route_id = ?i
+                    WHERE C.is_deleted = 0';
+
+        $result = $db->query($sql, $routeId);
+
+        if(0 < $db->numRows($result))
+        {
+            while($row = $db->fetch($result))
+            {
+                $entry = new TaskInfo
+                (
+                    $row['id'], $row['name'],
+                    $row['city1_id'], $row['city1_name'], $row['city1_longitude'], $row['city1_latitude'],
+                    $row['city2_id'], $row['city2_name'], $row['city2_longitude'], $row['city2_latitude'],
+                    $row['type'], $row['distance'], $row['value'], $row['weight'], $row['cost'], $row['ready_date']
                 );
 
                 $list[$entry->id] = $entry;

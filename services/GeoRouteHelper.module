@@ -13,10 +13,10 @@ class GeoRouteDistance
     public $city2Id;
     public $distance;
 
-    function __construct($city1, $city2, $distance)
+    function __construct($city1Id, $city2Id, $distance)
     {
-        $this->city1 = $city1;
-        $this->city2 = $city2;
+        $this->city1Id = $city1Id;
+        $this->city2Id = $city2Id;
         $this->distance = $distance;
     }
 }
@@ -26,12 +26,12 @@ class GeoRouteDistanceList
 {
     public $geoRouteDistanceList;
 
-    public function GetRouteDistance($city1, $city2)
+    public function GetRouteDistance($city1Id, $city2Id)
     {
         foreach($this->geoRouteDistanceList as $geoRouteDistance)
         {
-            if(($geoRouteDistance->city1 == $city1 && $geoRouteDistance->city2 == $city2)
-                || ($geoRouteDistance->city1 == $city2 && $geoRouteDistance->city2 == $city1))
+            if(($geoRouteDistance->city1Id == $city1Id && $geoRouteDistance->city2Id == $city2Id)
+                || ($geoRouteDistance->city1Id == $city2Id && $geoRouteDistance->city2Id == $city1Id))
             {
                 return $geoRouteDistance;
             }
@@ -70,6 +70,7 @@ class GeoRouteHelper
     }
 
 
+    // возвращает GeoRouteDistanceList
     public static function GetDistanceList($cities, $db)
     {
         $sql = 'SELECT GR.cityId1, GR.cityId2, GR.distance
