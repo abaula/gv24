@@ -28,9 +28,13 @@ class CalculateRouteWebService extends WebServBase
 
         try
         {
-            $list = self::GetRouteData($accountId, $userTokenId, $db);
+            $routePointList = self::GetRouteData($accountId, $userTokenId, $db);
+            $citiesList = RouteHelper::GetUniqueStartCitiesFromAjaxRoutePointsArray($routePointList->routePoints);
 
-            $response = new AjaxServerResponse(200, '', '', $list);
+            $responseData = new AjaxRoutePointListAndCitiesList();
+            $responseData->routePointList = $routePointList;
+            $responseData->routeStartCitiesList = $citiesList;
+            $response = new AjaxServerResponse(200, '', '', $responseData);
             sendHTTPStatus(200);
             header('Content-type: application/json');
             echo json_encode($response);
@@ -45,11 +49,7 @@ class CalculateRouteWebService extends WebServBase
 
     public function onPost($args, $data)
     {
-        // TODO: пересчитываем данные маршрута
-
-
-
-
+        // пересчитываем данные маршрута
         $accountId = null;
         $userTokenId = null;
         CurrentUser::FillUserIdentities($accountId, $userTokenId);
@@ -58,20 +58,30 @@ class CalculateRouteWebService extends WebServBase
 
         try
         {
-            // TODO заменить на данные полученные с клиента
-            $options = null;
+            // AjaxCalculateOptions
+            $options = $data;
+
+            // TODO убрать эту заглушку
             $userTokenId = 1;
 
             // 1. пересчитываем маршрут
             $route = self::CalculateRoute($accountId, $userTokenId, $options, $db);
 
-            // 2. Обновляем маршрут пользователя
+            // 2. обновляем маршрут пользователя
             self::UpdateRoute($accountId, $userTokenId, $route, $db);
 
-            // возвращаем данные марщрута
-            $list = self::GetRouteData($accountId, $userTokenId, $db);
+            // 3. получаем данные марщрута
+            $routePointList = self::GetRouteData($accountId, $userTokenId, $db);
 
-            $response = new AjaxServerResponse(200, '', '', $list);
+            // 4. получаем список городов маршрута
+            $citiesList = RouteHelper::GetUniqueStartCitiesFromAjaxRoutePointsArray($routePointList->routePoints);
+
+            // 5. возвращаем данные клиенту
+            $responseData = new AjaxRoutePointListAndCitiesList();
+            $responseData->routePointList = $routePointList;
+            $responseData->routeStartCitiesList = $citiesList;
+
+            $response = new AjaxServerResponse(200, '', '', $responseData);
             sendHTTPStatus(200);
             header('Content-type: application/json');
             echo json_encode($response);
@@ -152,12 +162,15 @@ class CalculateRouteWebService extends WebServBase
         // 1. получаем идентификатор маршрута
         $routeId = RouteHelper::GetRouteId($accountId, $userTokenId, $db);
 
+        // TODO получать список всех выбранных грузов в зависимости от настроек пользователя
+
         // 2. получаем данные маршрута - TaskInfo[]
         $routeTasksInfoList = RouteHelper::GetCargoInRouteData($routeId, $db);
 
         // 3. создаём список ограничений
-        // TODO заменить на значения полученные из клиента
-        $routeRestrictions = new RouteRestrictions(82, 20000, ConflictResolveCriteria::MaxProceeds, LoadingStrategy::SavingWeight);
+        $conflictResolveCriteria = $options->conflictResolveCriteria == 'MaxProceeds' ? ConflictResolveCriteria::MaxProceeds : ConflictResolveCriteria::MaxProfit;
+        $loadingStrategy = $options->loadingStrategy == 'SavingWeight' ? LoadingStrategy::SavingWeight : LoadingStrategy::SavingValue;
+        $routeRestrictions = new RouteRestrictions($options->vehicleParams->maxValue, $options->vehicleParams->maxWeight, $conflictResolveCriteria, $loadingStrategy);
 
         // 4. создаём список заданий на перевозку - RouteTask, RouteTaskList
         $list = array();
@@ -211,10 +224,8 @@ class CalculateRouteWebService extends WebServBase
 
         //print_r($graph);
 
-        // TODO заменить на параметры полученные с клиента
         // 10. получаем вершину с которой начинается наш маршрут
-        // - город Новоалтайск 2200000800000
-        $startVertex = $vertices['2200000800000'];
+        $startVertex = $options->startCityId;
 
         //print_r($startVertex);
 

@@ -4,29 +4,6 @@
 
 module CalculateRoute
 {
-    export class VehicleParams
-    {
-        // максимальный объём груза (м3)
-        maxValue: number;
-        // максимальный вес груза (кг)
-        maxWeight: number;
-        // зартаты (руб за 1 км)
-        expences: number;
-        // свой тариф руб на 100 км за 1000 кг
-        taxWeight: number;
-        // свой тариф руб на 100 км за 1 м3
-        taxValue: number;
-
-        constructor()
-        {
-            this.maxValue = 82;
-            this.maxWeight = 20000;
-            this.expences = 25;
-            this.taxWeight = 125;
-            this.taxValue = 30.5;
-        }
-    }
-
     export class CalculateRouteController implements Application.IComponent
     {
         public isComponentLoaded: boolean = false;
@@ -35,7 +12,9 @@ module CalculateRoute
         public errorData: ServerData.AjaxServerResponse = null;
         public taskData: ServerData.AjaxTaskList;
         public routeData: ServerData.AjaxRoutePointList;
-        public vehicleParams: VehicleParams;
+        public calculateOptions: ServerData.AjaxCalculateOptions;
+        public startCities: ServerData.AjaxCityList;
+        public routeStartCities: ServerData.AjaxCityList;
 
         onLoad(app: Application.IApplication, parent: Application.IComponent, state: Application.IState): void
         {
@@ -52,7 +31,8 @@ module CalculateRoute
             __currentComp.getTasksPageData(1);
 
             // TODO переделать на загрузку сохранённых данных из базы
-            __currentComp.vehicleParams = new VehicleParams();
+            __currentComp.calculateOptions = new ServerData.AjaxCalculateOptions();
+            __currentComp.calculateOptions.vehicleParams = new ServerData.AjaxVehicleParams(82, 20000, 25, 30.5, 125);
             __currentComp.fillVehicleParams();
 
             // Сообщаем приложению, что компонент загружен.
@@ -154,6 +134,8 @@ module CalculateRoute
             var resp: ServerData.AjaxRoutePointListAndAjaxTaskList = <ServerData.AjaxRoutePointListAndAjaxTaskList>data.data;
             __currentComp.taskData = resp.ajaxTaskList;
             __currentComp.routeData = resp.routePointList;
+            __currentComp.startCities = resp.startCitiesList;
+            __currentComp.routeStartCities = resp.routeStartCitiesList;
             
 
             // помещаем данные в контролы
@@ -176,11 +158,11 @@ module CalculateRoute
 
         fillVehicleParams(): void
         {
-            $("#i-calc-param-max-weight").val(__currentComp.vehicleParams.maxWeight);
-            $("#i-calc-param-max-value").val(__currentComp.vehicleParams.maxValue);
-            $("#i-calc-param-expense").val(__currentComp.vehicleParams.expences);
-            $("#i-calc-param-tax-weight").val(__currentComp.vehicleParams.taxWeight);
-            $("#i-calc-param-tax-value").val(__currentComp.vehicleParams.taxValue);
+            $("#i-calc-param-max-weight").val(__currentComp.calculateOptions.vehicleParams.maxWeight);
+            $("#i-calc-param-max-value").val(__currentComp.calculateOptions.vehicleParams.maxValue);
+            $("#i-calc-param-expense").val(__currentComp.calculateOptions.vehicleParams.expences);
+            $("#i-calc-param-tax-weight").val(__currentComp.calculateOptions.vehicleParams.taxWeight);
+            $("#i-calc-param-tax-value").val(__currentComp.calculateOptions.vehicleParams.taxValue);
 
         }
 
@@ -427,7 +409,11 @@ module CalculateRoute
             //window.console.log("onAjaxTaskSelectedDataSuccess");
 
             // добавление задания в маршрут произведена успешно - необходимо скорректировать таблицу маршрута
-            __currentComp.routeData = (<ServerData.AjaxIdsListAndRoutePointList>data.data).routePointList;
+            var resp: ServerData.AjaxIdsListAndRoutePointList = <ServerData.AjaxIdsListAndRoutePointList>data.data;
+            __currentComp.routeData = resp.routePointList;
+            __currentComp.routeStartCities = resp.routeStartCitiesList;
+
+
             __currentComp.drawRouteTable();
 
             // скрываем иконку загрузки
@@ -464,16 +450,17 @@ module CalculateRoute
             //window.console.log("onAjaxTaskSelectedDataSuccess");
 
             // удаление задания из маршрута произведено успешно - необходимо скорректировать таблицу маршрута
-            __currentComp.routeData = (<ServerData.AjaxIdsListAndRoutePointList>data.data).routePointList;
+            var resp: ServerData.AjaxIdsListAndRoutePointList = <ServerData.AjaxIdsListAndRoutePointList>data.data;
+            __currentComp.routeData = resp.routePointList;
+            __currentComp.routeStartCities = resp.routeStartCitiesList;
+
+
             __currentComp.drawRouteTable();
 
 
             // скрываем иконку загрузки
             __currentComp.application.hideOverlay("#i-ctrl-overlay");
         }
-
-
-
 
 
         onPageNavigationClick(event: JQueryEventObject): void
@@ -552,7 +539,7 @@ module CalculateRoute
                 $("td.calc-table-col-sum-weight", row).text(currentWeight.toFixed(0));
 
                 // подсветка текущего веса груза
-                var currentWeightPrc: number = (currentWeight / __currentComp.vehicleParams.maxWeight) * 100;
+                var currentWeightPrc: number = (currentWeight / __currentComp.calculateOptions.vehicleParams.maxWeight) * 100;
 
                 if (currentWeightPrc > 100)
                 {
@@ -568,7 +555,7 @@ module CalculateRoute
                 $("td.calc-table-col-sum-value", row).text(currentValue.toFixed(2));
 
                 // подсветка текущего объёма груза
-                var currentValuePrc: number = (currentValue / __currentComp.vehicleParams.maxValue) * 100;
+                var currentValuePrc: number = (currentValue / __currentComp.calculateOptions.vehicleParams.maxValue) * 100;
 
                 if (currentValuePrc > 100)
                 {
@@ -581,7 +568,7 @@ module CalculateRoute
 
 
                 // резерв веса
-                var resWeight: number = __currentComp.vehicleParams.maxWeight - currentWeight;
+                var resWeight: number = __currentComp.calculateOptions.vehicleParams.maxWeight - currentWeight;
                 $("td.calc-table-col-res-weight", row).text(resWeight.toFixed(0));
 
                 // подсветка резерва веса
@@ -591,12 +578,12 @@ module CalculateRoute
                 }
                 else
                 {
-                    var resWeightPrc: number = (resWeight / __currentComp.vehicleParams.maxWeight) * 100;
+                    var resWeightPrc: number = (resWeight / __currentComp.calculateOptions.vehicleParams.maxWeight) * 100;
                     $("td.calc-table-col-res-weight", row).addClass("calc-table-col-res-pc").css("background-size", resWeightPrc + "% 100%"); 
                 }
 
                 // резерв объёма
-                var resValue: number = __currentComp.vehicleParams.maxValue - currentValue;
+                var resValue: number = __currentComp.calculateOptions.vehicleParams.maxValue - currentValue;
                 $("td.calc-table-col-res-value", row).text(resValue.toFixed(2));
 
                 // подсветка резерва объёма
@@ -606,7 +593,7 @@ module CalculateRoute
                 }
                 else
                 {
-                    var resValuePrc: number = (resValue / __currentComp.vehicleParams.maxValue) * 100;
+                    var resValuePrc: number = (resValue / __currentComp.calculateOptions.vehicleParams.maxValue) * 100;
                     $("td.calc-table-col-res-value", row).addClass("calc-table-col-res-pc").css("background-size", resValuePrc + "% 100%");
                 }
 
@@ -624,7 +611,7 @@ module CalculateRoute
 
 
                 // затраты
-                var exprences: number = parseFloat(entry.routePointDistance) * __currentComp.vehicleParams.expences;
+                var exprences: number = parseFloat(entry.routePointDistance) * __currentComp.calculateOptions.vehicleParams.expences;
                 $("td.calc-table-col-expense", row).text(exprences.toFixed(0));
 
                 // прибыль
@@ -651,14 +638,14 @@ module CalculateRoute
                     $("td.calc-table-col-sum-profit", row).addClass("calc-table-col-val-empty");
 
                 // упущенная выручка
-                var lostProceedsForWeight: number = prevResWeight / 1000 * parseFloat(entry.routePointDistance) / 100 * __currentComp.vehicleParams.taxWeight;
-                var lostProceedsForValue: number = prevResValue * parseFloat(entry.routePointDistance) / 100 * __currentComp.vehicleParams.taxValue;
+                var lostProceedsForWeight: number = prevResWeight / 1000 * parseFloat(entry.routePointDistance) / 100 * __currentComp.calculateOptions.vehicleParams.taxWeight;
+                var lostProceedsForValue: number = prevResValue * parseFloat(entry.routePointDistance) / 100 * __currentComp.calculateOptions.vehicleParams.taxValue;
                 var lostProceeds: number = Math.max(lostProceedsForWeight, lostProceedsForValue);
                 $("td.calc-table-col-lost-proceeds", row).text(lostProceeds.toFixed(0));
 
                 // целевая прибыль
-                var targetProfitForWeight: number = commulativeDistance / 100 * __currentComp.vehicleParams.maxWeight / 1000 * __currentComp.vehicleParams.taxWeight - commulativeExpences;
-                var targetProfitForValue: number = commulativeDistance / 100 * __currentComp.vehicleParams.maxValue * __currentComp.vehicleParams.taxValue - commulativeExpences;
+                var targetProfitForWeight: number = commulativeDistance / 100 * __currentComp.calculateOptions.vehicleParams.maxWeight / 1000 * __currentComp.calculateOptions.vehicleParams.taxWeight - commulativeExpences;
+                var targetProfitForValue: number = commulativeDistance / 100 * __currentComp.calculateOptions.vehicleParams.maxValue * __currentComp.calculateOptions.vehicleParams.taxValue - commulativeExpences;
                 var targetProfit: number = Math.max(targetProfitForWeight, targetProfitForValue);
                 $("td.calc-table-col-target-profit", row).text(targetProfit.toFixed(0));
 
@@ -880,7 +867,10 @@ module CalculateRoute
             //window.console.log("onAjaxTaskSelectedDataSuccess");
 
             // изменение порядка заданий маршрута произведено успешно - необходимо скорректировать таблицу маршрута
-            __currentComp.routeData = (<ServerData.AjaxRoutePointPlaceAndRoutePointList>data.data).routePointList;
+            var resp: ServerData.AjaxRoutePointPlaceAndRoutePointList = <ServerData.AjaxRoutePointPlaceAndRoutePointList>data.data;
+            __currentComp.routeData = resp.routePointList;
+            __currentComp.routeStartCities = resp.routeStartCitiesList;
+            
             __currentComp.drawRouteTable();
 
 

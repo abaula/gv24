@@ -56,7 +56,7 @@ class CargoSelectedWebService extends WebServBase
             $allRowCount = $db->getOne($sql, $where_sql_definition);
 
 
-            $sql = 'SELECT C.id, GC1.name AS city1, GC2.name AS city2, CT.name AS type,
+            $sql = 'SELECT C.id, C.city1_id, GC1.name AS city1, GC2.name AS city2, CT.name AS type,
                           C.weight, C.value, C.distance, C.cost, C.ready_date, CS.id AS selectedId
                     FROM cargo C
                         INNER JOIN geocities GC1
@@ -83,7 +83,7 @@ class CargoSelectedWebService extends WebServBase
 
                     $entry = new AjaxTask
                     (
-                        $row['id'], $row['city1'], $row['city2'], $row['type'], $row['weight'], $row['value'], $row['distance'], $row['cost'], $rusReadyDate, true, $row['selectedId']
+                        $row['id'], $row['city1_id'], $row['city1'], $row['city2'], $row['type'], $row['weight'], $row['value'], $row['distance'], $row['cost'], $rusReadyDate, true, $row['selectedId']
                     );
 
                     array_push($arr, $entry);

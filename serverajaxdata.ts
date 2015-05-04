@@ -27,10 +27,23 @@ module ServerData
         data: any;
     }
 
+    export class AjaxCityShortInfo
+    {
+        public id: number;
+        public name: string;
+    }
+
+
+    export class AjaxCityList
+    {
+        public cities: AjaxCityShortInfo;
+    }
+
     export class AjaxTask
     {
         public id: number;
         public selectedId: number;
+        public city1Id: number;
         public city1: string;
         public city2: string;
         public type: string;
@@ -90,6 +103,7 @@ module ServerData
     {
         public idsList: AjaxIdsList;
         public routePointList: AjaxRoutePointList;
+        public routeStartCitiesList: AjaxCityList;
     }
 
     export class AjaxRoutePointPlace
@@ -99,18 +113,67 @@ module ServerData
     }
 
 
+    class AjaxRoutePointListAndCitiesList
+    {
+        public routePointList: AjaxRoutePointList;
+        public routeStartCitiesList: AjaxCityList;
+    }
+
     export class AjaxRoutePointPlaceAndRoutePointList
     {
         public routePointPlace: AjaxRoutePointPlace;
         public routePointList: AjaxRoutePointList;
+        public routeStartCitiesList: AjaxCityList;
     }
 
     export class AjaxRoutePointListAndAjaxTaskList
     {
         public ajaxTaskList: AjaxTaskList;
         public routePointList: AjaxRoutePointList;
+        public startCitiesList: AjaxCityList;
+        public routeStartCitiesList: AjaxCityList;
+    }
+
+    export class AjaxVehicleParams
+    {
+        public maxValue: number;
+        public maxWeight: number;
+        public expences: number;
+        public taxWeight: number;
+        public taxValue: number;
+
+        constructor(maxValue: number, maxWeight: number, expences: number, taxValue: number, taxWeight: number)
+        {
+            this.expences = expences;
+            this.maxValue = maxValue;
+            this.maxWeight = maxWeight;
+            this.taxValue = taxValue;
+            this.taxWeight = taxWeight;
+        }
     }
 
 
+    export class AjaxCalculateOptions
+    {
+        public startCityId: number;
+        public conflictResolveCriteria: string;
+        public loadingStrategy: string;
+        public useCargoFromRoute: boolean;
+        public buildWayBack: boolean;
+        public vehicleParams: AjaxVehicleParams;
+
+        /*
+        constructor(startCityId: number, conflictResolveCriteria: string, loadingStrategy: string, useCargoFromRoute: boolean, vehicleOptions: AjaxVehicleParams, buildWayBack: boolean)
+        {
+            this.buildWayBack = buildWayBack;
+            this.conflictResolveCriteria = conflictResolveCriteria;
+            this.loadingStrategy = loadingStrategy;
+            this.startCityId = startCityId;
+            this.useCargoFromRoute = useCargoFromRoute;
+            this.vehicleParams = vehicleOptions;
+        }
+        */
+
+    }
 
 }

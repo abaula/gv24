@@ -58,14 +58,16 @@ class RoutePoint
     public $id;
     public $cargoSelectedId;
     public $cityId;
+    public $cityName;
     public $distance;
     public $isFirstPointOfPair;
     public $orderNum;
 
-    function __construct($id, $cargoSelectedId, $cityId, $distance, $isFirstPointOfPair, $orderNum)
+    function __construct($id, $cargoSelectedId, $cityId, $cityName, $distance, $isFirstPointOfPair, $orderNum)
     {
         $this->cargoSelectedId = $cargoSelectedId;
         $this->cityId = $cityId;
+        $this->cityName = $cityName;
         $this->distance = $distance;
         $this->id = $id;
         $this->isFirstPointOfPair = $isFirstPointOfPair;
@@ -148,10 +150,12 @@ class RouteHelper
     {
         $list = array();
 
-        $sql = 'SELECT id, cargo_selected_id, city_id, distance, is_first_point_of_pair, order_num
-                FROM route_point
-                WHERE route_id = ?i
-                ORDER BY order_num';
+        $sql = 'SELECT RP.id, RP.cargo_selected_id, RP.city_id, GC.name AS city_name, RP.distance, RP.is_first_point_of_pair, RP.order_num
+                FROM route_point RP
+                  INNER JOIN geocities GC
+                    ON GC.id = RP.city_id
+                WHERE RP.route_id = ?i
+                ORDER BY RP.order_num';
 
         $result = $db->query($sql, $routeId);
 
@@ -161,7 +165,7 @@ class RouteHelper
             {
                 $entry = new RoutePoint
                 (
-                    $row['id'], $row['cargo_selected_id'], $row['city_id'], $row['distance'], $row['is_first_point_of_pair'], $row['order_num']
+                    $row['id'], $row['cargo_selected_id'], $row['city_id'], $row['city_name'], $row['distance'], $row['is_first_point_of_pair'], $row['order_num']
                 );
 
                 $list[$entry->id] = $entry;
@@ -216,13 +220,61 @@ class RouteHelper
         return $list;
     }
 
-    public static function GetUniqueCitiesFromRoutePointsArray(&$routePoints)
+    public static function GetUniqueCitiesIdsFromRoutePointsArray(&$routePoints)
     {
         $arr_cities = array();
 
         foreach($routePoints as $routePoint)
         {
             $arr_cities[$routePoint->cityId] = $routePoint->cityId;
+        }
+
+
+        return $arr_cities;
+    }
+
+
+    public static function GetUniqueStartCitiesFromRoutePointsArray(&$routePoints)
+    {
+        $arr_cities = array();
+
+        foreach($routePoints as $routePoint)
+        {
+            if($routePoint->isFirstPointOfPair)
+            {
+                $cityInfo = new AjaxCityShortInfo($routePoint->cityId, $routePoint->cityName);
+                $arr_cities[$routePoint->cityId] = $cityInfo;
+            }
+        }
+
+        return $arr_cities;
+    }
+
+    public static function GetUniqueStartCitiesFromAjaxRoutePointsArray(&$routePoints)
+    {
+        $arr_cities = array();
+
+        foreach($routePoints as $routePoint)
+        {
+            if(0 < $routePoint->weight)
+            {
+                $cityInfo = new AjaxCityShortInfo($routePoint->cityId, $routePoint->cityName);
+                $arr_cities[$routePoint->cityId] = $cityInfo;
+            }
+        }
+
+        return $arr_cities;
+    }
+
+
+    public static function GetUniqueStartCitiesFromTasksArray(&$tasks)
+    {
+        $arr_cities = array();
+
+        foreach($tasks as $task)
+        {
+            $cityInfo = new AjaxCityShortInfo($task->city1Id, $task->city1);
+            $arr_cities[$task->city1Id] = $cityInfo;
         }
 
 

@@ -60,7 +60,7 @@ class RouteWebService extends WebServBase
             $allRowCount = $db->getOne($sql, $where_sql_definition);
 
 
-            $sql = 'SELECT DISTINCT C.id, GC1.name AS city1, GC2.name AS city2, CT.name AS type,
+            $sql = 'SELECT DISTINCT C.id, C.city1_id, GC1.name AS city1, GC2.name AS city2, CT.name AS type,
                           C.weight, C.value, C.distance, C.cost, C.ready_date, CS.id AS selectedId, RP.cargo_selected_id AS route_point_cargo_selected_id
                     FROM cargo C
                         INNER JOIN geocities GC1
@@ -88,7 +88,7 @@ class RouteWebService extends WebServBase
 
                     $entry = new AjaxTask
                     (
-                        $row['id'], $row['city1'], $row['city2'], $row['type'], $row['distance'], $row['value'], $row['weight'], $row['cost'], $rusReadyDate, $selected, $row['selectedId']
+                        $row['id'], $row['city1_id'], $row['city1'], $row['city2'], $row['type'], $row['distance'], $row['value'], $row['weight'], $row['cost'], $rusReadyDate, $selected, $row['selectedId']
                     );
 
                     array_push($arr, $entry);
@@ -106,10 +106,18 @@ class RouteWebService extends WebServBase
             // получаем данные маршрута
             $routePointList = CalculateRouteWebService::GetRouteData($accountId, $userTokenId, $db);
 
+            // получаем список городов для выбранных задач
+            $startCitiesList = RouteHelper::GetUniqueStartCitiesFromTasksArray($taskListData->tasks);
+
+            // получаем список городов для построенного маршрута
+            $routeStartCitiesList = RouteHelper::GetUniqueStartCitiesFromAjaxRoutePointsArray($routePointList->routePoints);
+
             // подготавливаем данные для отправки клиенту
             $respData = new AjaxRoutePointListAndAjaxTaskList();
             $respData->ajaxTaskList = $taskListData;
             $respData->routePointList = $routePointList;
+            $respData->startCitiesList = $startCitiesList;
+            $respData->routeStartCitiesList = $routeStartCitiesList;
 
             $response = new AjaxServerResponse(200, '', '', $respData);
             sendHTTPStatus(200);
@@ -261,10 +269,14 @@ class RouteWebService extends WebServBase
             // 10. Получаем обновлённый маршрут
             $routePointList = CalculateRouteWebService::GetRouteData($accountId, $userTokenId, $db);
 
-            // 11. Возвращаем ответ клиенту
+            // 11. получаем список городов для построенного маршрута
+            $routeStartCitiesList = RouteHelper::GetUniqueStartCitiesFromAjaxRoutePointsArray($routePointList->routePoints);
+
+            // 12. Возвращаем ответ клиенту
             $responseData = new AjaxIdsListAndRoutePointList();
             $responseData->idsList = $data;
             $responseData->routePointList = $routePointList;
+            $responseData->routeStartCitiesList = $routeStartCitiesList;
             $response = new AjaxServerResponse(200, '', '', $responseData);
             sendHTTPStatus(200);
             header('Content-type: application/json');
@@ -340,7 +352,7 @@ class RouteWebService extends WebServBase
 
             // 6. пересчитываем дистанции маршрута
             // ... 6.1 получаем список дистанций между городами
-            $arr_cities = RouteHelper::GetUniqueCitiesFromRoutePointsArray($routePoints);
+            $arr_cities = RouteHelper::GetUniqueCitiesIdsFromRoutePointsArray($routePoints);
             $distanceList = GeoRouteHelper::GetDistanceList($arr_cities, $db);
 
             // ... 6.2 пересчитываем дистанции и вносим изменения в список точек маршрута
@@ -364,10 +376,14 @@ class RouteWebService extends WebServBase
             // 7. Получаем обновлённый маршрут
             $routePointList = CalculateRouteWebService::GetRouteData($accountId, $userTokenId, $db);
 
-            // 8. возвращаем ответ клиенту
+            // 8. получаем список городов для построенного маршрута
+            $routeStartCitiesList = RouteHelper::GetUniqueStartCitiesFromAjaxRoutePointsArray($routePointList->routePoints);
+
+            // 9. возвращаем ответ клиенту
             $responseData = new AjaxRoutePointPlaceAndRoutePointList();
             $responseData->routePointPlace = $data;
             $responseData->routePointList = $routePointList;
+            $responseData->routeStartCitiesList = $routeStartCitiesList;
             $response = new AjaxServerResponse(200, '', '', $responseData);
             sendHTTPStatus(200);
             header('Content-type: application/json');
@@ -431,10 +447,14 @@ class RouteWebService extends WebServBase
             // 4. Получаем обновлённый маршрут
             $routePointList = CalculateRouteWebService::GetRouteData($accountId, $userTokenId, $db);
 
-            // 5. возвращаем ответ клиенту
+            // 5. получаем список городов для построенного маршрута
+            $routeStartCitiesList = RouteHelper::GetUniqueStartCitiesFromAjaxRoutePointsArray($routePointList->routePoints);
+
+            // 6. возвращаем ответ клиенту
             $responseData = new AjaxIdsListAndRoutePointList();
             $responseData->idsList = $data;
             $responseData->routePointList = $routePointList;
+            $responseData->routeStartCitiesList = $routeStartCitiesList;
             $response = new AjaxServerResponse(200, '', '', $responseData);
             sendHTTPStatus(200);
             header('Content-type: application/json');

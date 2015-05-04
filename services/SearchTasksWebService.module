@@ -55,7 +55,7 @@ class SearchTasksWebService extends WebServBase
 
 
             // получаем страницу данных
-            $sql = 'SELECT C.id, GC1.name AS city1, GC2.name AS city2, CT.name AS type, C.weight, C.value, C.distance, C.cost, C.ready_date, CS.account_id, CS.user_token_id
+            $sql = 'SELECT C.id, C.city1_id, GC1.name AS city1, GC2.name AS city2, CT.name AS type, C.weight, C.value, C.distance, C.cost, C.ready_date, CS.account_id, CS.user_token_id
                     FROM cargo C
 	                INNER JOIN geocities GC1
                         ON GC1.id = C.city1_id
@@ -84,7 +84,7 @@ class SearchTasksWebService extends WebServBase
 
                     $entry = new AjaxTask
                     (
-                        $row['id'], $row['city1'], $row['city2'], $row['type'], $row['weight'], $row['value'], $row['distance'], $row['cost'], $rusReadyDate, $selected
+                        $row['id'], $row['city1_id'], $row['city1'], $row['city2'], $row['type'], $row['weight'], $row['value'], $row['distance'], $row['cost'], $rusReadyDate, $selected
                     );
 
                     array_push($arr, $entry);

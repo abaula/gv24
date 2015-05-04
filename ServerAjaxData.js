@@ -22,6 +22,20 @@
     })();
     ServerData.AjaxServerResponse = AjaxServerResponse;
 
+    var AjaxCityShortInfo = (function () {
+        function AjaxCityShortInfo() {
+        }
+        return AjaxCityShortInfo;
+    })();
+    ServerData.AjaxCityShortInfo = AjaxCityShortInfo;
+
+    var AjaxCityList = (function () {
+        function AjaxCityList() {
+        }
+        return AjaxCityList;
+    })();
+    ServerData.AjaxCityList = AjaxCityList;
+
     var AjaxTask = (function () {
         function AjaxTask() {
         }
@@ -85,6 +99,12 @@
     })();
     ServerData.AjaxRoutePointPlace = AjaxRoutePointPlace;
 
+    var AjaxRoutePointListAndCitiesList = (function () {
+        function AjaxRoutePointListAndCitiesList() {
+        }
+        return AjaxRoutePointListAndCitiesList;
+    })();
+
     var AjaxRoutePointPlaceAndRoutePointList = (function () {
         function AjaxRoutePointPlaceAndRoutePointList() {
         }
@@ -98,4 +118,23 @@
         return AjaxRoutePointListAndAjaxTaskList;
     })();
     ServerData.AjaxRoutePointListAndAjaxTaskList = AjaxRoutePointListAndAjaxTaskList;
+
+    var AjaxVehicleParams = (function () {
+        function AjaxVehicleParams(maxValue, maxWeight, expences, taxValue, taxWeight) {
+            this.expences = expences;
+            this.maxValue = maxValue;
+            this.maxWeight = maxWeight;
+            this.taxValue = taxValue;
+            this.taxWeight = taxWeight;
+        }
+        return AjaxVehicleParams;
+    })();
+    ServerData.AjaxVehicleParams = AjaxVehicleParams;
+
+    var AjaxCalculateOptions = (function () {
+        function AjaxCalculateOptions() {
+        }
+        return AjaxCalculateOptions;
+    })();
+    ServerData.AjaxCalculateOptions = AjaxCalculateOptions;
 })(ServerData || (ServerData = {}));

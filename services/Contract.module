@@ -231,6 +231,7 @@ class AjaxTask
 {
     public $id;
     public $selectedId;
+    public $city1Id;
     public $city1;
     public $city2;
     public $type;
@@ -241,10 +242,11 @@ class AjaxTask
     public $readyDate;
     public $selected;
 
-    function __construct($id, $city1, $city2, $type, $distance, $value, $weight, $cost, $readyDate, $selected, $selectedId = 0)
+    function __construct($id, $city1Id, $city1, $city2, $type, $distance, $value, $weight, $cost, $readyDate, $selected, $selectedId = 0)
     {
         $this->id = $id;
         $this->selectedId = $selectedId;
+        $this->city1Id = $city1Id;
         $this->city1 = $city1;
         $this->city2 = $city2;
         $this->type = $type;
@@ -282,7 +284,32 @@ class AjaxTaskList
 
     function __construct()
     {
-        $this->tasks = null;
+        $this->tasks = array();
+    }
+}
+
+
+class AjaxCityShortInfo
+{
+    public $id;
+    public $name;
+
+    function __construct($id, $name)
+    {
+        $this->id = $id;
+        $this->name = $name;
+    }
+
+}
+
+
+class AjaxCityList
+{
+    public $cities;
+
+    function __construct()
+    {
+        $this->cities = array();
     }
 }
 
@@ -372,6 +399,7 @@ class AjaxIdsListAndRoutePointList
 {
     public $idsList;
     public $routePointList;
+    public $routeStartCitiesList;
 }
 
 
@@ -386,6 +414,7 @@ class AjaxRoutePointPlaceAndRoutePointList
 {
     public $routePointPlace;
     public $routePointList;
+    public $routeStartCitiesList;
 }
 
 
@@ -393,4 +422,53 @@ class AjaxRoutePointListAndAjaxTaskList
 {
     public $ajaxTaskList;
     public $routePointList;
+    public $startCitiesList;
+    public $routeStartCitiesList;
+}
+
+class AjaxRoutePointListAndCitiesList
+{
+    public $routePointList;
+    public $routeStartCitiesList;
+}
+
+class AjaxVehicleParams
+{
+    public $maxValue;
+    public $maxWeight;
+    public $expences;
+    public $taxWeight;
+    public $taxValue;
+
+    function __construct($maxValue, $maxWeight, $expences, $taxValue, $taxWeight)
+    {
+        $this->expences = $expences;
+        $this->maxValue = $maxValue;
+        $this->maxWeight = $maxWeight;
+        $this->taxValue = $taxValue;
+        $this->taxWeight = $taxWeight;
+    }
+}
+
+
+class AjaxCalculateOptions
+{
+    public $startCityId;
+    public $conflictResolveCriteria;
+    public $loadingStrategy;
+    public $useCargoFromRoute;
+    public $buildWayBack;
+    public $vehicleParams;
+
+    function __construct($startCityId, $conflictResolveCriteria, $loadingStrategy, $useCargoFromRoute, $vehicleParams, $buildWayBack)
+    {
+        $this->buildWayBack = $buildWayBack;
+        $this->conflictResolveCriteria = $conflictResolveCriteria;
+        $this->loadingStrategy = $loadingStrategy;
+        $this->startCityId = $startCityId;
+        $this->useCargoFromRoute = $useCargoFromRoute;
+        $this->vehicleParams = $vehicleParams;
+    }
+
+
 }
