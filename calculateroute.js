@@ -17,7 +17,9 @@ var CalculateRoute;
             // настраиваем обработчики событий
             $("#i-page-search-link").click(CalculateRoute.__currentComp.onMainMenuLinkClick);
             $("#i-page-cargoselected-link").click(CalculateRoute.__currentComp.onMainMenuLinkClick);
+            $("#i-calc-auto-param-compute").click(CalculateRoute.__currentComp.onRouteComputeClick);
 
+            //
             // проверяем авторизован ли пользователь
             var authentificated = CalculateRoute.__currentComp.application.isAuthentificated();
 
@@ -108,6 +110,7 @@ var CalculateRoute;
             CalculateRoute.__currentComp.routeStartCities = resp.routeStartCitiesList;
 
             // помещаем данные в контролы
+            CalculateRoute.__currentComp.updateStartCity();
             CalculateRoute.__currentComp.drawTasksList();
             CalculateRoute.__currentComp.drawRouteTable();
 
@@ -278,6 +281,73 @@ var CalculateRoute;
             }
         };
 
+        CalculateRouteController.prototype.onRouteComputeClick = function (event) {
+            // опции пересчёта
+            var conflictResolveCriteria = $('#i-calc-option-conflict-resolve-criteria input[type=radio]:checked').val();
+            var loadingStrategy = $("#i-calc-option-loading-strategy input[type=radio]:checked").val();
+            var startCityId = $("#i-calc-auto-param-start-city :selected").val();
+
+            CalculateRoute.__currentComp.calculateOptions.conflictResolveCriteria = conflictResolveCriteria;
+            CalculateRoute.__currentComp.calculateOptions.loadingStrategy = loadingStrategy;
+            CalculateRoute.__currentComp.calculateOptions.startCityId = startCityId;
+            CalculateRoute.__currentComp.calculateOptions.useCargoFromRoute = true;
+
+            // показываем иконку загрузки
+            CalculateRoute.__currentComp.application.showOverlay("#i-ctrl-overlay", "#i-calc-contents");
+
+            // отправляем запрос на сервер
+            $.ajax({
+                type: "POST",
+                url: CalculateRoute.__currentComp.application.getFullUri("api/calculateroute"),
+                data: JSON.stringify(CalculateRoute.__currentComp.calculateOptions),
+                contentType: "application/json",
+                dataType: "json",
+                success: CalculateRoute.__currentComp.onAjaxCalculateRouteSuccess,
+                error: CalculateRoute.__currentComp.onAjaxCalculateRouteError
+            });
+        };
+
+        CalculateRouteController.prototype.onAjaxCalculateRouteError = function (jqXHR, status, message) {
+            //window.console.log("onAjaxTaskSelectedDataError");
+            CalculateRoute.__currentComp.errorData = JSON.parse(jqXHR.responseText);
+            CalculateRoute.__currentComp.dataError(CalculateRoute.__currentComp, CalculateRoute.__currentComp.errorData);
+
+            // TODO обрабатываем ошибки сервера
+            // если ошибка "Требуется авторизация", то требуем у Application проверить текущий статус авторизации
+            //if (2 == parseInt(__currentTasksProfile.errorData.code))
+            //    __currentTasksProfile.application.checkAuthStatus();
+            // скрываем иконку загрузки
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-overlay");
+        };
+
+        CalculateRouteController.prototype.onAjaxCalculateRouteSuccess = function (data, status, jqXHR) {
+            //window.console.log("onAjaxTaskSelectedDataSuccess");
+            // добавление задания в маршрут произведена успешно - необходимо скорректировать таблицу маршрута
+            var resp = data.data;
+            CalculateRoute.__currentComp.routeData = resp.routePointList;
+            CalculateRoute.__currentComp.routeStartCities = resp.routeStartCitiesList;
+
+            CalculateRoute.__currentComp.updateStartCity();
+            CalculateRoute.__currentComp.drawRouteTable();
+            CalculateRoute.__currentComp.updateSelectedTasksFromRouteData();
+
+            // скрываем иконку загрузки
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-overlay");
+        };
+
+        CalculateRouteController.prototype.updateSelectedTasksFromRouteData = function () {
+            // снимаем выбор со всех задач в таблице
+            var tbody = $("#i-ctrl-tasks-table > tbody");
+            $("tr > td.c-ctrl-tasks-table-cell-chk > input[type=checkbox]", tbody).prop("checked", false);
+
+            var routePoints = CalculateRoute.__currentComp.routeData.routePoints;
+
+            for (var i = 0; i < routePoints.length; i++) {
+                var routePoint = routePoints[i];
+                $("tr[data-id=" + routePoint.cargoId + "] > td.c-ctrl-tasks-table-cell-chk > input[type=checkbox]", tbody).prop("checked", true);
+            }
+        };
+
         CalculateRouteController.prototype.onMainMenuLinkClick = function (event) {
             var elem = $(event.delegateTarget);
             var id = elem.attr("id");
@@ -349,6 +419,7 @@ else if ("i-page-cargoselected-link" == id)
             CalculateRoute.__currentComp.routeData = resp.routePointList;
             CalculateRoute.__currentComp.routeStartCities = resp.routeStartCitiesList;
 
+            CalculateRoute.__currentComp.updateStartCity();
             CalculateRoute.__currentComp.drawRouteTable();
 
             // скрываем иконку загрузки
@@ -376,6 +447,7 @@ else if ("i-page-cargoselected-link" == id)
             CalculateRoute.__currentComp.routeData = resp.routePointList;
             CalculateRoute.__currentComp.routeStartCities = resp.routeStartCitiesList;
 
+            CalculateRoute.__currentComp.updateStartCity();
             CalculateRoute.__currentComp.drawRouteTable();
 
             // скрываем иконку загрузки
@@ -732,10 +804,42 @@ else
             CalculateRoute.__currentComp.routeData = resp.routePointList;
             CalculateRoute.__currentComp.routeStartCities = resp.routeStartCitiesList;
 
+            CalculateRoute.__currentComp.updateStartCity();
             CalculateRoute.__currentComp.drawRouteTable();
 
             // скрываем иконку загрузки
             CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-overlay");
+        };
+
+        CalculateRouteController.prototype.clearStartCity = function () {
+            var sel = $("#i-calc-auto-param-start-city");
+            sel.empty();
+
+            // добавляем опцию по умолчанию
+            sel.append($('<option value="-1">-</option>'));
+        };
+
+        CalculateRouteController.prototype.updateStartCity = function () {
+            var sel = $("#i-calc-auto-param-start-city");
+
+            // запоминаем выбранный город
+            var startCityId = $(":selected", sel).val();
+
+            CalculateRoute.__currentComp.clearStartCity();
+
+            var cities = CalculateRoute.__currentComp.routeStartCities.cities;
+
+            if (cities != null && cities.length > 0) {
+                sel.empty();
+
+                for (var i = 0; i < cities.length; i++) {
+                    var cityInfo = cities[i];
+                    sel.append($('<option value="' + cityInfo.id + '">' + cityInfo.name + '</option>'));
+                }
+            }
+
+            // пытаемся восстановить выбранный ранее город
+            $("[value=" + startCityId + "]", sel).attr("selected", "selected");
         };
 
         CalculateRouteController.prototype.onDocumentReady = function () {

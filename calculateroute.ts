@@ -24,6 +24,9 @@ module CalculateRoute
             // настраиваем обработчики событий
             $("#i-page-search-link").click(__currentComp.onMainMenuLinkClick);
             $("#i-page-cargoselected-link").click(__currentComp.onMainMenuLinkClick);
+            $("#i-calc-auto-param-compute").click(__currentComp.onRouteComputeClick);
+            // 
+
             // проверяем авторизован ли пользователь
             var authentificated: boolean = __currentComp.application.isAuthentificated();
 
@@ -139,6 +142,7 @@ module CalculateRoute
             
 
             // помещаем данные в контролы
+            __currentComp.updateStartCity();
             __currentComp.drawTasksList();
             __currentComp.drawRouteTable();
 
@@ -320,6 +324,90 @@ module CalculateRoute
         }
 
 
+        onRouteComputeClick(event: JQueryEventObject): void
+        {
+            // опции пересчёта
+            var conflictResolveCriteria: string = $('#i-calc-option-conflict-resolve-criteria input[type=radio]:checked').val();
+            var loadingStrategy: string = $("#i-calc-option-loading-strategy input[type=radio]:checked").val();            
+            var startCityId: number = $("#i-calc-auto-param-start-city :selected").val();
+
+            __currentComp.calculateOptions.conflictResolveCriteria = conflictResolveCriteria;
+            __currentComp.calculateOptions.loadingStrategy = loadingStrategy;
+            __currentComp.calculateOptions.startCityId = startCityId;
+            __currentComp.calculateOptions.useCargoFromRoute = true;
+
+            // показываем иконку загрузки
+            __currentComp.application.showOverlay("#i-ctrl-overlay", "#i-calc-contents");
+
+            // отправляем запрос на сервер
+            $.ajax({
+                type: "POST",
+                url: __currentComp.application.getFullUri("api/calculateroute"),
+                data: JSON.stringify(__currentComp.calculateOptions),
+                contentType: "application/json",
+                dataType: "json",
+                success: __currentComp.onAjaxCalculateRouteSuccess,
+                error: __currentComp.onAjaxCalculateRouteError
+            });
+        }
+
+        onAjaxCalculateRouteError(jqXHR: JQueryXHR, status: string, message: string): void
+        {
+            //window.console.log("onAjaxTaskSelectedDataError");
+
+            __currentComp.errorData = <ServerData.AjaxServerResponse>JSON.parse(jqXHR.responseText);
+            __currentComp.dataError(__currentComp, __currentComp.errorData);
+
+            // TODO обрабатываем ошибки сервера
+
+
+
+
+            // если ошибка "Требуется авторизация", то требуем у Application проверить текущий статус авторизации
+            //if (2 == parseInt(__currentTasksProfile.errorData.code))
+            //    __currentTasksProfile.application.checkAuthStatus();
+
+
+            // скрываем иконку загрузки
+            __currentComp.application.hideOverlay("#i-ctrl-overlay");
+
+        }
+
+        onAjaxCalculateRouteSuccess(data: ServerData.AjaxServerResponse, status: string, jqXHR: JQueryXHR): void
+        {
+            //window.console.log("onAjaxTaskSelectedDataSuccess");
+
+            // добавление задания в маршрут произведена успешно - необходимо скорректировать таблицу маршрута
+            var resp: ServerData.AjaxRoutePointListAndCitiesList = <ServerData.AjaxRoutePointListAndCitiesList>data.data;
+            __currentComp.routeData = resp.routePointList;
+            __currentComp.routeStartCities = resp.routeStartCitiesList;
+
+            __currentComp.updateStartCity();
+            __currentComp.drawRouteTable();
+            __currentComp.updateSelectedTasksFromRouteData();
+
+            // скрываем иконку загрузки
+            __currentComp.application.hideOverlay("#i-ctrl-overlay");
+        }
+
+
+        updateSelectedTasksFromRouteData(): void
+        {
+            // снимаем выбор со всех задач в таблице
+            var tbody: JQuery = $("#i-ctrl-tasks-table > tbody");
+            $("tr > td.c-ctrl-tasks-table-cell-chk > input[type=checkbox]", tbody).prop("checked", false);
+
+            var routePoints: ServerData.AjaxRoutePoint[] = __currentComp.routeData.routePoints;
+
+            for (var i: number = 0; i < routePoints.length; i++)
+            {
+                var routePoint: ServerData.AjaxRoutePoint = routePoints[i];
+                $("tr[data-id=" + routePoint.cargoId + "] > td.c-ctrl-tasks-table-cell-chk > input[type=checkbox]", tbody).prop("checked", true);
+            }
+        }
+
+
+
         onMainMenuLinkClick(event: JQueryEventObject): void
         {
             var elem: JQuery = $(event.delegateTarget);
@@ -413,7 +501,7 @@ module CalculateRoute
             __currentComp.routeData = resp.routePointList;
             __currentComp.routeStartCities = resp.routeStartCitiesList;
 
-
+            __currentComp.updateStartCity();
             __currentComp.drawRouteTable();
 
             // скрываем иконку загрузки
@@ -454,7 +542,7 @@ module CalculateRoute
             __currentComp.routeData = resp.routePointList;
             __currentComp.routeStartCities = resp.routeStartCitiesList;
 
-
+            __currentComp.updateStartCity();
             __currentComp.drawRouteTable();
 
 
@@ -870,12 +958,50 @@ module CalculateRoute
             var resp: ServerData.AjaxRoutePointPlaceAndRoutePointList = <ServerData.AjaxRoutePointPlaceAndRoutePointList>data.data;
             __currentComp.routeData = resp.routePointList;
             __currentComp.routeStartCities = resp.routeStartCitiesList;
-            
+
+            __currentComp.updateStartCity();
             __currentComp.drawRouteTable();
 
 
             // скрываем иконку загрузки
             __currentComp.application.hideOverlay("#i-ctrl-overlay");
+        }
+
+
+        clearStartCity(): void
+        {
+            var sel: JQuery = $("#i-calc-auto-param-start-city");
+            sel.empty();
+            // добавляем опцию по умолчанию
+            sel.append($('<option value="-1">-</option>'));
+        }
+
+        updateStartCity(): void
+        {
+            var sel: JQuery = $("#i-calc-auto-param-start-city");
+
+            // запоминаем выбранный город
+            var startCityId: number = $(":selected", sel).val();
+
+            __currentComp.clearStartCity();
+
+
+            var cities: ServerData.AjaxCityShortInfo[] = __currentComp.routeStartCities.cities;
+
+
+            if (cities != null && cities.length > 0)
+            {
+                sel.empty();
+
+                for (var i: number = 0; i < cities.length; i++)
+                {
+                    var cityInfo: ServerData.AjaxCityShortInfo = cities[i];
+                    sel.append($('<option value="' + cityInfo.id + '">' + cityInfo.name + '</option>'));
+                }
+            }
+
+            // пытаемся восстановить выбранный ранее город
+            $("[value=" + startCityId + "]", sel).attr("selected", "selected");
         }
 
 

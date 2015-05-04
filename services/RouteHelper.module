@@ -247,7 +247,7 @@ class RouteHelper
             }
         }
 
-        return $arr_cities;
+        return array_values($arr_cities);
     }
 
     public static function GetUniqueStartCitiesFromAjaxRoutePointsArray(&$routePoints)
@@ -263,7 +263,7 @@ class RouteHelper
             }
         }
 
-        return $arr_cities;
+        return array_values($arr_cities);
     }
 
 
@@ -278,7 +278,7 @@ class RouteHelper
         }
 
 
-        return $arr_cities;
+        return array_values($arr_cities);
     }
 
 

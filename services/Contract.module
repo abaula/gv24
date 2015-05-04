@@ -307,9 +307,9 @@ class AjaxCityList
 {
     public $cities;
 
-    function __construct()
+    function __construct($cities)
     {
-        $this->cities = array();
+        $this->cities = $cities;
     }
 }
 

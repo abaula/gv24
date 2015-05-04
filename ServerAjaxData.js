@@ -104,6 +104,7 @@
         }
         return AjaxRoutePointListAndCitiesList;
     })();
+    ServerData.AjaxRoutePointListAndCitiesList = AjaxRoutePointListAndCitiesList;
 
     var AjaxRoutePointPlaceAndRoutePointList = (function () {
         function AjaxRoutePointPlaceAndRoutePointList() {

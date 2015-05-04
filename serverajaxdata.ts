@@ -36,7 +36,7 @@ module ServerData
 
     export class AjaxCityList
     {
-        public cities: AjaxCityShortInfo;
+        public cities: AjaxCityShortInfo[];
     }
 
     export class AjaxTask
@@ -113,7 +113,7 @@ module ServerData
     }
 
 
-    class AjaxRoutePointListAndCitiesList
+    export class AjaxRoutePointListAndCitiesList
     {
         public routePointList: AjaxRoutePointList;
         public routeStartCitiesList: AjaxCityList;

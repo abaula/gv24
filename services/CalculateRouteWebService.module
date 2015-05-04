@@ -29,7 +29,8 @@ class CalculateRouteWebService extends WebServBase
         try
         {
             $routePointList = self::GetRouteData($accountId, $userTokenId, $db);
-            $citiesList = RouteHelper::GetUniqueStartCitiesFromAjaxRoutePointsArray($routePointList->routePoints);
+            $cities = RouteHelper::GetUniqueStartCitiesFromAjaxRoutePointsArray($routePointList->routePoints);
+            $citiesList = new AjaxCityList($cities);
 
             $responseData = new AjaxRoutePointListAndCitiesList();
             $responseData->routePointList = $routePointList;
@@ -61,9 +62,6 @@ class CalculateRouteWebService extends WebServBase
             // AjaxCalculateOptions
             $options = $data;
 
-            // TODO убрать эту заглушку
-            $userTokenId = 1;
-
             // 1. пересчитываем маршрут
             $route = self::CalculateRoute($accountId, $userTokenId, $options, $db);
 
@@ -74,7 +72,8 @@ class CalculateRouteWebService extends WebServBase
             $routePointList = self::GetRouteData($accountId, $userTokenId, $db);
 
             // 4. получаем список городов маршрута
-            $citiesList = RouteHelper::GetUniqueStartCitiesFromAjaxRoutePointsArray($routePointList->routePoints);
+            $cities = RouteHelper::GetUniqueStartCitiesFromAjaxRoutePointsArray($routePointList->routePoints);
+            $citiesList = new AjaxCityList($cities);
 
             // 5. возвращаем данные клиенту
             $responseData = new AjaxRoutePointListAndCitiesList();
@@ -225,7 +224,7 @@ class CalculateRouteWebService extends WebServBase
         //print_r($graph);
 
         // 10. получаем вершину с которой начинается наш маршрут
-        $startVertex = $options->startCityId;
+        $startVertex = $vertices[$options->startCityId];
 
         //print_r($startVertex);
 
