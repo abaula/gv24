@@ -161,10 +161,11 @@ class CalculateRouteWebService extends WebServBase
         // 1. получаем идентификатор маршрута
         $routeId = RouteHelper::GetRouteId($accountId, $userTokenId, $db);
 
-        // TODO получать список всех выбранных грузов в зависимости от настроек пользователя
-
-        // 2. получаем данные маршрута - TaskInfo[]
-        $routeTasksInfoList = RouteHelper::GetCargoInRouteData($routeId, $db);
+        // 2. получаем данные маршрута - TaskInfo[] в зависимости от настроек пользователя
+        if($options->useCargoFromRoute)
+            $routeTasksInfoList = RouteHelper::GetCargoInRouteData($routeId, $db);
+        else
+            $routeTasksInfoList = CargoSelectedHelper::GetSelectedCargoData($accountId, $userTokenId, $db);
 
         // 3. создаём список ограничений
         $conflictResolveCriteria = $options->conflictResolveCriteria == 'MaxProceeds' ? ConflictResolveCriteria::MaxProceeds : ConflictResolveCriteria::MaxProfit;

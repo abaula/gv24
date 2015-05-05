@@ -18,8 +18,8 @@ var CalculateRoute;
             $("#i-page-search-link").click(CalculateRoute.__currentComp.onMainMenuLinkClick);
             $("#i-page-cargoselected-link").click(CalculateRoute.__currentComp.onMainMenuLinkClick);
             $("#i-calc-auto-param-compute").click(CalculateRoute.__currentComp.onRouteComputeClick);
+            $("#i-calc-option-use-cargo-from-route").click(CalculateRoute.__currentComp.onUseCargoFromRouteClick);
 
-            //
             // проверяем авторизован ли пользователь
             var authentificated = CalculateRoute.__currentComp.application.isAuthentificated();
 
@@ -281,16 +281,22 @@ var CalculateRoute;
             }
         };
 
+        CalculateRouteController.prototype.onUseCargoFromRouteClick = function (event) {
+            CalculateRoute.__currentComp.updateStartCity();
+        };
+
         CalculateRouteController.prototype.onRouteComputeClick = function (event) {
+            // TODO Переделать, чтобы отредактированные опции сразу сохранялись в данных класса, после чего их можно будет сразу использовать не считывая опции с формы
             // опции пересчёта
             var conflictResolveCriteria = $('#i-calc-option-conflict-resolve-criteria input[type=radio]:checked').val();
             var loadingStrategy = $("#i-calc-option-loading-strategy input[type=radio]:checked").val();
             var startCityId = $("#i-calc-auto-param-start-city :selected").val();
+            var useCargoFromRoute = $("#i-calc-option-use-cargo-from-route").is(":checked");
 
             CalculateRoute.__currentComp.calculateOptions.conflictResolveCriteria = conflictResolveCriteria;
             CalculateRoute.__currentComp.calculateOptions.loadingStrategy = loadingStrategy;
             CalculateRoute.__currentComp.calculateOptions.startCityId = startCityId;
-            CalculateRoute.__currentComp.calculateOptions.useCargoFromRoute = true;
+            CalculateRoute.__currentComp.calculateOptions.useCargoFromRoute = useCargoFromRoute;
 
             // показываем иконку загрузки
             CalculateRoute.__currentComp.application.showOverlay("#i-ctrl-overlay", "#i-calc-contents");
@@ -825,9 +831,17 @@ else
             // запоминаем выбранный город
             var startCityId = $(":selected", sel).val();
 
+            // очищаем список городов
             CalculateRoute.__currentComp.clearStartCity();
 
-            var cities = CalculateRoute.__currentComp.routeStartCities.cities;
+            // выбираем источник для списка городов
+            var useCargoFromRoute = $("#i-calc-option-use-cargo-from-route").is(":checked");
+            var cities = null;
+
+            if (useCargoFromRoute)
+                cities = CalculateRoute.__currentComp.routeStartCities.cities;
+else
+                cities = CalculateRoute.__currentComp.startCities.cities;
 
             if (cities != null && cities.length > 0) {
                 sel.empty();

@@ -25,7 +25,7 @@ module CalculateRoute
             $("#i-page-search-link").click(__currentComp.onMainMenuLinkClick);
             $("#i-page-cargoselected-link").click(__currentComp.onMainMenuLinkClick);
             $("#i-calc-auto-param-compute").click(__currentComp.onRouteComputeClick);
-            // 
+            $("#i-calc-option-use-cargo-from-route").click(__currentComp.onUseCargoFromRouteClick);
 
             // проверяем авторизован ли пользователь
             var authentificated: boolean = __currentComp.application.isAuthentificated();
@@ -324,17 +324,25 @@ module CalculateRoute
         }
 
 
+        onUseCargoFromRouteClick(event: JQueryEventObject): void
+        {
+            __currentComp.updateStartCity();
+        }
+
         onRouteComputeClick(event: JQueryEventObject): void
         {
+            // TODO Переделать, чтобы отредактированные опции сразу сохранялись в данных класса, после чего их можно будет сразу использовать не считывая опции с формы
+
             // опции пересчёта
             var conflictResolveCriteria: string = $('#i-calc-option-conflict-resolve-criteria input[type=radio]:checked').val();
             var loadingStrategy: string = $("#i-calc-option-loading-strategy input[type=radio]:checked").val();            
             var startCityId: number = $("#i-calc-auto-param-start-city :selected").val();
+            var useCargoFromRoute: boolean = $("#i-calc-option-use-cargo-from-route").is(":checked");
 
             __currentComp.calculateOptions.conflictResolveCriteria = conflictResolveCriteria;
             __currentComp.calculateOptions.loadingStrategy = loadingStrategy;
             __currentComp.calculateOptions.startCityId = startCityId;
-            __currentComp.calculateOptions.useCargoFromRoute = true;
+            __currentComp.calculateOptions.useCargoFromRoute = useCargoFromRoute;
 
             // показываем иконку загрузки
             __currentComp.application.showOverlay("#i-ctrl-overlay", "#i-calc-contents");
@@ -983,12 +991,19 @@ module CalculateRoute
             // запоминаем выбранный город
             var startCityId: number = $(":selected", sel).val();
 
+            // очищаем список городов
             __currentComp.clearStartCity();
 
+            // выбираем источник для списка городов
+            var useCargoFromRoute: boolean = $("#i-calc-option-use-cargo-from-route").is(":checked");
+            var cities: ServerData.AjaxCityShortInfo[] = null;
 
-            var cities: ServerData.AjaxCityShortInfo[] = __currentComp.routeStartCities.cities;
+            if(useCargoFromRoute)
+                cities = __currentComp.routeStartCities.cities;
+            else
+                cities = __currentComp.startCities.cities;
 
-
+            // заполняем список городов
             if (cities != null && cities.length > 0)
             {
                 sel.empty();

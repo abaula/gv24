@@ -41,4 +41,52 @@ class CargoSelectedHelper
     }
 
 
+    public static function GetSelectedCargoData($accountId, $userTokenId, $db)
+    {
+        if(is_null($accountId))
+            $where_sql_definition = $db->parse(' CS.user_token_id = ?i ', $userTokenId);
+        else
+            $where_sql_definition = $db->parse(' CS.account_id = ?i ', $accountId);
+
+
+        $list = array();
+
+        $sql = 'SELECT DISTINCT C.id, C.name,
+                          C.city1_id, GC1.name as city1_name, (GC1.latitude / 10000000) as city1_latitude, (GC1.longitude / 10000000) as city1_longitude,
+                          C.city2_id, GC2.name as city2_name, (GC2.latitude / 10000000) as city2_latitude, (GC2.longitude / 10000000) as city2_longitude,
+                          CT.name AS type, C.weight, C.value, C.distance, C.cost, C.ready_date
+                    FROM cargo C
+                        INNER JOIN geocities GC1
+                          ON GC1.id = C.city1_id
+                        INNER JOIN geocities GC2
+                          ON GC2.id = C.city2_id
+                        INNER JOIN cargo_type CT
+                            ON CT.id = C.cargo_type_id
+                        INNER JOIN cargo_selected CS
+                            ON CS.cargo_id = C.id
+                              AND ?p
+                    WHERE C.is_deleted = 0';
+
+        $result = $db->query($sql, $where_sql_definition);
+
+        if(0 < $db->numRows($result))
+        {
+            while($row = $db->fetch($result))
+            {
+                $entry = new TaskInfo
+                (
+                    $row['id'], $row['name'],
+                    $row['city1_id'], $row['city1_name'], $row['city1_longitude'], $row['city1_latitude'],
+                    $row['city2_id'], $row['city2_name'], $row['city2_longitude'], $row['city2_latitude'],
+                    $row['type'], $row['distance'], $row['value'], $row['weight'], $row['cost'], $row['ready_date']
+                );
+
+                $list[$entry->id] = $entry;
+            }
+        }
+
+        return $list;
+    }
+
+
 }
