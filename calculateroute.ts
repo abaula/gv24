@@ -338,11 +338,13 @@ module CalculateRoute
             var loadingStrategy: string = $("#i-calc-option-loading-strategy input[type=radio]:checked").val();            
             var startCityId: number = $("#i-calc-auto-param-start-city :selected").val();
             var useCargoFromRoute: boolean = $("#i-calc-option-use-cargo-from-route").is(":checked");
+            var buildWayBack: boolean = $("#i-calc-option-apply-return-path").is(":checked");
 
             __currentComp.calculateOptions.conflictResolveCriteria = conflictResolveCriteria;
             __currentComp.calculateOptions.loadingStrategy = loadingStrategy;
             __currentComp.calculateOptions.startCityId = startCityId;
             __currentComp.calculateOptions.useCargoFromRoute = useCargoFromRoute;
+            __currentComp.calculateOptions.buildWayBack = buildWayBack;
 
             // показываем иконку загрузки
             __currentComp.application.showOverlay("#i-ctrl-overlay", "#i-calc-contents");

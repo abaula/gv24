@@ -18,7 +18,7 @@ class SearchTasksWebService extends WebServBase
     {
 
         // TODO убрать эмуляцию задержки ответа сервера
-        sleep(1);
+        //sleep(1);
 
         //var_dump($args);
 
@@ -84,7 +84,7 @@ class SearchTasksWebService extends WebServBase
 
                     $entry = new AjaxTask
                     (
-                        $row['id'], $row['city1_id'], $row['city1'], $row['city2'], $row['type'], $row['weight'], $row['value'], $row['distance'], $row['cost'], $rusReadyDate, $selected
+                        $row['id'], $row['city1_id'], $row['city1'], $row['city2'], $row['type'], $row['distance'], $row['value'], $row['weight'], $row['cost'], $rusReadyDate, $selected
                     );
 
                     array_push($arr, $entry);

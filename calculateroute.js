@@ -292,11 +292,13 @@ var CalculateRoute;
             var loadingStrategy = $("#i-calc-option-loading-strategy input[type=radio]:checked").val();
             var startCityId = $("#i-calc-auto-param-start-city :selected").val();
             var useCargoFromRoute = $("#i-calc-option-use-cargo-from-route").is(":checked");
+            var buildWayBack = $("#i-calc-option-apply-return-path").is(":checked");
 
             CalculateRoute.__currentComp.calculateOptions.conflictResolveCriteria = conflictResolveCriteria;
             CalculateRoute.__currentComp.calculateOptions.loadingStrategy = loadingStrategy;
             CalculateRoute.__currentComp.calculateOptions.startCityId = startCityId;
             CalculateRoute.__currentComp.calculateOptions.useCargoFromRoute = useCargoFromRoute;
+            CalculateRoute.__currentComp.calculateOptions.buildWayBack = buildWayBack;
 
             // показываем иконку загрузки
             CalculateRoute.__currentComp.application.showOverlay("#i-ctrl-overlay", "#i-calc-contents");

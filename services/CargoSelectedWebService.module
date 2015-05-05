@@ -83,7 +83,7 @@ class CargoSelectedWebService extends WebServBase
 
                     $entry = new AjaxTask
                     (
-                        $row['id'], $row['city1_id'], $row['city1'], $row['city2'], $row['type'], $row['weight'], $row['value'], $row['distance'], $row['cost'], $rusReadyDate, true, $row['selectedId']
+                        $row['id'], $row['city1_id'], $row['city1'], $row['city2'], $row['type'], $row['distance'], $row['value'], $row['weight'], $row['cost'], $rusReadyDate, true, $row['selectedId']
                     );
 
                     array_push($arr, $entry);

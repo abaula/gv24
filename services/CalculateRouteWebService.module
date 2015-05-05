@@ -66,7 +66,7 @@ class CalculateRouteWebService extends WebServBase
             $route = self::CalculateRoute($accountId, $userTokenId, $options, $db);
 
             // 2. обновляем маршрут пользователя
-            self::UpdateRoute($accountId, $userTokenId, $route, $db);
+            self::UpdateRoute($accountId, $userTokenId, $options, $route, $db);
 
             // 3. получаем данные марщрута
             $routePointList = self::GetRouteData($accountId, $userTokenId, $db);
@@ -167,6 +167,7 @@ class CalculateRouteWebService extends WebServBase
         else
             $routeTasksInfoList = CargoSelectedHelper::GetSelectedCargoData($accountId, $userTokenId, $db);
 
+
         // 3. создаём список ограничений
         $conflictResolveCriteria = $options->conflictResolveCriteria == 'MaxProceeds' ? ConflictResolveCriteria::MaxProceeds : ConflictResolveCriteria::MaxProfit;
         $loadingStrategy = $options->loadingStrategy == 'SavingWeight' ? LoadingStrategy::SavingWeight : LoadingStrategy::SavingValue;
@@ -183,6 +184,9 @@ class CalculateRouteWebService extends WebServBase
             array_push($list, $task);
         }
 
+        //print_r($list);
+        //exit();
+
         $routeTaskList = new RouteTaskList();
         $routeTaskList->addRouteTasks($list);
 
@@ -192,6 +196,7 @@ class CalculateRouteWebService extends WebServBase
         $vertices = $routeTaskList->getVertices();
 
         //print_r($vertices);
+
 
         // 6. получаем список городов.
         // ВАЖНО: В текущей реализации id вершины = id города
@@ -218,13 +223,15 @@ class CalculateRouteWebService extends WebServBase
             array_push($edges, $edge);
         }
 
+        //print_r($edges);
+
         // 9. создаём граф
         $graph = new UndirectedGraph();
         $graph->init($vertices, $edges);
 
-        //print_r($graph);
+        //print_r(count($graph->getEdges()));
 
-        // 10. получаем вершину с которой начинается наш маршрут
+        // 10. получаем вершину, с которой начинается наш маршрут
         $startVertex = $vertices[$options->startCityId];
 
         //print_r($startVertex);
@@ -232,17 +239,25 @@ class CalculateRouteWebService extends WebServBase
         // 11. расчитываем маршрут
         $calculator = new RouteCalculator($routeTaskList, $routeRestrictions, $graph);
         $calculator->calculateRoute($startVertex);
-        // всегда получаем оптимальный маршрут рассчитанный без учёта обратного пути
-        $route = $calculator->getRoute();
 
-        //print_r($route);
+        // 12. получаем маршрут
+        if($options->buildWayBack)
+        {
+            $route = $calculator->getRouteWithWayBack();
+        }
+        else
+            $route = $calculator->getRoute();
 
-        // 12. Возвращаем рассчитанный маршрут
+        //$output = print_r($route, true);
+        //file_put_contents('D:\dump.txt', $output);
+
+
+        // 13. Возвращаем рассчитанный маршрут
         return $route;
     }
 
 
-    static function UpdateRoute($accountId, $userTokenId, $routeData, $db)
+    static function UpdateRoute($accountId, $userTokenId, $options, $routeData, $db)
     {
         // 1. получаем идентификатор маршрута
         $routeId = RouteHelper::GetRouteId($accountId, $userTokenId, $db);
@@ -262,7 +277,7 @@ class CalculateRouteWebService extends WebServBase
         CargoSelectedHelper::CreateMap($accountId, $userTokenId, $db);
 
         // ... 4.2 получаем список рёбер маршрута - RouteEntry[]
-        $routes = $routeData->getEntries();
+        $routeEntries = $routeData->getEntries();
 
         //print_r($routes);
 
@@ -274,30 +289,22 @@ class CalculateRouteWebService extends WebServBase
                         VALUES (?i, ?i, ?i, ?i, ?i, ?i)';
 
 
-        foreach($routes as $routeEntry)
+        foreach($routeEntries as $routeEntry)
         {
             $edge = $routeEntry->getEdge();
-            $vertexA = $edge->getVertexA();
-            $vertexB = $edge->getVertexB();
-
-            // сохраняем все точки на загрузку
-            // print_r($vertexA);
-            // printf("%s\n", $vertexA->getId());
 
             // список загруженных грузов в точке А
             $vertexATasks = $routeEntry->getCommitedTasks();
 
             foreach($vertexATasks as $taskA)
             {
-                // printf("\t%d\n", $taskA->getId());
                 $cargoSelectedId = CargoSelectedHelper::GetCargoSelectedIdByCargoId($taskA->getId());
+                $vertexA = $taskA->getVertexA();
                 $db->query($sql, $routeId, $cargoSelectedId, $vertexA->getId(), $distance, 1, $num++);
 
                 // обнуляем дистанцию - дистанция указывается, только при смене города, т.е. для 1-го задания из точки А ребра
                 $distance = 0;
             }
-
-            // printf("%s\n", $vertexB->getId());
 
             // для первого груза в точке B указываем дистанцию
             $distance = $edge->getDistance();
@@ -307,16 +314,23 @@ class CalculateRouteWebService extends WebServBase
 
             foreach($vertexBTasks as $taskB)
             {
-                // printf("\t%d\n", $taskB->getId());
                 $cargoSelectedId = CargoSelectedHelper::GetCargoSelectedIdByCargoId($taskB->getId());
+                $vertexB = $taskB->getVertexB();
                 $db->query($sql, $routeId, $cargoSelectedId, $vertexB->getId(), $distance, 0, $num++);
 
                 // обнуляем дистанцию - дистанция указывается, только при смене города, т.е. для 1-го задания из точки B ребра
                 $distance = 0;
             }
 
-
             //print_r($routeEntry);
+        }
+
+        // TODO при необходимости сохраняем обратный путь к началу маршрута
+        // сначала нужно проверить, что маршрут не содержит возвращение в начальную точку, если твозвращения нет, то добавить ребро в маршрут
+        if($options->buildWayBack)
+        {
+            $wayBackEntry = $routeData->getWayBackEntry();
+
         }
     }
 
