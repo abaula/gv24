@@ -780,7 +780,8 @@ module CalculateRoute
                 num += ".1";
             
 
-            $("td.calc-table-col-num", row).text(num);
+            if(routeEntry.cargoId > 0)
+                $("td.calc-table-col-num", row).text(num);
 
             $("td.calc-table-col-from", row).text(routeEntry.cityName);
 
@@ -841,8 +842,11 @@ module CalculateRoute
 
 
             // подключаем обработчики событий
-            $("td.calc-table-col-up", row).click(__currentComp.onRoutePointUpDownClick);
-            $("td.calc-table-col-down", row).click(__currentComp.onRoutePointUpDownClick);
+            if (routeEntry.cargoId > 0)
+            {
+                $("td.calc-table-col-up", row).click(__currentComp.onRoutePointUpDownClick);
+                $("td.calc-table-col-down", row).click(__currentComp.onRoutePointUpDownClick);
+            }
 
             /*
             

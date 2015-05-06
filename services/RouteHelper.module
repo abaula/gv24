@@ -287,6 +287,17 @@ class RouteHelper
         $routePointToInsert = $routePoints[$routePointId];
         $isFirstPointOfPair = $routePointToInsert->isFirstPointOfPair;
 
+        // проверяем, что позиция вставки - это не обратный путь маршрута
+        if(!is_null($afterRoutePointId))
+        {
+            $afterRoutePoint = $routePoints[$afterRoutePointId];
+
+            // если cargoSelectedId = 0, то значит точка вставки - обратный путь
+            if(1 > $afterRoutePoint->cargoSelectedId)
+                return false;
+        }
+
+
         // если переносим точку в начало, то это должна быть начальная точка маршрута
         if(is_null($afterRoutePointId))
             return $isFirstPointOfPair;
@@ -312,6 +323,7 @@ class RouteHelper
 
         return false;
     }
+
 
     public static function ChangeRoutePointPositionInArray($routePointId, $afterRoutePointId, &$routePoints)
     {

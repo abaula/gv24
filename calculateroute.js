@@ -652,7 +652,8 @@ else if ("i-page-cargoselected-link" == id)
 else
                 num += ".1";
 
-            $("td.calc-table-col-num", row).text(num);
+            if (routeEntry.cargoId > 0)
+                $("td.calc-table-col-num", row).text(num);
 
             $("td.calc-table-col-from", row).text(routeEntry.cityName);
 
@@ -689,28 +690,10 @@ else
 
             $("td.calc-table-col-proceeds", row).text(parseFloat(routeEntry.cost).toFixed(0));
 
-            /*
-            $("td.calc-table-col-sum-distance", row).text(routeEntry.sumDistance);
-            
-            $("td.calc-table-col-expense", row).text(routeEntry.expense.toFixed(0));
-            $("td.calc-table-col-sum-expense", row).text(routeEntry.sumExpense.toFixed(0));
-            
-            if (null != routeEntry.task && routeEntry.task.customTaxUsed)
-            $("td.calc-table-col-proceeds", row).text(routeEntry.proceeds.toFixed(0)).addClass("calc-table-col-val-custom");
-            else
-            $("td.calc-table-col-proceeds", row).text(routeEntry.proceeds.toFixed(0));
-            
-            $("td.calc-table-col-sum-proceeds", row).text(routeEntry.sumProceeds.toFixed(0));
-            
-            $("td.calc-table-col-profit", row).text(routeEntry.profit.toFixed(0));
-            $("td.calc-table-col-sum-profit", row).text(routeEntry.sumProfit.toFixed(0));
-            
-            $("td.calc-table-col-lost-proceeds", row).text(routeEntry.lostProceeds.toFixed(0));
-            $("td.calc-table-col-target-profit", row).text(routeEntry.targetProfit.toFixed(0));
-            */
-            // подключаем обработчики событий
-            $("td.calc-table-col-up", row).click(CalculateRoute.__currentComp.onRoutePointUpDownClick);
-            $("td.calc-table-col-down", row).click(CalculateRoute.__currentComp.onRoutePointUpDownClick);
+            if (routeEntry.cargoId > 0) {
+                $("td.calc-table-col-up", row).click(CalculateRoute.__currentComp.onRoutePointUpDownClick);
+                $("td.calc-table-col-down", row).click(CalculateRoute.__currentComp.onRoutePointUpDownClick);
+            }
 
             /*
             

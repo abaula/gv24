@@ -668,23 +668,32 @@ class Route
         if (1 > count($this->_entries))
             return null;
 
+        // получаем первое ребро маршрута
         $entry = $this->_entries[0];
-        $edge = $entry->getEdge();
+        // получаем все принятые задания в ребре маршрута
+        $tasks = $entry->getCommitedTasks();
+        // получаем индекс первого принятого задания в ребре маршрута
+        $index = count($tasks) - 1;
+        // получаем первое задание в маршруте
+        $firstTask = $tasks[$index];
 
-        return $edge->getVertexA();
+        return $firstTask->getVertexA();
+
     }
 
     // получить последнюю вершину маршрута
     function getEndVertex()
     {
-        if (1 > count($this->_entries))
+
+        if (1 > count($this->_fulfiledTasks))
             return null;
 
-        $index = count($this->_entries) - 1;
-        $entry = $this->_entries[$index];
-        $edge = $entry->getEdge();
+        // получаем индекс послденего исполненного задания в маршруте
+        $index = count($this->_fulfiledTasks) - 1;
+        // получаем последнее исполненное задание в маршруте
+        $endTask = $this->_fulfiledTasks[$index];
 
-        return $edge->getVertexB();
+        return $endTask->getVertexB();
     }
 
     // добавляем часть маршрута

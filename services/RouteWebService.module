@@ -340,6 +340,7 @@ class RouteWebService extends WebServBase
             // 3. получаем данные маршрута
             $routePoints = RouteHelper::GetRouteData($route_id, $db);
 
+
             // 4. проверяем, что новая позиция точки маршрута не меняет направление маршрута - первая точка маршрута в списке должна находиться перед второй точкой маршрута
             $isValidPosition = RouteHelper::CheckIfRoutePointPositionInArrayIsCorrect($routePointId, $afterRoutePointId, $routePoints);
 

@@ -117,21 +117,21 @@ class CalculateRouteWebService extends WebServBase
         // 2. получаем данные маршрута
         $sql = 'SELECT
                     RP.id AS route_point_id,
-                    C.id AS cargo_id,
-                    C.is_deleted AS cargo_is_deleted,
+                    ifnull(C.id, 0) AS cargo_id,
+                    ifnull(C.is_deleted, 0) AS cargo_is_deleted,
                     RP.distance AS route_point_distance,
                     RP.city_id,
                     GC.name AS city_name,
-                    CASE RP.is_first_point_of_pair WHEN 1 THEN C.weight ELSE (- C.weight) END AS weight,
-                    CASE RP.is_first_point_of_pair WHEN 1 THEN C.value ELSE (- C.value) END AS value,
-                    CASE RP.is_first_point_of_pair WHEN 0 THEN C.cost ELSE 0 END AS cost,
-                    CASE RP.is_first_point_of_pair WHEN 1 THEN C.ready_date ELSE null END AS ready_date
+                    CASE RP.is_first_point_of_pair WHEN 1 THEN ifnull(C.weight, 0) ELSE (- ifnull(C.weight, 0)) END AS weight,
+                    CASE RP.is_first_point_of_pair WHEN 1 THEN ifnull(C.value, 0) ELSE (- ifnull(C.value, 0)) END AS value,
+                    CASE RP.is_first_point_of_pair WHEN 0 THEN ifnull(C.cost, 0) ELSE 0 END AS cost,
+                    CASE RP.is_first_point_of_pair WHEN 1 THEN ifnull(C.ready_date, 0) ELSE null END AS ready_date
                 FROM route_point RP
                     INNER JOIN geocities GC
                         ON GC.id = RP.city_id
-                    INNER JOIN cargo_selected CS
+                    LEFT OUTER JOIN cargo_selected CS
                         ON CS.id = RP.cargo_selected_id
-                    INNER JOIN cargo C
+                    LEFT OUTER JOIN cargo C
                         ON C.id = CS.cargo_id
                 WHERE RP.route_id = ?i
                 ORDER BY RP.order_num';
@@ -326,11 +326,24 @@ class CalculateRouteWebService extends WebServBase
         }
 
         // TODO при необходимости сохраняем обратный путь к началу маршрута
-        // сначала нужно проверить, что маршрут не содержит возвращение в начальную точку, если твозвращения нет, то добавить ребро в маршрут
         if($options->buildWayBack)
         {
+            // 1. сначала нужно проверить, что маршрут не содержит возвращение в начальную точку
+            $startVertex = $routeData->getStartVertex();
+            $endVertex = $routeData->getEndVertex();
+
+            if($startVertex->isEqual($endVertex))
+                return;
+
+            // 2. если твозвращения нет, то добавляем ребро в маршрут
             $wayBackEntry = $routeData->getWayBackEntry();
 
+            $sql = 'INSERT INTO route_point (route_id, cargo_selected_id, city_id, distance, is_first_point_of_pair, order_num)
+                        VALUES (?i, null, ?i, ?i, ?i, ?i)';
+
+            $edge = $wayBackEntry->getEdge();
+            $distance = $edge->getDistance();
+            $db->query($sql, $routeId, $startVertex->getId(), $distance, 0, $num);
         }
     }
 
