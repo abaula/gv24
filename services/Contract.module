@@ -437,16 +437,14 @@ class AjaxVehicleParams
     public $maxValue;
     public $maxWeight;
     public $expences;
-    public $taxWeight;
-    public $taxValue;
+    public $tax;
 
-    function __construct($maxValue, $maxWeight, $expences, $taxValue, $taxWeight)
+    function __construct($maxValue, $maxWeight, $expences, $tax)
     {
         $this->expences = $expences;
         $this->maxValue = $maxValue;
         $this->maxWeight = $maxWeight;
-        $this->taxValue = $taxValue;
-        $this->taxWeight = $taxWeight;
+        $this->tax = $tax;
     }
 }
 

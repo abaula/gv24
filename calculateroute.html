@@ -38,6 +38,28 @@
 
         <div id="i-calc-contents" class="c-page-form-outer-block">
 
+
+            <!-- Панель параметров машины -->
+            <div class="calc-options-panel" id="i-calc-vehicle-params-panel">
+
+                <div class="calc-param-panel-entry">
+
+                    <div class="c-ctrl-options-option">Параметры машины:</div>
+
+                    <div class="c-ctrl-options-option">Выбрать машину:<br/><select id="i-calc-param-vehicle-select">
+                            <option selected="selected" value="0">Указать вручную</option>
+                        </select>
+                    </div>
+
+                    <div class="c-ctrl-options-option">Максимальный вес<br/><input type="text" id="i-calc-param-max-weight" pattern="^[ 0-9]+$" value="0" />кг</div>
+                    <div class="c-ctrl-options-option">Максимальный объём<br/><input type="text" id="i-calc-param-max-value" pattern="^[ 0-9]+$" value="0" />м<sup>3</sup></div>
+                    <div class="c-ctrl-options-option">Затраты<br/><input type="text" id="i-calc-param-expense" pattern="^[ 0-9]+$" value="0" />руб/км</div>
+                    <div class="c-ctrl-options-option">Свой тариф<br/><input type="text" id="i-calc-param-tax" pattern="^[ .0-9]+$" value="0" />руб/км</div>
+                </div>          
+            </div>
+
+            <!-- /Панель параметров машины -->
+
             <div id="i-ctrl-tacks-container" class="c-page-form-outer-block">
 
                 <!-- Панель результатов поиска -->
@@ -53,7 +75,9 @@
                                 <th>Вес, кг</th>
                                 <th>Объём, м<sup>3</sup></th>
                                 <th>Дистанция, км</th>
-                                <th>Стоимость</th>
+                                <th>Цена</th>
+                                <th>Стоимость, руб/км</th>
+                                <th>Стоимость пр., руб/км</th>
                                 <th>Дата готовности</th>
                             </tr>
                             <tr id="i-ctrl-tasks-table-row-template" data-id="" data-selected-id="" class="hidden">
@@ -66,6 +90,8 @@
                                 <td class="c-ctrl-tasks-table-cell-value"></td>
                                 <td class="c-ctrl-tasks-table-cell-distance"></td>
                                 <td class="c-ctrl-tasks-table-cell-cost"></td>
+                                <td class="c-ctrl-tasks-table-cell-cost-km"></td>
+                                <td class="c-ctrl-tasks-table-cell-cost-pr-km"></td>
                                 <td class="c-ctrl-tasks-table-cell-ready-date"></td>
                             </tr>
                         </thead>
@@ -94,27 +120,8 @@
 
             </div>
 
-
             <!-- Панель опций расчёта маршрута -->
             <div class="calc-options-panel" id="i-calc-options-panel">
-
-                <div class="calc-param-panel-entry">
-
-                    <div class="c-ctrl-options-option">Параметры машины:</div>
-
-                    <div class="c-ctrl-options-option">Выбрать машину:<br/><select id="i-calc-param-vehicle-select">
-                            <option selected="selected" value="0">Указать вручную</option>
-                        </select>
-                    </div>
-
-                    <div class="c-ctrl-options-option">Максимальный вес<br/><input type="text" id="i-calc-param-max-weight" pattern="^[ 0-9]+$" value="0" />кг</div>
-                    <div class="c-ctrl-options-option">Максимальный объём<br/><input type="text" id="i-calc-param-max-value" pattern="^[ 0-9]+$" value="0" />м<sup>3</sup></div>
-                    <div class="c-ctrl-options-option">Затраты<br/><input type="text" id="i-calc-param-expense" pattern="^[ 0-9]+$" value="0" />руб/км</div>
-                    <div class="c-ctrl-options-option">Свой тариф за 1 т<br/><input type="text" id="i-calc-param-tax-weight" pattern="^[ .0-9]+$" value="0" />руб/100 км</div>
-                    <div class="c-ctrl-options-option">Свой тариф за 1 м<sup>3</sup><br/><input type="text" id="i-calc-param-tax-value" pattern="^[ .0-9]+$" value="0" />руб/100 км</div>
-
-                </div>
-
 
                 <div class="calc-param-panel-entry">
 
@@ -144,7 +151,6 @@
             </div>
 
             <!-- /Панель опций расчёта маршрута -->
-
 
             <div class="calc-route-panel" id="i-calc-route-panel">
                 <div id="i-calc-routes-container-block">

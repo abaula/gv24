@@ -139,16 +139,14 @@ module ServerData
         public maxValue: number;
         public maxWeight: number;
         public expences: number;
-        public taxWeight: number;
-        public taxValue: number;
+        public tax: number;
 
-        constructor(maxValue: number, maxWeight: number, expences: number, taxValue: number, taxWeight: number)
+        constructor(maxValue: number, maxWeight: number, expences: number, tax: number)
         {
             this.expences = expences;
             this.maxValue = maxValue;
             this.maxWeight = maxWeight;
-            this.taxValue = taxValue;
-            this.taxWeight = taxWeight;
+            this.tax = tax;
         }
     }
 

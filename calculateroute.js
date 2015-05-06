@@ -28,7 +28,7 @@ var CalculateRoute;
 
             // TODO переделать на загрузку сохранённых данных из базы
             CalculateRoute.__currentComp.calculateOptions = new ServerData.AjaxCalculateOptions();
-            CalculateRoute.__currentComp.calculateOptions.vehicleParams = new ServerData.AjaxVehicleParams(82, 20000, 25, 30.5, 125);
+            CalculateRoute.__currentComp.calculateOptions.vehicleParams = new ServerData.AjaxVehicleParams(82, 20000, 25, 40);
             CalculateRoute.__currentComp.fillVehicleParams();
             // Сообщаем приложению, что компонент загружен.
             //__currentComp.onComponentLoaded();
@@ -129,8 +129,7 @@ var CalculateRoute;
             $("#i-calc-param-max-weight").val(CalculateRoute.__currentComp.calculateOptions.vehicleParams.maxWeight);
             $("#i-calc-param-max-value").val(CalculateRoute.__currentComp.calculateOptions.vehicleParams.maxValue);
             $("#i-calc-param-expense").val(CalculateRoute.__currentComp.calculateOptions.vehicleParams.expences);
-            $("#i-calc-param-tax-weight").val(CalculateRoute.__currentComp.calculateOptions.vehicleParams.taxWeight);
-            $("#i-calc-param-tax-value").val(CalculateRoute.__currentComp.calculateOptions.vehicleParams.taxValue);
+            $("#i-calc-param-tax").val(CalculateRoute.__currentComp.calculateOptions.vehicleParams.tax);
         };
 
         CalculateRouteController.prototype.drawTasksList = function () {
@@ -169,6 +168,14 @@ var CalculateRoute;
                 $("td.c-ctrl-tasks-table-cell-distance", row).text(task.distance);
                 $("td.c-ctrl-tasks-table-cell-cost", row).text(task.cost);
                 $("td.c-ctrl-tasks-table-cell-ready-date", row).text(task.readyDate);
+
+                var costKm = parseFloat(task.cost) / parseFloat(task.distance);
+                $("td.c-ctrl-tasks-table-cell-cost-km", row).text(costKm.toFixed(2));
+
+                var costPrKmWeight = parseFloat(task.cost) / parseFloat(task.distance) * (parseFloat(CalculateRoute.__currentComp.calculateOptions.vehicleParams.maxWeight) / parseFloat(task.weight));
+                var costPrKmValue = parseFloat(task.cost) / parseFloat(task.distance) * (parseFloat(CalculateRoute.__currentComp.calculateOptions.vehicleParams.maxValue) / parseFloat(task.value));
+                var costPrKm = Math.min(costPrKmWeight, costPrKmValue);
+                $("td.c-ctrl-tasks-table-cell-cost-pr-km", row).text(costPrKm.toFixed(2));
 
                 // привязываем обработчики на чекбоксы
                 $("td.c-ctrl-tasks-table-cell-chk > :checkbox", row).click(CalculateRoute.__currentComp.onTaskSelected);
@@ -612,15 +619,13 @@ else if ("i-page-cargoselected-link" == id)
                     $("td.calc-table-col-sum-profit", row).addClass("calc-table-col-val-empty");
 
                 // упущенная выручка
-                var lostProceedsForWeight = prevResWeight / 1000 * parseFloat(entry.routePointDistance) / 100 * CalculateRoute.__currentComp.calculateOptions.vehicleParams.taxWeight;
-                var lostProceedsForValue = prevResValue * parseFloat(entry.routePointDistance) / 100 * CalculateRoute.__currentComp.calculateOptions.vehicleParams.taxValue;
-                var lostProceeds = Math.max(lostProceedsForWeight, lostProceedsForValue);
+                var lostProceedsForWeight = parseFloat(entry.routePointDistance) * CalculateRoute.__currentComp.calculateOptions.vehicleParams.tax * (prevResWeight / CalculateRoute.__currentComp.calculateOptions.vehicleParams.maxWeight);
+                var lostProceedsForValue = parseFloat(entry.routePointDistance) * CalculateRoute.__currentComp.calculateOptions.vehicleParams.tax * (prevResValue / CalculateRoute.__currentComp.calculateOptions.vehicleParams.maxValue);
+                var lostProceeds = Math.min(lostProceedsForWeight, lostProceedsForValue);
                 $("td.calc-table-col-lost-proceeds", row).text(lostProceeds.toFixed(0));
 
                 // целевая прибыль
-                var targetProfitForWeight = commulativeDistance / 100 * CalculateRoute.__currentComp.calculateOptions.vehicleParams.maxWeight / 1000 * CalculateRoute.__currentComp.calculateOptions.vehicleParams.taxWeight - commulativeExpences;
-                var targetProfitForValue = commulativeDistance / 100 * CalculateRoute.__currentComp.calculateOptions.vehicleParams.maxValue * CalculateRoute.__currentComp.calculateOptions.vehicleParams.taxValue - commulativeExpences;
-                var targetProfit = Math.max(targetProfitForWeight, targetProfitForValue);
+                var targetProfit = commulativeDistance * CalculateRoute.__currentComp.calculateOptions.vehicleParams.tax - commulativeExpences;
                 $("td.calc-table-col-target-profit", row).text(targetProfit.toFixed(0));
 
                 // сохраняем данные о резерве загрузки машины в прошлой точке маршрута

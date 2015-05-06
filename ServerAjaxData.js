@@ -121,12 +121,11 @@
     ServerData.AjaxRoutePointListAndAjaxTaskList = AjaxRoutePointListAndAjaxTaskList;
 
     var AjaxVehicleParams = (function () {
-        function AjaxVehicleParams(maxValue, maxWeight, expences, taxValue, taxWeight) {
+        function AjaxVehicleParams(maxValue, maxWeight, expences, tax) {
             this.expences = expences;
             this.maxValue = maxValue;
             this.maxWeight = maxWeight;
-            this.taxValue = taxValue;
-            this.taxWeight = taxWeight;
+            this.tax = tax;
         }
         return AjaxVehicleParams;
     })();

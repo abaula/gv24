@@ -103,3 +103,5 @@ function Test_CityAutoCompleteWebService_Get()
 }
 
 //Test_CityAutoCompleteWebService_Get();
+
+phpinfo();

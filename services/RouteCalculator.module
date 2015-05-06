@@ -1397,7 +1397,6 @@ class Ant
 
     private static function _getRandFloat()
     {
-        //return mt_rand(0, 100) / 100;
         return mt_rand() / mt_getrandmax();
     }
 
