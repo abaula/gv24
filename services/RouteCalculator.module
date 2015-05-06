@@ -896,6 +896,9 @@ class Ant
 
         $this->_commitedTasks = array();
         $this->_visitedVertices = array();
+
+        // инициализируем генератор случайных чисел
+        self::_initRandomizer();
     }
 
     // муравей ищет путь
@@ -1258,7 +1261,7 @@ class Ant
             // 2) будут пропущены маршруты
             // 2->1) можно загрузить груз частично
             $canLoadPart = false;
-            // 2->2) приедем в конец маршрута не посетив его начало
+            // 2->2) приедем в конец маршрута задачи не посетив её начало
             $skipRoute = false;
 
             // лимиты на погрузку
@@ -1387,6 +1390,18 @@ class Ant
         return $result;
     }
 
+    private static function _initRandomizer()
+    {
+        mt_srand(crc32(microtime()));
+    }
+
+    private static function _getRandFloat()
+    {
+        //return mt_rand(0, 100) / 100;
+        return mt_rand() / mt_getrandmax();
+    }
+
+
     // выбираем следующее ребро по которому будем двигаться
     private function _selectEdgeToMove($vertex, $edges)
     {
@@ -1441,7 +1456,8 @@ class Ant
 
         //////////////////////////////////////////////
         // Теперь кидаем кубик и смотрим куда он попал
-        $randNum = rand();
+
+        $randNum = self::_getRandFloat();
         // По умолчанию выбираем последнюю вершину в массиве edges (нивелируем погрешность при операциях с плавающей точкой)
         $choosenEdge = $edges[count($possibilities) - 1];
         $pos2 = 0;
