@@ -6,6 +6,9 @@
     margin-top: 10px;
 }
 
+/*
+    Таблица заданий
+    */
 .c-tasks-table {
     border-collapse: collapse;
     font-size: 10pt;
@@ -33,6 +36,34 @@
     padding: 4px;
     border: 1px solid #e6e6e6;
 }
+
+
+
+
+.c-ctrl-tasks-table-cell-cost-km {
+    text-align: center;
+
+}
+
+.c-ctrl-tasks-table-cell-cost-pr-km {
+    text-align: center;
+
+}
+
+.c-ctrl-tasks-table-cell-cost-km-tax {
+    text-align: center;
+    font-style: italic;
+    color: #0000ff;
+    text-decoration: #0000ff dotted underline;
+}
+
+.c-ctrl-tasks-table-cell-cost-pr-km-tax {
+    text-align: center;
+    font-style: italic;
+    color: #0000ff;
+    text-decoration: #0000ff dotted underline;
+}
+
 
 .c-table-options-panel {
     width: 1200px; /* Ширина макета */
@@ -75,7 +106,7 @@
 }
 
 /*
-    Таблица
+    Таблица 
     */
 
 .calc-table {
@@ -230,17 +261,6 @@
 }
 
 
-.calc-table-col-price {
-    text-align: center;
-}
-
-.calc-table-col-price-weight {
-    text-align: center;
-}
-.calc-table-col-price-value {
-    text-align: center;
-}
-
 .calc-table-col-expense {
     text-align: center;
 }
@@ -251,6 +271,13 @@
 
 .calc-table-col-proceeds {
     text-align: center;
+}
+
+.calc-table-col-proceeds-tax {
+    text-align: center;
+    font-style: italic;
+    color: #0000ff;
+    text-decoration: #0000ff dotted underline;
 }
 
 .calc-table-col-sum-proceeds {

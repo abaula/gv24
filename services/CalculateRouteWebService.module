@@ -117,15 +117,20 @@ class CalculateRouteWebService extends WebServBase
         // 2. получаем данные маршрута
         $sql = 'SELECT
                     RP.id AS route_point_id,
+                    RP.is_first_point_of_pair,
+                    RP.distance AS route_point_distance,
+                    RP.city_id AS route_point_city_id,
+                    GC.name AS route_point_city_name,
+                    CASE RP.is_first_point_of_pair WHEN 1 THEN ifnull(C.weight, 0) ELSE (- ifnull(C.weight, 0)) END AS route_point_weight,
+                    CASE RP.is_first_point_of_pair WHEN 1 THEN ifnull(C.value, 0) ELSE (- ifnull(C.value, 0)) END AS route_point_value,
+                    CASE RP.is_first_point_of_pair WHEN 0 THEN ifnull(C.cost, 0) ELSE 0 END AS route_point_cost,
+                    CASE RP.is_first_point_of_pair WHEN 1 THEN ifnull(C.ready_date, 0) ELSE null END AS route_point_ready_date,
                     ifnull(C.id, 0) AS cargo_id,
                     ifnull(C.is_deleted, 0) AS cargo_is_deleted,
-                    RP.distance AS route_point_distance,
-                    RP.city_id,
-                    GC.name AS city_name,
-                    CASE RP.is_first_point_of_pair WHEN 1 THEN ifnull(C.weight, 0) ELSE (- ifnull(C.weight, 0)) END AS weight,
-                    CASE RP.is_first_point_of_pair WHEN 1 THEN ifnull(C.value, 0) ELSE (- ifnull(C.value, 0)) END AS value,
-                    CASE RP.is_first_point_of_pair WHEN 0 THEN ifnull(C.cost, 0) ELSE 0 END AS cost,
-                    CASE RP.is_first_point_of_pair WHEN 1 THEN ifnull(C.ready_date, 0) ELSE null END AS ready_date
+                    ifnull(C.distance, 0) AS cargo_distance,
+                    ifnull(C.weight, 0) AS cargo_weight,
+                    ifnull(C.value, 0) AS cargo_value,
+                    ifnull(C.cost, 0) AS cargo_cost
                 FROM route_point RP
                     INNER JOIN geocities GC
                         ON GC.id = RP.city_id
@@ -142,10 +147,13 @@ class CalculateRouteWebService extends WebServBase
         {
             while($row = $db->fetch($result))
             {
+                $isFirstPoint = (0 < $row['is_first_point_of_pair']) ? true : false;
+
                 $entry = new AjaxRoutePoint
                 (
-                    $row['route_point_id'], $row['cargo_id'], $row['cargo_is_deleted'], $row['city_id'], $row['city_name'],
-                    $row['route_point_distance'], $row['weight'], $row['value'], $row['cost'], $row['ready_date']
+                    $row['route_point_id'], $isFirstPoint, $row['route_point_city_id'], $row['route_point_city_name'],
+                    $row['route_point_distance'], $row['route_point_weight'], $row['route_point_value'], $row['route_point_cost'], $row['route_point_ready_date'],
+                    $row['cargo_id'], $row['cargo_is_deleted'], $row['cargo_distance'], $row['cargo_weight'], $row['cargo_value'], $row['cargo_cost']
                 );
 
                 array_push($list->routePoints, $entry);
@@ -180,7 +188,11 @@ class CalculateRouteWebService extends WebServBase
         {
             $vertexA = new GVertex($routeTaskInfo->cityId1, $routeTaskInfo->city1Name, $routeTaskInfo->city1Latitude, $routeTaskInfo->city1Longitude);
             $vertexB = new GVertex($routeTaskInfo->cityId2, $routeTaskInfo->city2Name, $routeTaskInfo->city2Latitude, $routeTaskInfo->city2Longitude);
-            $task = new RouteTask($routeTaskInfo->id, $routeTaskInfo->name, $vertexA, $vertexB, $routeTaskInfo->cost, $routeTaskInfo->value, $routeTaskInfo->weight, $routeTaskInfo->distance);
+
+            // получаем стоимость задания - если стоимость перевозки не указана, то возвращаем стоимость рассчитанную по собственному тарифу
+            $cost = self::_getTaskCost($routeTaskInfo, $options);
+            // создаём объект RouteTask
+            $task = new RouteTask($routeTaskInfo->id, $routeTaskInfo->name, $vertexA, $vertexB, $cost, $routeTaskInfo->value, $routeTaskInfo->weight, $routeTaskInfo->distance);
             array_push($list, $task);
         }
 
@@ -345,6 +357,25 @@ class CalculateRouteWebService extends WebServBase
             $distance = $edge->getDistance();
             $db->query($sql, $routeId, $startVertex->getId(), $distance, 0, $num);
         }
+    }
+
+
+    static private function _getTaskCost($taskInfo, $options)
+    {
+        $cost = $taskInfo->cost;
+
+        // если цена не указана, то используем стоимость рассчитанную по собственному тарифу
+        if(0.01 > $cost)
+        {
+            $fullCost = $taskInfo->distance * $options->vehicleParams->tax;
+            $costTaxWeight = ($taskInfo->weight / $options->vehicleParams->maxWeight) * $fullCost;
+            $costTaxValue = ($taskInfo->value / $options->vehicleParams->maxValue) * $fullCost;
+
+            //получаем максимальную цену исходя из того факта, что необходимо оплачивать максимально используемые грузом: грузоподьёмность или объём машины.
+            $cost = max($costTaxWeight, $costTaxValue);
+        }
+
+        return $cost;
     }
 
 }

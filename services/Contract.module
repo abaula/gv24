@@ -358,8 +358,7 @@ class AjaxIdsList
 class AjaxRoutePoint
 {
     public $routePointId;
-    public $cargoId;
-    public $cargoIsDeleted;
+    public $isFirstPoint;
     public $routePointDistance;
     public $cityId;
     public $cityName;
@@ -368,18 +367,33 @@ class AjaxRoutePoint
     public $cost;
     public $readyDate;
 
-    function __construct($routePointId, $cargoId, $cargoIsDeleted, $cityId, $cityName, $routePointDistance, $weight, $value, $cost, $readyDate)
+    public $cargoId;
+    public $cargoIsDeleted;
+    public $cargoDistance;
+    public $cargoWeight;
+    public $cargoValue;
+    public $cargoCost;
+
+
+    function __construct($routePointId, $isFirstPoint, $cityId, $cityName, $routePointDistance, $weight, $value, $cost, $readyDate,
+                         $cargoId, $cargoIsDeleted, $cargoDistance, $cargoWeight, $cargoValue, $cargoCost)
     {
-        $this->cargoId = $cargoId;
-        $this->cargoIsDeleted = $cargoIsDeleted;
+        $this->routePointId = $routePointId;
+        $this->isFirstPoint = $isFirstPoint;
         $this->cityId = $cityId;
         $this->cityName = $cityName;
-        $this->cost = $cost;
         $this->readyDate = $readyDate;
         $this->routePointDistance = $routePointDistance;
-        $this->routePointId = $routePointId;
         $this->value = $value;
         $this->weight = $weight;
+        $this->cost = $cost;
+
+        $this->cargoId = $cargoId;
+        $this->cargoIsDeleted = $cargoIsDeleted;
+        $this->cargoDistance = $cargoDistance;
+        $this->cargoWeight = $cargoWeight;
+        $this->cargoValue = $cargoValue;
+        $this->cargoCost = $cargoCost;
     }
 }
 

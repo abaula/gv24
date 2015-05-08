@@ -82,8 +82,7 @@ module ServerData
     export class AjaxRoutePoint
     {
         public routePointId: number;
-        public cargoId: number;
-        public cargoIsDeleted: boolean;
+        public isFirstPoint: boolean;
         public routePointDistance: number;
         public cityId: number;
         public cityName: string;
@@ -91,6 +90,13 @@ module ServerData
         public value: number;
         public cost: number;
         public readyDate: string;
+
+        public cargoId: number;
+        public cargoIsDeleted: boolean;
+        public cargoDistance: boolean;
+        public cargoWeight: boolean;
+        public cargoValue: boolean;
+        public cargoCost: boolean;
     }
 
     export class AjaxRoutePointList
