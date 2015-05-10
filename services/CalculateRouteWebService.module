@@ -124,7 +124,7 @@ class CalculateRouteWebService extends WebServBase
                     CASE RP.is_first_point_of_pair WHEN 1 THEN ifnull(C.weight, 0) ELSE (- ifnull(C.weight, 0)) END AS route_point_weight,
                     CASE RP.is_first_point_of_pair WHEN 1 THEN ifnull(C.value, 0) ELSE (- ifnull(C.value, 0)) END AS route_point_value,
                     CASE RP.is_first_point_of_pair WHEN 0 THEN ifnull(C.cost, 0) ELSE 0 END AS route_point_cost,
-                    CASE RP.is_first_point_of_pair WHEN 1 THEN ifnull(C.ready_date, 0) ELSE null END AS route_point_ready_date,
+                    CASE RP.is_first_point_of_pair WHEN 1 THEN ifnull(C.ready_date, 0) ELSE \'\' END AS route_point_ready_date,
                     ifnull(C.id, 0) AS cargo_id,
                     ifnull(C.is_deleted, 0) AS cargo_is_deleted,
                     ifnull(C.distance, 0) AS cargo_distance,

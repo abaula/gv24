@@ -576,6 +576,7 @@ else
                 }
 
                 $("td.calc-table-col-from", row).text(entry.cityName);
+                $("td.calc-table-col-ready-date", row).text(entry.readyDate);
                 $("td.calc-table-col-weight-load", row).text(parseFloat(entry.weight).toFixed(0));
                 $("td.calc-table-col-value-load", row).text(parseFloat(entry.value).toFixed(2));
                 $("td.calc-table-col-distance", row).text(parseFloat(entry.routePointDistance).toFixed(0));
