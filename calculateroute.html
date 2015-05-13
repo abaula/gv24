@@ -40,24 +40,26 @@
 
 
             <!-- Панель параметров машины -->
-            <div class="calc-options-panel" id="i-calc-vehicle-params-panel">
+            <div id="i-calc-vehicle-params-container">
+                <div class="calc-options-panel" id="i-calc-vehicle-params-panel">
 
-                <div class="calc-param-panel-entry">
+                    <div class="calc-param-panel-entry">
 
-                    <div class="c-ctrl-options-option">Параметры машины:</div>
+                        <div class="c-ctrl-options-option">Параметры машины:</div>
 
-                    <div class="c-ctrl-options-option">Выбрать машину:<br/><select id="i-calc-param-vehicle-select">
-                            <option selected="selected" value="0">Указать вручную</option>
-                        </select>
-                    </div>
+                        <div class="c-ctrl-options-option"><div id="i-calc-vehicle-param-refresh"" class="calc-vehicle-param-button"><i title="" class="fa fa-refresh"></i><br/>Обновить</div></div>
+                        <div class="c-ctrl-options-option"><div id="Div2" class="calc-vehicle-param-button"><i title="" class="fa fa-save"></i><br/>Сохранить</div></div>
 
-                    <div class="c-ctrl-options-option">Максимальный вес<br/><input type="text" id="i-calc-param-max-weight" pattern="^[ 0-9]+$" value="0" />кг</div>
-                    <div class="c-ctrl-options-option">Максимальный объём<br/><input type="text" id="i-calc-param-max-value" pattern="^[ 0-9]+$" value="0" />м<sup>3</sup></div>
-                    <div class="c-ctrl-options-option">Затраты<br/><input type="text" id="i-calc-param-expense" pattern="^[ 0-9]+$" value="0" />руб/км</div>
-                    <div class="c-ctrl-options-option">Свой тариф<br/><input type="text" id="i-calc-param-tax" pattern="^[ .0-9]+$" value="0" />руб/км</div>
-                </div>          
+                        <div class="c-ctrl-options-option">Максимальный вес<br/><input type="text" id="i-calc-param-max-weight" pattern="^[ 0-9]+$" value="0" />кг</div>
+                        <div class="c-ctrl-options-option">Максимальный объём<br/><input type="text" id="i-calc-param-max-value" pattern="^[ 0-9]+$" value="0" />м<sup>3</sup></div>
+                        <div class="c-ctrl-options-option">Затраты<br/><input type="text" id="i-calc-param-expense" pattern="^[ 0-9]+$" value="0" />руб/км</div>
+                        <div class="c-ctrl-options-option">Свой тариф<br/><input type="text" id="i-calc-param-tax" pattern="^[ .0-9]+$" value="0" />руб/км</div>
+                    </div>          
+                </div>
+                <!-- Индикатор выполнения операции -->
+                <div id="i-ctrl-vehicle-params-overlay" class="c-page-form-overlay-container"><div class="fa fa-spinner fa-spin"></div></div>
+                <!-- /Индикатор выполнения операции -->
             </div>
-
             <!-- /Панель параметров машины -->
 
             <div id="i-ctrl-tacks-container" class="c-page-form-outer-block">

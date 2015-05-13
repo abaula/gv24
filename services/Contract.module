@@ -481,6 +481,4 @@ class AjaxCalculateOptions
         $this->useCargoFromRoute = $useCargoFromRoute;
         $this->vehicleParams = $vehicleParams;
     }
-
-
 }

@@ -1,0 +1,136 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 13.05.15
+ * Time: 11:46
+ * To change this template use File | Settings | File Templates.
+ */
+
+require_once("WebServBase.module");
+require_once("Headers.module");
+require_once("Contract.module");
+
+class VehicleParamsWebService extends WebServBase
+{
+
+    public function onGet($args)
+    {
+        // возвращаем параметры машины - AjaxVehicleParams
+
+        $accountId = null;
+        $userTokenId = null;
+        CurrentUser::FillUserIdentities($accountId, $userTokenId);
+
+        $db = SqlFactory::getSql();
+
+        try
+        {
+
+            if(is_null($accountId))
+                $where_sql_definition = $db->parse(' user_token_id = ?i ', $userTokenId);
+            else
+                $where_sql_definition = $db->parse(' account_id = ?i ', $accountId);
+
+
+            $sql = 'SELECT id, max_weight, max_value, tax, expences
+                    FROM vehicle_params
+                    WHERE ?p';
+
+            $result = $db->query($sql, $where_sql_definition);
+
+            if(0 < $db->numRows($result))
+            {
+                // возвращается всегда 1 строка
+                $row = $db->fetch($result);
+                $vehicleParams = new AjaxVehicleParams($row['max_value'], $row['max_weight'], $row['expences'], $row['tax']);
+            }
+            else
+            {
+                // возвращаем значения по умолчанию
+                $vehicleParams = new AjaxVehicleParams(83, 20000, 25, 40);
+            }
+
+
+            $response = new AjaxServerResponse(200, '', '', $vehicleParams);
+            sendHTTPStatus(200);
+            header('Content-type: application/json');
+            echo json_encode($response);
+
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1));
+        }
+    }
+
+    public function onPost($args, $data)
+    {
+        $accountId = null;
+        $userTokenId = null;
+        CurrentUser::FillUserIdentities($accountId, $userTokenId);
+
+        $db = SqlFactory::getSql();
+
+        try
+        {
+
+            if(is_null($accountId))
+                $where_sql_definition = $db->parse(' user_token_id = ?i ', $userTokenId);
+            else
+                $where_sql_definition = $db->parse(' account_id = ?i ', $accountId);
+
+            // AjaxVehicleParams
+            $params = $data;
+
+            // получаем Id записи
+            $sql = 'SELECT id FROM vehicle_params WHERE ?p';
+
+            $paramsId = $db->getOne($sql, $where_sql_definition);
+
+            if(false == $paramsId)
+            {
+                // создаём новую запись
+                $sql = 'INSERT INTO vehicle_params (max_weight, max_value, tax, expences) VALUES (?i, ?i, ?i, ?i)';
+
+                $db->query($sql, $params->maxWeight, $params->maxValue, $params->tax, $params->expences);
+            }
+            else
+            {
+                // обновляем данные
+                $sql = 'UPDATE vehicle_params SET max_weight = ?i, max_value = ?i, tax = ?i, expences = ?i
+                        WHERE id = ?i';
+
+                $db->query($sql, $params->maxWeight, $params->maxValue, $params->tax, $params->expences, $paramsId);
+            }
+
+            // возвращаем ответ пользователю
+            $response = new AjaxServerResponse(200, '', '', $params);
+            sendHTTPStatus(200);
+            header('Content-type: application/json');
+            echo json_encode($response);
+
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1));
+        }
+
+    }
+
+    public function onPut($args, $data)
+    {
+        // HTTP/1.1 405 Method Not Allowed
+        sendHTTPStatus(405);
+        header('Allow: GET,POST');
+    }
+
+    public function onDelete($args, $data)
+    {
+        // HTTP/1.1 405 Method Not Allowed
+        sendHTTPStatus(405);
+        header('Allow: GET,POST');
+    }
+}

@@ -19,17 +19,16 @@ var CalculateRoute;
             $("#i-page-cargoselected-link").click(CalculateRoute.__currentComp.onMainMenuLinkClick);
             $("#i-calc-auto-param-compute").click(CalculateRoute.__currentComp.onRouteComputeClick);
             $("#i-calc-option-use-cargo-from-route").click(CalculateRoute.__currentComp.onUseCargoFromRouteClick);
+            $("#i-calc-vehicle-param-refresh").click(CalculateRoute.__currentComp.onVehicleParamsRefreshClick);
 
             // проверяем авторизован ли пользователь
             var authentificated = CalculateRoute.__currentComp.application.isAuthentificated();
 
+            // загружаем опции из базы
+            CalculateRoute.__currentComp.updateCalculateOptions();
+
             // Получаем первую страницу из списка грузов
             CalculateRoute.__currentComp.getTasksPageData(1);
-
-            // TODO переделать на загрузку сохранённых данных из базы
-            CalculateRoute.__currentComp.calculateOptions = new ServerData.AjaxCalculateOptions();
-            CalculateRoute.__currentComp.calculateOptions.vehicleParams = new ServerData.AjaxVehicleParams(82, 20000, 25, 40);
-            CalculateRoute.__currentComp.fillVehicleParams();
             // Сообщаем приложению, что компонент загружен.
             //__currentComp.onComponentLoaded();
         };
@@ -316,6 +315,10 @@ var CalculateRoute;
                 linkPageNumber = allPagesNumber;
                 $("#i-ctrl-tasks-navpage-last").click(CalculateRoute.__currentComp.onPageNavigationClick).removeClass("c-ctrl-tasks-navpage-panel-link-disabled").attr("data-page-num", linkPageNumber);
             }
+        };
+
+        CalculateRouteController.prototype.onVehicleParamsRefreshClick = function (event) {
+            CalculateRoute.__currentComp.updateCalculateOptions();
         };
 
         CalculateRouteController.prototype.onUseCargoFromRouteClick = function (event) {
@@ -844,6 +847,40 @@ else
 
             // пытаемся восстановить выбранный ранее город
             $("[value=" + startCityId + "]", sel).attr("selected", "selected");
+        };
+
+        CalculateRouteController.prototype.updateCalculateOptions = function () {
+            // показываем иконку загрузки
+            CalculateRoute.__currentComp.application.showOverlay("#i-ctrl-vehicle-params-overlay", "#i-calc-vehicle-params-container");
+
+            $.ajax({
+                type: "GET",
+                url: CalculateRoute.__currentComp.application.getFullUri("api/vehicleparams"),
+                success: CalculateRoute.__currentComp.onAjaxCalculateOptionsDataGetSuccess,
+                error: CalculateRoute.__currentComp.onAjaxCalculateOptionsDataGetError
+            });
+        };
+
+        CalculateRouteController.prototype.onAjaxCalculateOptionsDataGetError = function (jqXHR, status, message) {
+            //window.console.log("onAjaxCalculateOptionsDataGetError");
+            CalculateRoute.__currentComp.errorData = JSON.parse(jqXHR.responseText);
+            CalculateRoute.__currentComp.dataError(CalculateRoute.__currentComp, CalculateRoute.__currentComp.errorData);
+
+            // TODO обрабатываем ошибки сервера
+            // скрываем иконку загрузки
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-vehicle-params-overlay");
+        };
+
+        CalculateRouteController.prototype.onAjaxCalculateOptionsDataGetSuccess = function (data, status, jqXHR) {
+            //window.console.log("onAjaxTaskSelectedDataSuccess");
+            var vehicleParams = data.data;
+
+            CalculateRoute.__currentComp.calculateOptions = new ServerData.AjaxCalculateOptions();
+            CalculateRoute.__currentComp.calculateOptions.vehicleParams = vehicleParams;
+            CalculateRoute.__currentComp.fillVehicleParams();
+
+            // скрываем иконку загрузки
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-vehicle-params-overlay");
         };
 
         CalculateRouteController.prototype.onDocumentReady = function () {
