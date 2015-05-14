@@ -27,6 +27,7 @@ module CalculateRoute
             $("#i-calc-auto-param-compute").click(__currentComp.onRouteComputeClick);
             $("#i-calc-option-use-cargo-from-route").click(__currentComp.onUseCargoFromRouteClick);
             $("#i-calc-vehicle-param-refresh").click(__currentComp.onVehicleParamsRefreshClick);
+            $("#i-calc-vehicle-param-save").click(__currentComp.onVehicleParamsSaveClick);
 
             // проверяем авторизован ли пользователь
             var authentificated: boolean = __currentComp.application.isAuthentificated();
@@ -369,10 +370,12 @@ module CalculateRoute
             __currentComp.updateCalculateOptions();
         }
 
+
         onUseCargoFromRouteClick(event: JQueryEventObject): void
         {
             __currentComp.updateStartCity();
         }
+
 
         onRouteComputeClick(event: JQueryEventObject): void
         {
@@ -1027,12 +1030,12 @@ module CalculateRoute
             $.ajax({
                 type: "GET",
                 url: __currentComp.application.getFullUri("api/vehicleparams"),
-                success: __currentComp.onAjaxCalculateOptionsDataGetSuccess,
-                error: __currentComp.onAjaxCalculateOptionsDataGetError
+                success: __currentComp.onAjaxVehicleParamsDataGetSuccess,
+                error: __currentComp.onAjaxVehicleParamsDataGetError
             });
         }
 
-        onAjaxCalculateOptionsDataGetError(jqXHR: JQueryXHR, status: string, message: string): void
+        onAjaxVehicleParamsDataGetError(jqXHR: JQueryXHR, status: string, message: string): void
         {
             //window.console.log("onAjaxCalculateOptionsDataGetError");
 
@@ -1048,7 +1051,7 @@ module CalculateRoute
 
         }
 
-        onAjaxCalculateOptionsDataGetSuccess(data: ServerData.AjaxServerResponse, status: string, jqXHR: JQueryXHR): void
+        onAjaxVehicleParamsDataGetSuccess(data: ServerData.AjaxServerResponse, status: string, jqXHR: JQueryXHR): void
         {
             //window.console.log("onAjaxTaskSelectedDataSuccess");
 
@@ -1063,10 +1066,50 @@ module CalculateRoute
         }
 
 
+        onVehicleParamsSaveClick(event: JQueryEventObject): void
+        {
+            // показываем иконку загрузки
+            __currentComp.application.showOverlay("#i-ctrl-vehicle-params-overlay", "#i-calc-vehicle-params-container");
+
+            // отправляем запрос на сервер
+            $.ajax({
+                type: "POST",
+                url: __currentComp.application.getFullUri("api/vehicleparams"),
+                data: JSON.stringify(__currentComp.calculateOptions.vehicleParams),
+                contentType: "application/json",
+                dataType: "json",
+                success: __currentComp.onAjaxVehicleParamsDataSaveSuccess,
+                error: __currentComp.onAjaxVehicleParamsDataSaveError
+            });
+        }
+
+
+        onAjaxVehicleParamsDataSaveError(jqXHR: JQueryXHR, status: string, message: string): void
+        {
+            //window.console.log("onAjaxCalculateOptionsDataGetError");
+
+            __currentComp.errorData = <ServerData.AjaxServerResponse>JSON.parse(jqXHR.responseText);
+            __currentComp.dataError(__currentComp, __currentComp.errorData);
+
+            // TODO обрабатываем ошибки сервера
 
 
 
+            // скрываем иконку загрузки
+            __currentComp.application.hideOverlay("#i-ctrl-vehicle-params-overlay");
 
+        }
+
+        onAjaxVehicleParamsDataSaveSuccess(data: ServerData.AjaxServerResponse, status: string, jqXHR: JQueryXHR): void
+        {
+            //window.console.log("onAjaxTaskSelectedDataSuccess");
+
+            var vehicleParams: ServerData.AjaxVehicleParams = <ServerData.AjaxVehicleParams>data.data;
+
+
+            // скрываем иконку загрузки
+            __currentComp.application.hideOverlay("#i-ctrl-vehicle-params-overlay");
+        }
 
 
 

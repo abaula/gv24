@@ -20,6 +20,7 @@ var CalculateRoute;
             $("#i-calc-auto-param-compute").click(CalculateRoute.__currentComp.onRouteComputeClick);
             $("#i-calc-option-use-cargo-from-route").click(CalculateRoute.__currentComp.onUseCargoFromRouteClick);
             $("#i-calc-vehicle-param-refresh").click(CalculateRoute.__currentComp.onVehicleParamsRefreshClick);
+            $("#i-calc-vehicle-param-save").click(CalculateRoute.__currentComp.onVehicleParamsSaveClick);
 
             // проверяем авторизован ли пользователь
             var authentificated = CalculateRoute.__currentComp.application.isAuthentificated();
@@ -856,12 +857,12 @@ else
             $.ajax({
                 type: "GET",
                 url: CalculateRoute.__currentComp.application.getFullUri("api/vehicleparams"),
-                success: CalculateRoute.__currentComp.onAjaxCalculateOptionsDataGetSuccess,
-                error: CalculateRoute.__currentComp.onAjaxCalculateOptionsDataGetError
+                success: CalculateRoute.__currentComp.onAjaxVehicleParamsDataGetSuccess,
+                error: CalculateRoute.__currentComp.onAjaxVehicleParamsDataGetError
             });
         };
 
-        CalculateRouteController.prototype.onAjaxCalculateOptionsDataGetError = function (jqXHR, status, message) {
+        CalculateRouteController.prototype.onAjaxVehicleParamsDataGetError = function (jqXHR, status, message) {
             //window.console.log("onAjaxCalculateOptionsDataGetError");
             CalculateRoute.__currentComp.errorData = JSON.parse(jqXHR.responseText);
             CalculateRoute.__currentComp.dataError(CalculateRoute.__currentComp, CalculateRoute.__currentComp.errorData);
@@ -871,13 +872,47 @@ else
             CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-vehicle-params-overlay");
         };
 
-        CalculateRouteController.prototype.onAjaxCalculateOptionsDataGetSuccess = function (data, status, jqXHR) {
+        CalculateRouteController.prototype.onAjaxVehicleParamsDataGetSuccess = function (data, status, jqXHR) {
             //window.console.log("onAjaxTaskSelectedDataSuccess");
             var vehicleParams = data.data;
 
             CalculateRoute.__currentComp.calculateOptions = new ServerData.AjaxCalculateOptions();
             CalculateRoute.__currentComp.calculateOptions.vehicleParams = vehicleParams;
             CalculateRoute.__currentComp.fillVehicleParams();
+
+            // скрываем иконку загрузки
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-vehicle-params-overlay");
+        };
+
+        CalculateRouteController.prototype.onVehicleParamsSaveClick = function (event) {
+            // показываем иконку загрузки
+            CalculateRoute.__currentComp.application.showOverlay("#i-ctrl-vehicle-params-overlay", "#i-calc-vehicle-params-container");
+
+            // отправляем запрос на сервер
+            $.ajax({
+                type: "POST",
+                url: CalculateRoute.__currentComp.application.getFullUri("api/vehicleparams"),
+                data: JSON.stringify(CalculateRoute.__currentComp.calculateOptions.vehicleParams),
+                contentType: "application/json",
+                dataType: "json",
+                success: CalculateRoute.__currentComp.onAjaxVehicleParamsDataSaveSuccess,
+                error: CalculateRoute.__currentComp.onAjaxVehicleParamsDataSaveError
+            });
+        };
+
+        CalculateRouteController.prototype.onAjaxVehicleParamsDataSaveError = function (jqXHR, status, message) {
+            //window.console.log("onAjaxCalculateOptionsDataGetError");
+            CalculateRoute.__currentComp.errorData = JSON.parse(jqXHR.responseText);
+            CalculateRoute.__currentComp.dataError(CalculateRoute.__currentComp, CalculateRoute.__currentComp.errorData);
+
+            // TODO обрабатываем ошибки сервера
+            // скрываем иконку загрузки
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-vehicle-params-overlay");
+        };
+
+        CalculateRouteController.prototype.onAjaxVehicleParamsDataSaveSuccess = function (data, status, jqXHR) {
+            //window.console.log("onAjaxTaskSelectedDataSuccess");
+            var vehicleParams = data.data;
 
             // скрываем иконку загрузки
             CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-vehicle-params-overlay");
