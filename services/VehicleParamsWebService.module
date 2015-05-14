@@ -92,9 +92,18 @@ class VehicleParamsWebService extends WebServBase
             if(false == $paramsId)
             {
                 // создаём новую запись
-                $sql = 'INSERT INTO vehicle_params (max_weight, max_value, tax, expences) VALUES (?i, ?i, ?i, ?i)';
+                if(is_null($accountId))
+                {
+                    $sql = 'INSERT INTO vehicle_params (user_token_id, max_weight, max_value, tax, expences) VALUES (?i, ?i, ?i, ?i, ?i)';
+                    $db->query($sql, $userTokenId, $params->maxWeight, $params->maxValue, $params->tax, $params->expences);
+                }
+                else
+                {
+                    $sql = 'INSERT INTO vehicle_params (account_id, max_weight, max_value, tax, expences) VALUES (?i, ?i, ?i, ?i, ?i)';
+                    $db->query($sql, $accountId, $params->maxWeight, $params->maxValue, $params->tax, $params->expences);
+                }
 
-                $db->query($sql, $params->maxWeight, $params->maxValue, $params->tax, $params->expences);
+
             }
             else
             {
