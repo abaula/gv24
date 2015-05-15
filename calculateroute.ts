@@ -28,6 +28,10 @@ module CalculateRoute
             $("#i-calc-option-use-cargo-from-route").click(__currentComp.onUseCargoFromRouteClick);
             $("#i-calc-vehicle-param-refresh").click(__currentComp.onVehicleParamsRefreshClick);
             $("#i-calc-vehicle-param-save").click(__currentComp.onVehicleParamsSaveClick);
+            $("#i-calc-param-max-weight").focusout(__currentComp.onVehicleParamsMaxWeightFocusOut);
+            $("#i-calc-param-max-value").focusout(__currentComp.onVehicleParamsMaxValueFocusOut);
+            $("#i-calc-param-tax").focusout(__currentComp.onVehicleParamsTaxFocusOut);
+            $("#i-calc-param-expences").focusout(__currentComp.onVehicleParamsExpencesFocusOut);
 
             // проверяем авторизован ли пользователь
             var authentificated: boolean = __currentComp.application.isAuthentificated();
@@ -164,7 +168,7 @@ module CalculateRoute
         {
             $("#i-calc-param-max-weight").val(__currentComp.calculateOptions.vehicleParams.maxWeight);
             $("#i-calc-param-max-value").val(__currentComp.calculateOptions.vehicleParams.maxValue);
-            $("#i-calc-param-expense").val(__currentComp.calculateOptions.vehicleParams.expences);
+            $("#i-calc-param-expences").val(__currentComp.calculateOptions.vehicleParams.expences);
             $("#i-calc-param-tax").val(__currentComp.calculateOptions.vehicleParams.tax);
         }
 
@@ -1060,6 +1064,10 @@ module CalculateRoute
             __currentComp.calculateOptions = new ServerData.AjaxCalculateOptions();
             __currentComp.calculateOptions.vehicleParams = vehicleParams;
             __currentComp.fillVehicleParams();
+
+            // обновляем таблицы заданий и маршрута
+            __currentComp.drawTasksList();
+            __currentComp.drawRouteTable();
             
             // скрываем иконку загрузки
             __currentComp.application.hideOverlay("#i-ctrl-vehicle-params-overlay");
@@ -1111,10 +1119,112 @@ module CalculateRoute
             __currentComp.application.hideOverlay("#i-ctrl-vehicle-params-overlay");
         }
 
+        onVehicleParamsMaxWeightFocusOut(event: JQueryEventObject): void
+        {
+            var ctrl: JQuery = $(event.delegateTarget);
+            var val: number = parseInt(ctrl.val());
 
+            // если введено некорректное значение в поле, то восстанавливаем предыдущее значение
+            if (isNaN(val) || val < 0)
+            {
+                ctrl.val(__currentComp.calculateOptions.vehicleParams.maxWeight);
+                return;
+            }
 
+            var currentVal: number = __currentComp.calculateOptions.vehicleParams.maxWeight;
 
+            // Если старое и новое значения совпадают, то ничего менять не нужно. Выходим.
+            if (val == currentVal)
+                return;
 
+            // сохраняем новое значение
+            __currentComp.calculateOptions.vehicleParams.maxWeight = val;
+
+            // обновляем таблицы заданий и маршрута
+            __currentComp.drawTasksList();
+            __currentComp.drawRouteTable();
+
+        }
+
+        onVehicleParamsMaxValueFocusOut(event: JQueryEventObject): void
+        {
+            var ctrl: JQuery = $(event.delegateTarget);
+            var val: number = parseInt(ctrl.val());
+
+            // если введено некорректное значение в поле, то восстанавливаем предыдущее значение
+            if (isNaN(val) || val < 0)
+            {
+                ctrl.val(__currentComp.calculateOptions.vehicleParams.maxValue);
+                return;
+            }
+
+            var currentVal: number = __currentComp.calculateOptions.vehicleParams.maxValue;
+
+            // Если старое и новое значения совпадают, то ничего менять не нужно. Выходим.
+            if (val == currentVal)
+                return;
+
+            // сохраняем новое значение
+            __currentComp.calculateOptions.vehicleParams.maxValue = val;
+
+            // обновляем таблицы заданий и маршрута
+            __currentComp.drawTasksList();
+            __currentComp.drawRouteTable();
+
+        }
+
+        onVehicleParamsTaxFocusOut(event: JQueryEventObject): void
+        {
+            var ctrl: JQuery = $(event.delegateTarget);
+            var val: number = parseFloat(ctrl.val()).toFixed(2);
+
+            // если введено некорректное значение в поле, то восстанавливаем предыдущее значение
+            if (isNaN(val) || val < 0)
+            {
+                ctrl.val(parseFloat(__currentComp.calculateOptions.vehicleParams.tax).toFixed(2));
+                return;
+            }
+
+            var currentVal: number = parseFloat(__currentComp.calculateOptions.vehicleParams.tax).toFixed(2);
+
+            // Если старое и новое значения совпадают, то ничего менять не нужно. Выходим.
+            if (val == currentVal)
+                return;
+
+            // сохраняем новое значение
+            __currentComp.calculateOptions.vehicleParams.tax = val;
+
+            // обновляем таблицы заданий и маршрута
+            __currentComp.drawTasksList();
+            __currentComp.drawRouteTable();
+
+        }
+
+        onVehicleParamsExpencesFocusOut(event: JQueryEventObject): void
+        {
+            var ctrl: JQuery = $(event.delegateTarget);
+            var val: number = parseFloat(ctrl.val()).toFixed(2);
+
+            // если введено некорректное значение в поле, то восстанавливаем предыдущее значение
+            if (isNaN(val) || val < 0)
+            {
+                ctrl.val(parseFloat(__currentComp.calculateOptions.vehicleParams.expences).toFixed(2));
+                return;
+            }
+
+            var currentVal: number = parseFloat(__currentComp.calculateOptions.vehicleParams.expences).toFixed(2);
+
+            // Если старое и новое значения совпадают, то ничего менять не нужно. Выходим.
+            if (val == currentVal)
+                return;
+
+            // сохраняем новое значение
+            __currentComp.calculateOptions.vehicleParams.expences = val;
+
+            // обновляем таблицы заданий и маршрута
+            __currentComp.drawTasksList();
+            __currentComp.drawRouteTable();
+        }
 
 
 

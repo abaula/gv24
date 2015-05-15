@@ -21,6 +21,10 @@ var CalculateRoute;
             $("#i-calc-option-use-cargo-from-route").click(CalculateRoute.__currentComp.onUseCargoFromRouteClick);
             $("#i-calc-vehicle-param-refresh").click(CalculateRoute.__currentComp.onVehicleParamsRefreshClick);
             $("#i-calc-vehicle-param-save").click(CalculateRoute.__currentComp.onVehicleParamsSaveClick);
+            $("#i-calc-param-max-weight").focusout(CalculateRoute.__currentComp.onVehicleParamsMaxWeightFocusOut);
+            $("#i-calc-param-max-value").focusout(CalculateRoute.__currentComp.onVehicleParamsMaxValueFocusOut);
+            $("#i-calc-param-tax").focusout(CalculateRoute.__currentComp.onVehicleParamsTaxFocusOut);
+            $("#i-calc-param-expences").focusout(CalculateRoute.__currentComp.onVehicleParamsExpencesFocusOut);
 
             // проверяем авторизован ли пользователь
             var authentificated = CalculateRoute.__currentComp.application.isAuthentificated();
@@ -128,7 +132,7 @@ var CalculateRoute;
         CalculateRouteController.prototype.fillVehicleParams = function () {
             $("#i-calc-param-max-weight").val(CalculateRoute.__currentComp.calculateOptions.vehicleParams.maxWeight);
             $("#i-calc-param-max-value").val(CalculateRoute.__currentComp.calculateOptions.vehicleParams.maxValue);
-            $("#i-calc-param-expense").val(CalculateRoute.__currentComp.calculateOptions.vehicleParams.expences);
+            $("#i-calc-param-expences").val(CalculateRoute.__currentComp.calculateOptions.vehicleParams.expences);
             $("#i-calc-param-tax").val(CalculateRoute.__currentComp.calculateOptions.vehicleParams.tax);
         };
 
@@ -880,6 +884,10 @@ else
             CalculateRoute.__currentComp.calculateOptions.vehicleParams = vehicleParams;
             CalculateRoute.__currentComp.fillVehicleParams();
 
+            // обновляем таблицы заданий и маршрута
+            CalculateRoute.__currentComp.drawTasksList();
+            CalculateRoute.__currentComp.drawRouteTable();
+
             // скрываем иконку загрузки
             CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-vehicle-params-overlay");
         };
@@ -916,6 +924,94 @@ else
 
             // скрываем иконку загрузки
             CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-vehicle-params-overlay");
+        };
+
+        CalculateRouteController.prototype.onVehicleParamsMaxWeightFocusOut = function (event) {
+            var ctrl = $(event.delegateTarget);
+            var val = parseInt(ctrl.val());
+
+            if (isNaN(val) || val < 0) {
+                ctrl.val(CalculateRoute.__currentComp.calculateOptions.vehicleParams.maxWeight);
+                return;
+            }
+
+            var currentVal = CalculateRoute.__currentComp.calculateOptions.vehicleParams.maxWeight;
+
+            if (val == currentVal)
+                return;
+
+            // сохраняем новое значение
+            CalculateRoute.__currentComp.calculateOptions.vehicleParams.maxWeight = val;
+
+            // обновляем таблицы заданий и маршрута
+            CalculateRoute.__currentComp.drawTasksList();
+            CalculateRoute.__currentComp.drawRouteTable();
+        };
+
+        CalculateRouteController.prototype.onVehicleParamsMaxValueFocusOut = function (event) {
+            var ctrl = $(event.delegateTarget);
+            var val = parseInt(ctrl.val());
+
+            if (isNaN(val) || val < 0) {
+                ctrl.val(CalculateRoute.__currentComp.calculateOptions.vehicleParams.maxValue);
+                return;
+            }
+
+            var currentVal = CalculateRoute.__currentComp.calculateOptions.vehicleParams.maxValue;
+
+            if (val == currentVal)
+                return;
+
+            // сохраняем новое значение
+            CalculateRoute.__currentComp.calculateOptions.vehicleParams.maxValue = val;
+
+            // обновляем таблицы заданий и маршрута
+            CalculateRoute.__currentComp.drawTasksList();
+            CalculateRoute.__currentComp.drawRouteTable();
+        };
+
+        CalculateRouteController.prototype.onVehicleParamsTaxFocusOut = function (event) {
+            var ctrl = $(event.delegateTarget);
+            var val = parseFloat(ctrl.val()).toFixed(2);
+
+            if (isNaN(val) || val < 0) {
+                ctrl.val(parseFloat(CalculateRoute.__currentComp.calculateOptions.vehicleParams.tax).toFixed(2));
+                return;
+            }
+
+            var currentVal = parseFloat(CalculateRoute.__currentComp.calculateOptions.vehicleParams.tax).toFixed(2);
+
+            if (val == currentVal)
+                return;
+
+            // сохраняем новое значение
+            CalculateRoute.__currentComp.calculateOptions.vehicleParams.tax = val;
+
+            // обновляем таблицы заданий и маршрута
+            CalculateRoute.__currentComp.drawTasksList();
+            CalculateRoute.__currentComp.drawRouteTable();
+        };
+
+        CalculateRouteController.prototype.onVehicleParamsExpencesFocusOut = function (event) {
+            var ctrl = $(event.delegateTarget);
+            var val = parseFloat(ctrl.val()).toFixed(2);
+
+            if (isNaN(val) || val < 0) {
+                ctrl.val(parseFloat(CalculateRoute.__currentComp.calculateOptions.vehicleParams.expences).toFixed(2));
+                return;
+            }
+
+            var currentVal = parseFloat(CalculateRoute.__currentComp.calculateOptions.vehicleParams.expences).toFixed(2);
+
+            if (val == currentVal)
+                return;
+
+            // сохраняем новое значение
+            CalculateRoute.__currentComp.calculateOptions.vehicleParams.expences = val;
+
+            // обновляем таблицы заданий и маршрута
+            CalculateRoute.__currentComp.drawTasksList();
+            CalculateRoute.__currentComp.drawRouteTable();
         };
 
         CalculateRouteController.prototype.onDocumentReady = function () {
