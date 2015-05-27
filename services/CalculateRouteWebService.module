@@ -55,6 +55,9 @@ class CalculateRouteWebService extends WebServBase
         $userTokenId = null;
         CurrentUser::FillUserIdentities($accountId, $userTokenId);
 
+        // TODO убрать после отладки
+        $userTokenId = 1;
+
         $db = SqlFactory::getSql();
 
         try
@@ -176,6 +179,8 @@ class CalculateRouteWebService extends WebServBase
             $routeTasksInfoList = CargoSelectedHelper::GetSelectedCargoData($accountId, $userTokenId, $db);
 
 
+        //print_r($routeTasksInfoList);
+
         // 3. создаём список ограничений
         $conflictResolveCriteria = $options->conflictResolveCriteria == 'MaxProceeds' ? ConflictResolveCriteria::MaxProceeds : ConflictResolveCriteria::MaxProfit;
         $loadingStrategy = $options->loadingStrategy == 'SavingWeight' ? LoadingStrategy::SavingWeight : LoadingStrategy::SavingValue;
@@ -244,9 +249,10 @@ class CalculateRouteWebService extends WebServBase
         //print_r(count($graph->getEdges()));
 
         // 10. получаем вершину, с которой начинается наш маршрут
+        //print_r($options->startCityId);
         $startVertex = $vertices[$options->startCityId];
 
-        //print_r($startVertex);
+        //print_r($startVertex->getId());
 
         // 11. расчитываем маршрут
         $calculator = new RouteCalculator($routeTaskList, $routeRestrictions, $graph);

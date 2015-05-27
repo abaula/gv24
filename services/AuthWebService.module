@@ -147,5 +147,9 @@ class AuthWebService extends WebServBase
         // 2. переносим записи о выделенных узлах и маршрутных точках из токена пользователя в аккаунт пользователя
         // Прим. - переносим только те записи которые отсутствуют в акаунте пользователя
         RouteAndCargoSelectedToAccountMapping::MapTokenDataToAccount($userTokenId, $accountId);
+
+        // 3. TODO Переносим маршрут из токена в акаунт
+
+        // 4. TODO Переносим параметры машины из токена в акаунт
     }
 }

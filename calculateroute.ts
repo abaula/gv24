@@ -147,8 +147,12 @@ module CalculateRoute
 
             // помещаем данные в контролы
             __currentComp.updateStartCity();
-            __currentComp.drawTasksList();
-            __currentComp.drawRouteTable();
+
+            if (null != __currentComp.calculateOptions)
+            {
+                __currentComp.drawTasksList();
+                __currentComp.drawRouteTable();
+            }
 
             if (false == __currentComp.isComponentLoaded)
             {
@@ -1066,8 +1070,11 @@ module CalculateRoute
             __currentComp.fillVehicleParams();
 
             // обновляем таблицы заданий и маршрута
-            __currentComp.drawTasksList();
-            __currentComp.drawRouteTable();
+            if (null != __currentComp.taskData)
+            {
+                __currentComp.drawTasksList();
+                __currentComp.drawRouteTable();
+            }
             
             // скрываем иконку загрузки
             __currentComp.application.hideOverlay("#i-ctrl-vehicle-params-overlay");

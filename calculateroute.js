@@ -115,8 +115,11 @@ var CalculateRoute;
 
             // помещаем данные в контролы
             CalculateRoute.__currentComp.updateStartCity();
-            CalculateRoute.__currentComp.drawTasksList();
-            CalculateRoute.__currentComp.drawRouteTable();
+
+            if (null != CalculateRoute.__currentComp.calculateOptions) {
+                CalculateRoute.__currentComp.drawTasksList();
+                CalculateRoute.__currentComp.drawRouteTable();
+            }
 
             if (false == CalculateRoute.__currentComp.isComponentLoaded) {
                 CalculateRoute.__currentComp.onComponentLoaded();
@@ -884,9 +887,10 @@ else
             CalculateRoute.__currentComp.calculateOptions.vehicleParams = vehicleParams;
             CalculateRoute.__currentComp.fillVehicleParams();
 
-            // обновляем таблицы заданий и маршрута
-            CalculateRoute.__currentComp.drawTasksList();
-            CalculateRoute.__currentComp.drawRouteTable();
+            if (null != CalculateRoute.__currentComp.taskData) {
+                CalculateRoute.__currentComp.drawTasksList();
+                CalculateRoute.__currentComp.drawRouteTable();
+            }
 
             // скрываем иконку загрузки
             CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-vehicle-params-overlay");
