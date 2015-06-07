@@ -291,17 +291,26 @@ class CalculateRouteWebService extends WebServBase
 
         // 4. Вносим данные в маршрут
 
-        // ... 4.1 создаём карту cargoId к cargoSelectedId
+        // ... 4.1 Создаём первую запись в маршруте
+        $startVertex = $routeData->getStartVertex();
+
+        // ... шаблон запроса
+        $sql = 'INSERT INTO route_point (route_id, cargo_selected_id, city_id, distance, is_first_point_of_pair, order_num)
+                        VALUES (?i, null, ?i, ?i, ?i, ?i)';
+
+        $db->query($sql, $routeId, $startVertex->getId(), 0, 1, 1);
+
+        // ... 4.2 создаём карту cargoId к cargoSelectedId
         CargoSelectedHelper::CreateMap($accountId, $userTokenId, $db);
 
-        // ... 4.2 получаем список рёбер маршрута - RouteEntry[]
+        // ... 4.3 получаем список рёбер маршрута - RouteEntry[]
         $routeEntries = $routeData->getEntries();
 
         //print_r($routes);
 
-        // ... 4.3 обрабатываем данные каждого ребра маршрута
+        // ... 4.4 обрабатываем данные каждого ребра маршрута
         $distance = 0;
-        $num = 1;
+        $num = 2;
         // ... шаблон запроса
         $sql = 'INSERT INTO route_point (route_id, cargo_selected_id, city_id, distance, is_first_point_of_pair, order_num)
                         VALUES (?i, ?i, ?i, ?i, ?i, ?i)';

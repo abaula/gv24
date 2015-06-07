@@ -15,6 +15,8 @@
 */
 class Route
 {
+    // первая вершина маршрута
+    private $_startVertex;
     // исполненные задания на перевозку
     private $_fulfiledTasks;
     // неисполненные задания на перевозку
@@ -78,6 +80,7 @@ class Route
         $this->_wayBackEntry = $value;
     }
 
+
     // возвращает дистанцию маршрута без дороги назад
     function getDistanse()
     {
@@ -112,26 +115,13 @@ class Route
     // получить 1-ю вершину маршрута
     function getStartVertex()
     {
-        if (1 > count($this->_entries))
-            return null;
+        return $this->_startVertex;
+    }
 
-        // получаем первое ребро маршрута
-        $entry = $this->_entries[0];
 
-        // получаем все принятые задания в ребре маршрута
-        $tasks = $entry->getCommitedTasks();
-
-        // если принятых заданий нет, то получаем все исключённые задания
-        if(1 > count($tasks))
-            $tasks = $entry->getExcludedTasks();
-
-        // получаем индекс первого принятого или исключённого задания в ребре маршрута
-        $index = count($tasks) - 1;
-        // получаем первое задание в маршруте
-        $firstTask = $tasks[$index];
-
-        return $firstTask->getVertexA();
-
+    function setStartVertex($vertex)
+    {
+        $this->_startVertex = $vertex;
     }
 
     // получить последнюю вершину маршрута

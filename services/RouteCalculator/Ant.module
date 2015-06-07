@@ -53,9 +53,8 @@ class Ant
     // муравей ищет путь
     function run($vertex)
     {
-        // TODO Всегда добавляем пустой $routeEntry для начала маршрута
-
-
+        // Всегда добавляем первую вершину маршрута
+        $this->_route->setStartVertex($vertex);
 
         while (null != $vertex)
         {
@@ -186,7 +185,7 @@ class Ant
                 unset($selectedTaskList[$task->getId()]);
             }
 
-            // после разрешения кофликта вносим в список все исключённые задания
+            // после разрешения конфликта вносим в список все исключённые задания
             foreach ($selectedTaskList as $task)
             {
                 $entry->addExcludedTask($task);
@@ -301,6 +300,7 @@ class Ant
         // рассчитываем лимиты на погрузку
         $valueLimit = $this->_calculator->getRestrictions()->getMaxValue();
         $weightLimit = $this->_calculator->getRestrictions()->getMaxWeight();
+        // получаем значения свободного резерва веса и объёма
         $valueLimit -= $this->_curValue;
         $weightLimit -= $this->_curWeight;
 
