@@ -1,0 +1,73 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 07.06.15
+ * Time: 12:08
+ * To change this template use File | Settings | File Templates.
+ */
+
+
+/*
+   Ребро графа
+*/
+class GEdge extends GObject
+{
+    // Идентификаторы вершин ребра
+    private $_verticesId;
+    // Вершины ребра
+    private $_vertices;
+    // Расстояние (км)
+    private $_distance;
+
+    function __construct($id, $name, $vAId, $vBId, $distance)
+    {
+        parent::construct($id, $name);
+        $this->_verticesId = array($vAId, $vBId);
+        $this->_vertices = array();
+        $this->_distance = $distance;
+    }
+
+    function addVertex($v)
+    {
+        array_push($this->_vertices, $v);
+    }
+
+    function getDistance()
+    {
+        return $this->_distance;
+    }
+
+    function isEqual($edge)
+    {
+        return $this->getId() == $edge->getId();
+    }
+
+    function getVertexId($getA)
+    {
+        return $getA ? $this->_verticesId[0] : $this->_verticesId[1];
+    }
+
+    function getAnotherVertex($v)
+    {
+        $result = null;
+
+        if ($v == $this->_vertices[0])
+            $result = $this->_vertices[1];
+        else if ($v == $this->_vertices[1])
+            $result = $this->_vertices[0];
+
+        return $result;
+    }
+
+    function getVertexA()
+    {
+        return $this->_vertices[0];
+    }
+
+    function getVertexB()
+    {
+        return $this->_vertices[1];
+    }
+
+}

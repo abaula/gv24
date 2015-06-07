@@ -1,0 +1,20 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 07.06.15
+ * Time: 12:10
+ * To change this template use File | Settings | File Templates.
+ */
+
+/*
+    Роль вершины для машрутов
+    - разгрузка, погрузка, и разгрузка и погрузка
+*/
+class GVertexTaskRole
+{
+    const Undefined = 0;
+    const Loading = 1;
+    const Unloading = 2;
+    const All = 3;
+}

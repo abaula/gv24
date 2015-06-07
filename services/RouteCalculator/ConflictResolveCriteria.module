@@ -1,0 +1,19 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 07.06.15
+ * Time: 12:10
+ * To change this template use File | Settings | File Templates.
+ */
+
+/*
+    Способы принятия решений при конфликтах из-за ограничений накладываемых на маршрут
+*/
+class ConflictResolveCriteria
+{
+    // максимальная выручка
+    const MaxProceeds = 0;
+    // максимальная прибыльность = максимальная стоимость за километр пути
+    const MaxProfit = 1;
+}

@@ -1,0 +1,119 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 07.06.15
+ * Time: 12:06
+ * To change this template use File | Settings | File Templates.
+ */
+
+
+/*
+    Задание на доставку груза, маршрут состоящий из 2-х точек, загрузки и выгрузки->
+    Содержит данные о пункте отправления и назначения, о параметрах перевозимого груза включая стоимость
+*/
+class RouteTask
+{
+    // уникальный номер задания
+    private $_id;
+    // неуникальное название задания (например Смоленск - Москва)
+    private $_name;
+    // начальная точка, место отправления
+    private $_vertexA;
+    // конечная точка, место прибытия
+    private $_vertexB;
+    // стоимость
+    private $_price;
+    // объём груза
+    private $_value;
+    // масса груза
+    private $_weight;
+    // расстояние перевозки (по справочнику)
+    private $_distance;
+
+    function __construct($id, $name, $vertexA, $vertexB, $price, $value, $weight, $distance)
+    {
+        $this->_id = $id;
+        $this->_name = $name;
+        $this->_vertexA = $vertexA;
+        $this->_vertexB = $vertexB;
+        $this->_price = $price;
+        $this->_value = $value;
+        $this->_weight = $weight;
+        $this->_distance = $distance;
+    }
+
+    function getId()
+    {
+        return $this->_id;
+    }
+
+    function getName()
+    {
+        return $this->_name;
+    }
+
+    function getVertexA()
+    {
+        return $this->_vertexA;
+    }
+
+    function setVertexA($value)
+    {
+        $this->_vertexA = $value;
+    }
+
+    function getVertexB()
+    {
+        return $this->_vertexB;
+    }
+
+    function setVertexB($value)
+    {
+        $this->_vertexB = $value;
+    }
+
+
+    function getPrice()
+    {
+        return $this->_price;
+    }
+
+    function getValue()
+    {
+        return $this->_value;
+    }
+
+    function getWeight()
+    {
+        return $this->_weight;
+    }
+
+    function getDistance()
+    {
+        return $this->_distance;
+    }
+
+    function isVertexA($vertex)
+    {
+        return $this->_vertexA->getId() == $vertex->getId();
+    }
+
+    function hasVertex($vertex)
+    {
+        return $this->_vertexA->getId() == $vertex->getId() || $this->_vertexB->getId() == $vertex->getId();
+    }
+
+    // Устанавливает связь задания на перевозку с обеими вершинами
+    function bindVerticesToThisTask()
+    {
+        $this->_vertexA->addRouteTask($this);
+        $this->_vertexB->addRouteTask($this);
+    }
+
+    // возвращает стоимость за 1 км пути
+    function getProfit()
+    {
+        return $this->_price / $this->_distance;
+    }
+}

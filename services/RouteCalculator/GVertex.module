@@ -1,0 +1,116 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 07.06.15
+ * Time: 12:08
+ * To change this template use File | Settings | File Templates.
+ */
+
+
+/*
+   Вершина графа
+*/
+class GVertex extends GObject
+{
+    // Рёбра присоединённые к точке
+    private $_edges;
+    // Маршруты присоединённые к точке
+    private $_routeTasks;
+    // Географические координаты вершины
+    private $_geoPoint;
+    // Сумма ролей вершины для заданий в которые она входит
+    private $_vertexTaskRole;
+
+    function __construct($id, $name, $latitude, $longitude)
+    {
+        parent::construct($id, $name);
+        $this->_geoPoint = new GEOPoint($latitude, $longitude);
+        $this->_edges = array();
+        $this->_routeTasks = array();
+        $this->_vertexTaskRole = GVertexTaskRole::Undefined;
+    }
+
+    function getEdges()
+    {
+        return $this->_edges;
+    }
+
+    function getRouteTasks()
+    {
+        return $this->_routeTasks;
+    }
+
+    function getGeoPoint()
+    {
+        return $this->_geoPoint;
+    }
+
+    function isEqual($vertex)
+    {
+        return $this->getId() == $vertex->getId();
+    }
+
+    function addEdge($edge)
+    {
+        $this->_edges[$edge->getId()] = $edge;
+    }
+
+    function addRouteTask($routeTask)
+    {
+        $this->_routeTasks[$routeTask->getId()] = $routeTask;
+    }
+
+    // есть ли связанные задания для которых вершина выполняет указанную роль
+    function hasRouteTaskRole($role)
+    {
+        if (GVertexTaskRole::Undefined == $this->_vertexTaskRole)
+        {
+            $tasks = $this->_routeTasks;
+
+            foreach ($tasks as $task)
+            {
+                $isA = $task->getVertexA()->isEqual($this);
+                $isB = $task->getVertexB()->isEqual($this);
+
+                if ($isA)
+                    $this->_vertexTaskRole |= GVertexTaskRole::Loading;
+
+                if ($isB)
+                    $this->_vertexTaskRole |= GVertexTaskRole::Unloading;
+            }
+        }
+
+        return 0 < ($this->_vertexTaskRole & $role);
+    }
+
+    // возвращает те связанные задания для которых вершина выполняет указанную роль
+    function getRouteTasksForRole($role)
+    {
+        $result = array();
+        $tasks = $this->_routeTasks;
+
+        foreach ($tasks as $task)
+        {
+            if ($role & GVertexTaskRole::Loading)
+            {
+                // выбираем задания, у которых вершина является началом маршрута (загрузка)
+                $isA = $task->getVertexA()->isEqual($this);
+
+                if ($isA)
+                    array_push($result, $task);
+            }
+            else if ($role & GVertexTaskRole::Unloading)
+            {
+                // выбираем задания, у которых вершина является концом маршрута (разгрузка)
+                $isB = $task->getVertexB()->isEqual($this);
+
+                if ($isB)
+                    array_push($result, $task);
+            }
+        }
+
+        return $result;
+    }
+
+}

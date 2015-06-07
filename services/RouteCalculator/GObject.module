@@ -1,0 +1,39 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 07.06.15
+ * Time: 12:11
+ * To change this template use File | Settings | File Templates.
+ */
+/*
+Базовый класс для сущностей графа - вершины и ребра
+*/
+class GObject
+{
+    // уникальный номер объекта
+    private $_id;
+    // имя объекта
+    private $_name;
+
+    function construct($id, $name)
+    {
+        $this->_id = $id;
+        $this->_name = $name;
+    }
+
+    function getId()
+    {
+        return $this->_id;
+    }
+
+    function getName()
+    {
+        return $this->_name;
+    }
+
+    function setName($value)
+    {
+        $this->_name = $value;
+    }
+}

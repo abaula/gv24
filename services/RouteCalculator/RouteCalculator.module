@@ -1,0 +1,211 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 07.06.15
+ * Time: 12:03
+ * To change this template use File | Settings | File Templates.
+ */
+
+
+/*
+    Алгоритм верхнего уровня управляющий расчётами оптимального маршрута
+
+    ЦЕЛЬ РАСЧЁТА - найти маршрут по которому можно перевезти максимальное количество груза из указанного с максимальной эффективностью,
+    которая посчитана как - выручка / дистанция.
+
+    Общая формула определения эффективности построенного маршрута:
+    Эффективность маршрута = количество выполненных заданий на перевозку * (общая выручка / общая дистанция)
+
+*/
+class RouteCalculator
+{
+    // список заданий на перевозку
+    private $_taskList;
+    // ограничения применяемые при поиске пути
+    private $_restrictions;
+    // граф
+    private $_graph;
+    // коэффециент сохранения следа при испарении
+    private $_evaporationRate = 0.75;  //(испарение = 25%)
+    // общее количество муравьёв в группе
+    private $_antCount = 1000;
+    // Алгоритм останавливает работу если указанное количество муравьёв подряд не смогли найти более короткий маршрут
+    private $_stopAfter = 200;
+    // список со значениями силы феромонового следа оставленного муравьями на посещённых рёбрах графа (edge.getId(), number)
+    private $_edgePheromones;
+    // построенный маршрут (отобран без учёта обратного пути)
+    private $_route;
+    // построенный маршрут (отобран с учётом обратного пути)
+    private $_routeWithWayBack;
+
+    function __construct($taskList, $restrictions, $graph)
+    {
+        $this->_taskList = $taskList;
+        $this->_restrictions = $restrictions;
+        $this->_graph = $graph;
+        $this->_route = null;
+        $this->_routeWithWayBack = null;
+        $this->_edgePheromones = array();
+    }
+
+    function getTaskList()
+    {
+        return $this->_taskList;
+    }
+
+    function getRestrictions()
+    {
+        return $this->_restrictions;
+    }
+
+    function getGraph()
+    {
+        return $this->_graph;
+    }
+
+    function getRoute()
+    {
+        return $this->_route;
+    }
+
+    function getRouteWithWayBack()
+    {
+        return $this->_routeWithWayBack;
+    }
+
+
+    function calculateRoute($startVertex)
+    {
+
+        for ($a = 0; $a <= 5; $a++)
+        {
+            for ($b = 0; $b <= 5; $b++)
+            {
+                $this->_initPheromones();
+                // счётчик неудачных попыток улучшить маршрут
+                $missCount = 0;
+
+                for ($i = 0; $i < $this->_antCount; $i++)
+                {
+                    // Испаряем часть феромонов с рёбер
+                    if (1 < $i)
+                        $this->_evaporatePheromones();
+
+                    // Отправляем одного муравья в забег
+                    $ant = new Ant($this, $a, $b);
+                    $isRouteFound = $ant->run($startVertex);
+
+                    // Если муравей нашёл путь, то сохраняем результат
+                    if ($isRouteFound)
+                    {
+                        $route = $ant->getRoute();
+                        // Добавляем феромоны на путь
+                        $this->_addPheromones($route);
+
+                        // пытаемся сохранить полученный маршрут
+                        $better = $this->_tryUpdateRoute($route);
+
+                        if ($better)
+                        {
+                            // обнуляем счётчик неудачных попыток улучшить маршрут
+                            $missCount = 0;
+                        }
+                        else
+                        {
+                            // увеличиваем счётчик неудачных попыток улучшить маршрут
+                            // и прекращаем дальнейшие попытки если превысили лимит
+                            if (++$missCount > $this->_stopAfter)
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // сохраняет полученный маршрут, если он эффективнее
+    private function _tryUpdateRoute($route)
+    {
+        $result = false;
+
+        // сохраняем более эффективный маршрут (эффективность посчитана без учёта обратного пути)
+        if (null == $this->_route)
+        {
+            $this->_route = $route;
+            $result = true;
+        }
+        else if ($route->getEfficiency(false) > $this->_route->getEfficiency(false))
+        {
+            $this->_route = $route;
+            $result = true;
+        }
+
+        // сохраняем более эффективный маршрут (эффективность посчитана с учётом обратного пути)
+        if (null == $this->_routeWithWayBack)
+        {
+            $this->_routeWithWayBack = $route;
+            $result = true;
+        }
+        else if ($route->getEfficiency(true) > $this->_routeWithWayBack->getEfficiency(true))
+        {
+            $this->_routeWithWayBack = $route;
+            $result = true;
+        }
+
+        return $result;
+    }
+
+
+    function getPheromones()
+    {
+        return $this->_edgePheromones;
+    }
+
+    // добавляем следы феромонов на рёбра графа по которым пробежал муравей и нашёл путь
+    private function _addPheromones($route)
+    {
+        // чем больше денег заработали и короче найденный путь, тем больше феромонов добавляем
+        // формула: эффективность = выручка / расстояние
+        $distance = $route->getDistanse();
+        $proceeds = $route->getProceeds();
+        $pheromoneValue = $proceeds / $distance;
+        $entries = $route->getEntries();
+
+        foreach ($entries as $entry)
+        {
+            $edge = $entry->getEdge();
+            $curValue = $this->_edgePheromones[$edge->getId()];
+            $curValue += $pheromoneValue;
+            $this->_edgePheromones[$edge->getId()] = $curValue;
+        }
+
+    }
+
+    // обнуляет веса феромонового следа для всех рёбер графа
+    private function _initPheromones()
+    {
+        $this->_edgePheromones = array();
+
+        $edges = $this->_graph->getEdges();
+
+        foreach ($edges as $edge)
+        {
+            $this->_edgePheromones[$edge->getId()] = 0.0;
+        }
+    }
+
+    // испаряем часть феромонов
+    private function _evaporatePheromones()
+    {
+        $keys = array_keys($this->_edgePheromones);
+
+        foreach ($keys as $key)
+        {
+            $curValue = $this->_edgePheromones[$key];
+            // испаряем установленную часть следа
+            $curValue *= $this->_evaporationRate;
+            $this->_edgePheromones[$key] = $curValue;
+        }
+    }
+}

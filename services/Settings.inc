@@ -34,6 +34,7 @@ define('WEBAPI_URI', 'api');
 // Paths
 define('ROOT_PATH', $_SERVER['DOCUMENT_ROOT']);
 define('ERROR_FILE', ROOT_PATH . '/errors.log.txt');
+define('ROUTE_CALCULATOR_PATH', ROOT_PATH . '/services/RouteCalculator');
 
 
 // Urls

@@ -1,0 +1,49 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 07.06.15
+ * Time: 12:07
+ * To change this template use File | Settings | File Templates.
+ */
+
+/*
+Точка, содержащая географические координаты
+*/
+class GEOPoint
+{
+    private $_latitude;
+    private $_longitude;
+
+    function __construct($latitude, $longitude)
+    {
+        $this->_latitude = $latitude;
+        $this->_longitude = $longitude;
+    }
+
+    function getLatitude()
+    {
+        return $this->_latitude;
+    }
+
+    function setLatitude($value)
+    {
+        $this->_latitude = $value;
+    }
+
+    function getLongitude()
+    {
+        return $this->_longitude;
+    }
+
+    function setLongitude($value)
+    {
+        $this->_longitude = $value;
+    }
+
+    function clonePoint()
+    {
+        $point = new GEOPoint($this->_latitude, $this->_longitude);
+        return $point;
+    }
+}

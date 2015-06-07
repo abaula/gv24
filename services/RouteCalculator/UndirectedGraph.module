@@ -1,0 +1,58 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 07.06.15
+ * Time: 12:07
+ * To change this template use File | Settings | File Templates.
+ */
+
+/*
+    Ненаправленный граф
+*/
+class UndirectedGraph
+{
+    private $_vertices;
+    private $_edges;
+
+    function __construct()
+    {
+        $this->_vertices = array();
+        $this->_edges = array();
+    }
+
+    // инициализация внутренней структуры графа
+    function init($vertices, $edges)
+    {
+        // сохраняем вершины
+        foreach ($vertices as $vertex)
+        {
+            // сохраняем вершину
+            $this->_vertices[$vertex->getId()] = $vertex;
+        }
+
+        //var_dump($this->_vertices);
+
+        // сохраняем рёбра
+        foreach ($edges as $edge)
+        {
+            // проставляем в рёбра ссылки на вершины
+            $vertexA = $this->_vertices[$edge->getVertexId(true)];
+            $edge->addVertex($vertexA);
+            $vertexB = $this->_vertices[$edge->getVertexId(false)];
+            $edge->addVertex($vertexB);
+
+            // проставляем в вершины ссылки на ребро
+            $vertexA->addEdge($edge);
+            $vertexB->addEdge($edge);
+
+            // сохраняем ребро
+            $this->_edges[$edge->getId()] = $edge;
+        }
+    }
+
+    function getEdges()
+    {
+        return $this->_edges;
+    }
+}

@@ -1,0 +1,72 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 07.06.15
+ * Time: 12:04
+ * To change this template use File | Settings | File Templates.
+ */
+
+/*
+Часть рассчитанного оптимального маршрута - один перегон между 2-я точками
+*/
+class RouteEntry
+{
+    // ребро графа - перегон между двумя точками
+    private $_edge;
+    // массив принятых в вершине А в работу заданий на перевозку
+    private $_commitedTasks;
+    // массив исключенных в вершине А заданий на перевозку
+    private $_excludedTasks;
+    // массив завершённых в вершине Б заданий на перевозку
+    private $_fulfiledTasks;
+
+    function __construct()
+    {
+        $this->_edge = null;
+        $this->_commitedTasks = [];
+        $this->_excludedTasks = [];
+        $this->_fulfiledTasks = [];
+    }
+
+    function getEdge()
+    {
+        return $this->_edge;
+    }
+
+    function setEdge($value)
+    {
+        $this->_edge = $value;
+    }
+
+    function getCommitedTasks()
+    {
+        return $this->_commitedTasks;
+    }
+
+    function getFulfiledTasks()
+    {
+        return $this->_fulfiledTasks;
+    }
+
+    function getExcludedTasks()
+    {
+        return $this->_excludedTasks;
+    }
+
+    function addFulfiledTask($task)
+    {
+        array_push($this->_fulfiledTasks, $task);
+    }
+
+    function addCommitedTask($task)
+    {
+        array_push($this->_commitedTasks, $task);
+    }
+
+    function addExcludedTask($task)
+    {
+        array_push($this->_excludedTasks, $task);
+    }
+
+}

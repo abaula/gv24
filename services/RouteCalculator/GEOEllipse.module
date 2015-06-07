@@ -1,0 +1,65 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 07.06.15
+ * Time: 12:02
+ * To change this template use File | Settings | File Templates.
+ */
+
+class GEOEllipse
+{
+    const DE2RA = 0.01745329252;
+    const AVG_ERAD = 6371.0;
+
+    private $_f1;
+    private $_f2;
+    private $_dPrc;
+    private $_2a;
+
+
+    function __construct($f1, $f2, $dPrc)
+    {
+        $this->_f1 = $f1->clonePoint();
+        $this->_f2 = $f2->clonePoint();
+        $this->_dPrc = $dPrc;
+        $this->_2a = $this->_calculate2A();
+    }
+
+    private function _calculate2A()
+    {
+        $len2C = $this->_getGCDistance($this->_f1, $this->_f2);
+        $delta = $len2C * $this->_dPrc;
+
+        return $len2C + $delta;
+    }
+
+    private function _getGCDistance($p1, $p2)
+    {
+        $point1 = $p1->clonePoint();
+        $point2 = $p2->clonePoint();
+
+        $point1->setLatitude($point1->getLatitude() * self::DE2RA);
+        $point1->setLongitude($point1->getLongitude() * self::DE2RA);
+
+        $point2->setLatitude($point2->getLatitude() * self::DE2RA);
+        $point2->setLongitude($point2->getLongitude() * self::DE2RA);
+
+        $d = sin($point1->getLatitude())
+            * sin($point2->getLatitude())
+            + cos($point1->getLatitude())
+            * cos($point2->getLatitude())
+            * cos($point1->getLongitude() - $point2->getLongitude());
+
+        return (self::AVG_ERAD * acos($d));
+    }
+
+    function isPointInEllipse($point)
+    {
+        $r1 = $this->_getGCDistance($this->_f1, $point);
+        $r2 = $this->_getGCDistance($this->_f2, $point);
+        $t2A = $r1 + $r2;
+
+        return $t2A < $this->_2a;
+    }
+}

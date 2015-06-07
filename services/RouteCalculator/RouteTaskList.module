@@ -1,0 +1,70 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 07.06.15
+ * Time: 12:06
+ * To change this template use File | Settings | File Templates.
+ */
+
+/*
+Список заданий на перевозку RouteTask, которые подлежат обработке
+В отличии от простого массива предоставляет сервисные функции
+*/
+class RouteTaskList
+{
+    private $_tasks;
+    private $_vertices;
+
+    function __construct()
+    {
+        $this->_tasks = array();
+        $this->_vertices = array();
+    }
+
+    // инициализирует список заданий на перевозку
+    function addRouteTasks($tasks)
+    {
+        foreach ($tasks as $task)
+        {
+            // сохраняем вершины без дублей
+            $this->_saveVertex($task, $task->getVertexA(), true);
+            $this->_saveVertex($task, $task->getVertexB(), false);
+
+            // связываем вершины с заданием
+            $task->bindVerticesToThisTask();
+
+            // сохраняем задание
+            $this->_tasks[$task->getId()] = $task;
+        }
+    }
+
+    // сохраняет только уникальные вершины без дублей
+    // при необходимости подменяет вершины в задании
+    private function _saveVertex($task, $vertex, $isA)
+    {
+        if (array_key_exists($vertex->getId(), $this->_vertices))
+        {
+            // вершина с данным Id уже сохранена ранее, поэтому
+            // подменяем вершину в задании на сохранённую ранее
+            $savedVertex = $this->_vertices[$vertex->getId()];
+
+            if ($isA)
+                $task->setVertexA($savedVertex);
+            else
+                $task->setVertexB($savedVertex);
+        }
+        else
+        {
+            // сохраняем вершину
+            $this->_vertices[$vertex->getId()] = $vertex;
+        }
+
+    }
+
+    // возвращает массив вершин
+    function getVertices()
+    {
+        return $this->_vertices;
+    }
+}

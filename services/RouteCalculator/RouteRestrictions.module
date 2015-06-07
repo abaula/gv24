@@ -1,0 +1,52 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 07.06.15
+ * Time: 12:05
+ * To change this template use File | Settings | File Templates.
+ */
+
+/*
+Ограничения накладываемые на маршрут
+*/
+class RouteRestrictions
+{
+    // максимальный объём
+    private $_maxValue;
+    // максимальный вес
+    private $_maxWeight;
+    // решение принимаемое при конфликте (если для загрузки одновременно доступны несколько грузов, суммарный вес или объём которых больше установленных максимальных ограничений, нужно от каких-то отказаться)
+    private $_conflictResolveCriteria;
+    // стратегия загрузки нескольких грузов по умолчанию
+    private $_loadingStrategy;
+
+    function __construct($maxValue, $maxWeight, $conflictResolveCriteria, $loadingStrategy)
+    {
+        $this->_maxValue = $maxValue;
+        $this->_maxWeight = $maxWeight;
+        $this->_conflictResolveCriteria = $conflictResolveCriteria;
+        $this->_loadingStrategy = $loadingStrategy;
+    }
+
+    function getMaxValue()
+    {
+        return $this->_maxValue;
+    }
+
+    function getMaxWeight()
+    {
+        return $this->_maxWeight;
+    }
+
+    function getConflictResolveCriteria()
+    {
+        return $this->_conflictResolveCriteria;
+    }
+
+    function getLoadingStrategy()
+    {
+        return $this->_loadingStrategy;
+    }
+
+}

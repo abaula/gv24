@@ -1,0 +1,250 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 07.06.15
+ * Time: 12:05
+ * To change this template use File | Settings | File Templates.
+ */
+
+/*
+Расчитанный оптимальный маршрут
+Содержит списки включенных заданий на перевозку и список исключённых заданий,
+тех, которые не подошли по параметрам к условиям ограничения RouteRestrictions->
+Содержит обшую протяжённость маршрута и другую справочную информацию
+*/
+class Route
+{
+    // исполненные задания на перевозку
+    private $_fulfiledTasks;
+    // неисполненные задания на перевозку
+    private $_excludedTasks;
+    // массив частей маршрута
+    private $_entries;
+    // обратный путь маршрута, из конца в начало
+    private $_wayBackEntry;
+    // суммарная дистанция маршрута
+    private $_sumDistance;
+    // суммараная выручка
+    private $_sumProceeds;
+    // суммарный объём груза в маршруте
+    private $_sumValue;
+    // суммарный вес груза в маршруте
+    private $_sumWeight;
+    // суммарное исходное расстрояние для выполненных задач
+    private $_fulfiledTasksDistance;
+    // суммарное исходное расстояние для отложенных задач
+    private $_excludedTasksDistance;
+    // суммарное исходное расстояние для всех задач
+    private $_allTasksDistance;
+
+    function __construct()
+    {
+        $this->_fulfiledTasks = array();
+        $this->_excludedTasks = array();
+        $this->_entries = array();
+        $this->_wayBackEntry = null;
+        $this->_sumDistance = 0;
+        $this->_sumProceeds = 0;
+        $this->_sumValue = 0;
+        $this->_sumWeight = 0;
+        $this->_fulfiledTasksDistance = -1;
+        $this->_excludedTasksDistance = -1;
+        $this->_allTasksDistance = -1;
+    }
+
+    function getFulfiledTasks()
+    {
+        return $this->_fulfiledTasks;
+    }
+
+    function getExcludedTasks()
+    {
+        return $this->_excludedTasks;
+    }
+
+    function getEntries()
+    {
+        return $this->_entries;
+    }
+
+    function getWayBackEntry()
+    {
+        return $this->_wayBackEntry;
+    }
+
+    function setWayBackEntry($value)
+    {
+        $this->_wayBackEntry = $value;
+    }
+
+    // возвращает дистанцию маршрута без дороги назад
+    function getDistanse()
+    {
+        return $this->_sumDistance;
+    }
+
+    // возвращает дистанцию маршрута с дорогой назад
+    function getDistanseWithWayBack()
+    {
+        return $this->_sumDistance + $this->_wayBackEntry->getEdge()->getDistance();
+    }
+
+    // возвращает выручку маршрута
+    function getProceeds()
+    {
+        return $this->_sumProceeds;
+    }
+
+
+    // возвращает общий объём груза в маршруте
+    function getValue()
+    {
+        return $this->_sumValue;
+    }
+
+    // возвращает общий вес груза в маршруте
+    function getWeight()
+    {
+        return $this->_sumWeight;
+    }
+
+    // получить 1-ю вершину маршрута
+    function getStartVertex()
+    {
+        if (1 > count($this->_entries))
+            return null;
+
+        // получаем первое ребро маршрута
+        $entry = $this->_entries[0];
+
+        // получаем все принятые задания в ребре маршрута
+        $tasks = $entry->getCommitedTasks();
+
+        // если принятых заданий нет, то получаем все исключённые задания
+        if(1 > count($tasks))
+            $tasks = $entry->getExcludedTasks();
+
+        // получаем индекс первого принятого или исключённого задания в ребре маршрута
+        $index = count($tasks) - 1;
+        // получаем первое задание в маршруте
+        $firstTask = $tasks[$index];
+
+        return $firstTask->getVertexA();
+
+    }
+
+    // получить последнюю вершину маршрута
+    function getEndVertex()
+    {
+
+        if (1 > count($this->_fulfiledTasks))
+            return null;
+
+        // получаем индекс послденего исполненного задания в маршруте
+        $index = count($this->_fulfiledTasks) - 1;
+        // получаем последнее исполненное задание в маршруте
+        $endTask = $this->_fulfiledTasks[$index];
+
+        return $endTask->getVertexB();
+    }
+
+    // добавляем часть маршрута
+    function addEntry($entry)
+    {
+        //////////////////////////////////////////
+        // Расчитываем суммовые значения
+
+        // рассчитываем перевезённый вес и объём, полученная сумму денег
+        // добавляем выполненные задания в список
+        $fulfiledTasks = $entry->getFulfiledTasks();
+
+        foreach ($fulfiledTasks as $task)
+        {
+            $this->_sumProceeds += $task->getPrice();
+            $this->_sumValue += $task->getValue();
+            $this->_sumWeight += $task->getWeight();
+
+            // добавляем выполненное задание в список
+            array_push($this->_fulfiledTasks, $task);
+        }
+
+        // расстояние
+        $edge = $entry->getEdge();
+        $this->_sumDistance += $edge->getDistance();
+
+        // сохраняем часть маршрута
+        array_push($this->_entries, $entry);
+
+        // добавляем исключённые задания в список
+        $excludedTasks = $entry->getExcludedTasks();
+
+        foreach ($excludedTasks as $task)
+        {
+            array_push($this->_excludedTasks, $task);
+        }
+    }
+
+    function getProfit($considerWayBack)
+    {
+        $distance = $this->_sumDistance;
+
+        if ($considerWayBack)
+            $distance += $this->_wayBackEntry->getEdge()->getDistance();
+
+        return $this->_sumProceeds / $distance;
+    }
+
+    function getEfficiency($considerWayBack)
+    {
+        $numTasks = count($this->_fulfiledTasks);
+        $profit = $this->getProfit($considerWayBack);
+        return $numTasks * $profit;
+    }
+
+    // получить исходное расстояние для выполненных задач
+    function getFulfiledTasksDistance()
+    {
+        if (0 > $this->_fulfiledTasksDistance)
+        {
+            $this->_fulfiledTasksDistance = 0;
+
+            foreach ($this->_fulfiledTasks as $task)
+            {
+                $this->_fulfiledTasksDistance += $task->getDistance();
+            }
+        }
+
+        return $this->_fulfiledTasksDistance;
+    }
+
+    // получить исходное расстояние для отложенных задач
+    function getExcludedTasksDistance()
+    {
+        if (0 > $this->_excludedTasksDistance)
+        {
+            $this->_excludedTasksDistance = 0;
+
+            foreach ($this->_excludedTasks as $task)
+            {
+                $this->_excludedTasksDistance += $task->getDistance();
+            }
+        }
+
+        return $this->_excludedTasksDistance;
+    }
+
+    // получить исходное расстояние для всех задач
+    function getAllTasksDistance()
+    {
+        if (0 > $this->_allTasksDistance)
+        {
+            $this->_allTasksDistance = 0;
+            $this->_allTasksDistance += $this->getFulfiledTasksDistance();
+            $this->_allTasksDistance += $this->getExcludedTasksDistance();
+        }
+
+        return $this->_allTasksDistance;
+    }
+
+}

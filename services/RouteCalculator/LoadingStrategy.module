@@ -1,0 +1,19 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 07.06.15
+ * Time: 12:09
+ * To change this template use File | Settings | File Templates.
+ */
+
+/*
+    Стратегия загрузки нескольких грузов - влияет на очерёдность загрузки нескольких грузов
+*/
+class LoadingStrategy
+{
+    // экономия веса
+    const SavingWeight = 0;
+    // экономия объёма
+    const SavingValue = 1;
+}

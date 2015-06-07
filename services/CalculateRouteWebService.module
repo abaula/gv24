@@ -12,7 +12,7 @@ require_once("Headers.module");
 require_once("Contract.module");
 require_once("RouteHelper.module");
 require_once("CargoSelectedHelper.module");
-require_once("RouteCalculator.module");
+require_once(ROUTE_CALCULATOR_PATH . "/RouteCalculatorIncludes.inc");
 
 class CalculateRouteWebService extends WebServBase
 {
@@ -56,7 +56,7 @@ class CalculateRouteWebService extends WebServBase
         CurrentUser::FillUserIdentities($accountId, $userTokenId);
 
         // TODO убрать после отладки
-        $userTokenId = 1;
+        //$userTokenId = 1;
 
         $db = SqlFactory::getSql();
 
