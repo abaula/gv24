@@ -398,6 +398,19 @@ class AjaxRoutePoint
 }
 
 
+class AjaxVirtualRoutePoint
+{
+    public $startCityId;
+    public $addBackWayEntry;
+
+    function __construct($startCityId, $addBackWayEntry)
+    {
+        $this->addBackWayEntry = $addBackWayEntry;
+        $this->startCityId = $startCityId;
+    }
+}
+
+
 class AjaxRoutePointList
 {
     public $routePoints;

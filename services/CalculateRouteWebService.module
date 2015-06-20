@@ -120,14 +120,14 @@ class CalculateRouteWebService extends WebServBase
         // 2. получаем данные маршрута
         $sql = 'SELECT
                     RP.id AS route_point_id,
-                    RP.is_first_point_of_pair,
+                    RP.type_id,
                     RP.distance AS route_point_distance,
                     RP.city_id AS route_point_city_id,
                     GC.name AS route_point_city_name,
-                    CASE RP.is_first_point_of_pair WHEN 1 THEN ifnull(C.weight, 0) ELSE (- ifnull(C.weight, 0)) END AS route_point_weight,
-                    CASE RP.is_first_point_of_pair WHEN 1 THEN ifnull(C.value, 0) ELSE (- ifnull(C.value, 0)) END AS route_point_value,
-                    CASE RP.is_first_point_of_pair WHEN 0 THEN ifnull(C.cost, 0) ELSE 0 END AS route_point_cost,
-                    CASE RP.is_first_point_of_pair WHEN 1 THEN ifnull(C.ready_date, 0) ELSE \'\' END AS route_point_ready_date,
+                    CASE RP.type_id WHEN 1 THEN ifnull(C.weight, 0) ELSE (- ifnull(C.weight, 0)) END AS route_point_weight,
+                    CASE RP.type_id WHEN 1 THEN ifnull(C.value, 0) ELSE (- ifnull(C.value, 0)) END AS route_point_value,
+                    CASE RP.type_id WHEN 2 THEN ifnull(C.cost, 0) ELSE 0 END AS route_point_cost,
+                    CASE RP.type_id WHEN 1 THEN ifnull(C.ready_date, 0) ELSE \'\' END AS route_point_ready_date,
                     ifnull(C.id, 0) AS cargo_id,
                     ifnull(C.is_deleted, 0) AS cargo_is_deleted,
                     ifnull(C.distance, 0) AS cargo_distance,
@@ -150,7 +150,7 @@ class CalculateRouteWebService extends WebServBase
         {
             while($row = $db->fetch($result))
             {
-                $isFirstPoint = (0 < $row['is_first_point_of_pair']) ? true : false;
+                $isFirstPoint = (RoutePointType::FirstPoint == $row['type_id']) ? true : false;
 
                 $entry = new AjaxRoutePoint
                 (
@@ -290,15 +290,12 @@ class CalculateRouteWebService extends WebServBase
         RouteHelper::ClearRoute($routeId, $db);
 
         // 4. Вносим данные в маршрут
+        $num = 1;
 
         // ... 4.1 Создаём первую запись в маршруте
         $startVertex = $routeData->getStartVertex();
 
-        // ... шаблон запроса
-        $sql = 'INSERT INTO route_point (route_id, cargo_selected_id, city_id, distance, is_first_point_of_pair, order_num)
-                        VALUES (?i, null, ?i, ?i, ?i, ?i)';
-
-        $db->query($sql, $routeId, $startVertex->getId(), 0, 1, 1);
+        RouteHelper::CreateRoutePoint($routeId, null, $startVertex->getId(), 0, RoutePointType::StartPoint, $num++, $db);
 
         // ... 4.2 создаём карту cargoId к cargoSelectedId
         CargoSelectedHelper::CreateMap($accountId, $userTokenId, $db);
@@ -310,11 +307,6 @@ class CalculateRouteWebService extends WebServBase
 
         // ... 4.4 обрабатываем данные каждого ребра маршрута
         $distance = 0;
-        $num = 2;
-        // ... шаблон запроса
-        $sql = 'INSERT INTO route_point (route_id, cargo_selected_id, city_id, distance, is_first_point_of_pair, order_num)
-                        VALUES (?i, ?i, ?i, ?i, ?i, ?i)';
-
 
         foreach($routeEntries as $routeEntry)
         {
@@ -327,7 +319,7 @@ class CalculateRouteWebService extends WebServBase
             {
                 $cargoSelectedId = CargoSelectedHelper::GetCargoSelectedIdByCargoId($taskA->getId());
                 $vertexA = $taskA->getVertexA();
-                $db->query($sql, $routeId, $cargoSelectedId, $vertexA->getId(), $distance, 1, $num++);
+                RouteHelper::CreateRoutePoint($routeId, $cargoSelectedId, $vertexA->getId(), $distance, RoutePointType::FirstPoint, $num++, $db);
 
                 // обнуляем дистанцию - дистанция указывается, только при смене города, т.е. для 1-го задания из точки А ребра
                 $distance = 0;
@@ -343,7 +335,7 @@ class CalculateRouteWebService extends WebServBase
             {
                 $cargoSelectedId = CargoSelectedHelper::GetCargoSelectedIdByCargoId($taskB->getId());
                 $vertexB = $taskB->getVertexB();
-                $db->query($sql, $routeId, $cargoSelectedId, $vertexB->getId(), $distance, 0, $num++);
+                RouteHelper::CreateRoutePoint($routeId, $cargoSelectedId, $vertexB->getId(), $distance, RoutePointType::SecondPoint, $num++, $db);
 
                 // обнуляем дистанцию - дистанция указывается, только при смене города, т.е. для 1-го задания из точки B ребра
                 $distance = 0;
@@ -365,12 +357,10 @@ class CalculateRouteWebService extends WebServBase
             // 2. если твозвращения нет, то добавляем ребро в маршрут
             $wayBackEntry = $routeData->getWayBackEntry();
 
-            $sql = 'INSERT INTO route_point (route_id, cargo_selected_id, city_id, distance, is_first_point_of_pair, order_num)
-                        VALUES (?i, null, ?i, ?i, ?i, ?i)';
-
             $edge = $wayBackEntry->getEdge();
             $distance = $edge->getDistance();
-            $db->query($sql, $routeId, $startVertex->getId(), $distance, 0, $num);
+
+            RouteHelper::CreateRoutePoint($routeId, null, $startVertex->getId(), $distance, RoutePointType::WayBackPoint, $num, $db);
         }
     }
 

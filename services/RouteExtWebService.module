@@ -1,0 +1,217 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Anton
+ * Date: 17.06.15
+ * Time: 17:35
+ * To change this template use File | Settings | File Templates.
+ */
+
+
+require_once("WebServBase.module");
+require_once("Headers.module");
+require_once("Contract.module");
+require_once("GeoRouteHelper.module");
+require_once("RouteHelper.module");
+
+class RouteExtWebService extends WebServBase
+{
+
+    public function onGet($args)
+    {
+        // HTTP/1.1 405 Method Not Allowed
+        sendHTTPStatus(405);
+        header('Allow: POST');
+    }
+
+    public function onPost($args, $data)
+    {
+        // $data - AjaxVirtualRoutePoint
+
+        $accountId = null;
+        $userTokenId = null;
+        CurrentUser::FillUserIdentities($accountId, $userTokenId);
+
+        $db = SqlFactory::getSql();
+
+        try
+        {
+            // 1. Получаем маршрут для пользователя или создаём его
+            $route_id = RouteHelper::GetRouteId($accountId, $userTokenId, $db);
+
+            if(false == $route_id)
+            {
+                // создаём запись маршрута в БД
+                $route_id = RouteHelper::CreateRoute($accountId, $userTokenId, $db);
+            }
+
+            // ... 1.1 получаем данные маршрута
+            $routeData = RouteHelper::GetRouteData($route_id, $db);
+
+            $startCityId = self::_getFirstCityFromRoute($routeData);
+
+            // 2. Задаём начальную точку маршрута
+            if($data->startCityId > 0)
+            {
+                $startCityId = $data->startCityId;
+                self::_updateStartEntry($route_id, $startCityId, $routeData, $db);
+            }
+
+            // 3. Задаём обратный путь в маршруте
+            if($data->addBackWayEntry)
+            {
+                self::_updateWayBackEntry($route_id, $startCityId, $routeData, $db);
+            }
+
+            // 4. Обновляем порядок маршрутных точек
+            self::_updateRoutePointOrders($routeData, $db);
+
+        }
+        catch(Exception $ex)
+        {
+            Log::writeSqlExeption($db, $ex);
+            $this->returnError(500, array(1), $data);
+        }
+
+
+
+
+    }
+
+    public function onPut($args, $data)
+    {
+        // HTTP/1.1 405 Method Not Allowed
+        sendHTTPStatus(405);
+        header('Allow: POST');
+    }
+
+    public function onDelete($args, $data)
+    {
+        // HTTP/1.1 405 Method Not Allowed
+        sendHTTPStatus(405);
+        header('Allow: POST');
+    }
+
+
+
+    private function _updateStartEntry($routeId, $startCityId, &$routeData, $db)
+    {
+        // 1. Проверяем есть ли начальная точка в маршруте.
+        //    Если есть, то удаляем её
+        if(count($routeData) > 0)
+        {
+            $firstPoint = reset($routeData);
+
+            if(RoutePointType::StartPoint == $firstPoint->typeId)
+            {
+                RouteHelper::DeleteRoutePoint($routeId, $firstPoint->id, $db);
+                // убираем удалённый элемент из массива
+                array_shift($routeData);
+            }
+        }
+
+        // 2. Пересчитываем расстояние от начальной точки до следующей точки маршрута
+        if(count($routeData) > 0)
+        {
+            $firstPoint = reset($routeData);
+
+            // теперь - если первая точка маршрута не точка обратного пути, то у неё нужно обновить дистанцию
+            if(RoutePointType::WayBackPoint != $firstPoint->typeId)
+            {
+                // 2.1 формируем список городов
+                $arr_cities = array();
+                array_push($arr_cities, $startCityId);
+                array_push($arr_cities, $firstPoint->cityId);
+                // 2.2 получаем список дистанций между городами
+                $distanceList = GeoRouteHelper::GetDistanceList($arr_cities, $db);
+                // 2.3 получаем значение дистанции между городами
+                $distance = $distanceList->GetDistanceFromList($startCityId, $firstPoint->cityId);
+                // 2.4 обновляем дистанцию у второй точки маршрута
+                $firstPoint->distance = $distance;
+                RouteHelper::UpdateRoutePointDistance($firstPoint->id, $firstPoint->distance, $db);
+            }
+        }
+
+        // 3 Создаём начальную точку маршрута
+        $routePointId = RouteHelper::CreateRoutePoint($routeId, null, $startCityId, 0, RoutePointType::StartPoint, -1, $db);
+
+        $newRoutePoint = new RoutePoint($routePointId, 0, $startCityId, '', 0, RoutePointType::StartPoint, -1);
+        // добавляем новую точку маршрута в список
+        array_unshift($routeData, $newRoutePoint);
+    }
+
+
+    private function _updateWayBackEntry($routeId, $startCityId, &$routeData, $db)
+    {
+        // 1. Если маршрут не содержит элементов, то обратный путь не добавляется
+        if(count($routeData) < 1)
+            return;
+
+        // 2. Если в маршруте уже задан обратный путь, то удаляем его
+        $lastPoint = end($routeData);
+
+        if(RoutePointType::WayBackPoint == $lastPoint->typeId)
+        {
+            RouteHelper::DeleteRoutePoint($routeId, $lastPoint->id, $db);
+            // убираем удалённый элемент из массива
+            array_pop($routeData);
+        }
+
+        // 3. Страхуемся и ещё раз проверяем, что в маршруте остались точки
+        if(count($routeData) < 1)
+            return;
+
+        // 4. Рассчитываем расстояние от последней точки в маршруте до начальной точки
+        $lastPoint = end($routeData);
+
+        // 4.1 формируем список городов
+        $arr_cities = array();
+        array_push($arr_cities, $startCityId);
+        array_push($arr_cities, $lastPoint->cityId);
+        // 4.2 получаем список дистанций между городами
+        $distanceList = GeoRouteHelper::GetDistanceList($arr_cities, $db);
+        // 4.3 получаем значение дистанции между городами
+        $distance = $distanceList->GetDistanceFromList($startCityId, $lastPoint->cityId);
+
+        // 5. Создаём обратный путь в маршруте
+        $routePointId = RouteHelper::CreateRoutePoint($routeId, null, $startCityId, $distance, RoutePointType::WayBackPoint, -1, $db);
+
+        $newRoutePoint = new RoutePoint($routePointId, 0, $startCityId, '', 0, RoutePointType::WayBackPoint, -1);
+        // добавляем новую точку маршрута в конец списка
+        array_push($routeData, $newRoutePoint);
+    }
+
+
+    private function _getFirstCityFromRoute(&$routeData)
+    {
+        if(count($routeData) > 0)
+        {
+            $firstPointKey = key($routeData);
+            $firstPoint = $routeData[$firstPointKey];
+
+            return $firstPoint->cityId;
+        }
+
+
+        return null;
+    }
+
+
+    private function _updateRoutePointOrders(&$routeData, $db)
+    {
+        // 1. Если маршрут не содержит элементов, то ничего не делаем
+        if(count($routeData) < 1)
+            return;
+
+
+        // 2. Обновляем порядковые номера маршрутных точек
+        $num = 1;
+
+        foreach($routeData as $routePoint)
+        {
+            RouteHelper::UpdateRoutePointOrderNumber($routePoint->id, $num++, $db);
+        }
+
+    }
+
+}

@@ -251,19 +251,15 @@ class RouteWebService extends WebServBase
             // 9. вносим все задачи в маршрут
             $max_order++;
 
-            // ... шаблон запроса
-            $sql = 'INSERT INTO route_point (route_id, cargo_selected_id, city_id, distance, is_first_point_of_pair, order_num)
-                        VALUES (?i, ?i, ?i, ?i, ?i, ?i)';
-
             for ($i = 0; $i < count($arr_cargo); $i++)
             {
                 $cargo = $arr_cargo[$i];
 
                 $distance = $distanceList->GetDistanceFromList($lastCityId, $cargo->city1);
-                $db->query($sql, $route_id, $cargo->id, $cargo->city1, $distance, 1, $max_order++);
+                RouteHelper::CreateRoutePoint($route_id, $cargo->id, $cargo->city1, $distance, 1, $max_order++, $db);
 
                 $distance = $distanceList->GetDistanceFromList($cargo->city1, $cargo->city2);
-                $db->query($sql, $route_id, $cargo->id, $cargo->city2, $distance, 0, $max_order++);
+                RouteHelper::CreateRoutePoint($route_id, $cargo->id, $cargo->city2, $distance, 0, $max_order++, $db);
 
                 $lastCityId = $cargo->city2;
             }
@@ -363,15 +359,10 @@ class RouteWebService extends WebServBase
             $order_num = 1;
             $lastCityId = 0;
 
-            // ... шаблон запроса
-            $sql = 'UPDATE route_point
-                      SET  distance = ?i, order_num = ?i
-                    WHERE id = ?i';
-
             foreach ($routePoints as $routePoint)
             {
                 $distance = $distanceList->GetDistanceFromList($lastCityId, $routePoint->cityId);
-                $db->query($sql, $distance, $order_num++, $routePoint->id);
+                RouteHelper::UpdateRoutePointDistanceAndOrderNumber($routePoint->id, $distance, $order_num++, $db);
 
                 $lastCityId = $routePoint->cityId;
             }
@@ -408,8 +399,6 @@ class RouteWebService extends WebServBase
     {
         // $data = AjaxIdsList
 
-        $idsInSqlString = implode(',', $data->ids);
-
         $accountId = null;
         $userTokenId = null;
         CurrentUser::FillUserIdentities($accountId, $userTokenId);
@@ -430,23 +419,16 @@ class RouteWebService extends WebServBase
             }
 
             // 2. удаляем указанные маршруты
-            $sql = 'DELETE FROM route_point WHERE route_id = ?i AND cargo_selected_id IN (?p)';
-            $db->query($sql, $route_id, $idsInSqlString);
-
+            RouteHelper::DeleteRoutePointFromRouteByCargoSelectedId($route_id, $data->ids, $db);
 
             // 3. корректируем дистанцию 1-й точки в маршруте
             // ... получаем идентификатор 1-й точки маршрута
-            $sql = 'SELECT id FROM route_point
-                    WHERE route_id = ?i
-                    ORDER BY order_num LIMIT 1';
-
-            $route_point_id = $db->getOne($sql, $route_id);
+            $route_point_id = RouteHelper::GetFirstRoutePointIdFromRoute($route_id, $db);
 
             // ... если идентификатор получен, то обнуляем дистанцию у 1-й точки маршрута
             if(0 < $route_point_id)
             {
-                $sql = 'UPDATE route_point SET distance = 0 WHERE id = ?i';
-                $db->query($sql, $route_point_id);
+                RouteHelper::UpdateRoutePointDistance($route_point_id, 0, $db);
             }
 
             // 4. Получаем обновлённый маршрут

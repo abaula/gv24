@@ -24,6 +24,7 @@ require_once("SearchTasksWebService.module");
 require_once("CargoSelectedWebService.module");
 require_once("CalculateRouteWebService.module");
 require_once("RouteWebService.module");
+require_once("RouteExtWebService.module");
 require_once("VehicleParamsWebService.module");
 
 
@@ -53,6 +54,8 @@ function getWebService($name)
         return new CalculateRouteWebService();
     else if("route" == $name)
         return new RouteWebService();
+    else if("routeext" == $name)
+        return new RouteExtWebService();
     else if("vehicleparams" == $name)
         return new VehicleParamsWebService();
 

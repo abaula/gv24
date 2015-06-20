@@ -53,6 +53,16 @@ class TaskInfo
     }
 }
 
+
+class RoutePointType
+{
+    const StartPoint = 0;
+    const FirstPoint = 1;
+    const SecondPoint = 2;
+    const WayBackPoint = 3;
+}
+
+
 class RoutePoint
 {
     public $id;
@@ -60,17 +70,17 @@ class RoutePoint
     public $cityId;
     public $cityName;
     public $distance;
-    public $isFirstPointOfPair;
+    public $typeId;
     public $orderNum;
 
-    function __construct($id, $cargoSelectedId, $cityId, $cityName, $distance, $isFirstPointOfPair, $orderNum)
+    function __construct($id, $cargoSelectedId, $cityId, $cityName, $distance, $typeId, $orderNum)
     {
         $this->cargoSelectedId = $cargoSelectedId;
         $this->cityId = $cityId;
         $this->cityName = $cityName;
         $this->distance = $distance;
         $this->id = $id;
-        $this->isFirstPointOfPair = $isFirstPointOfPair;
+        $this->typeId = $typeId;
         $this->orderNum = $orderNum;
     }
 }
@@ -128,6 +138,78 @@ class RouteHelper
     }
 
 
+    public static function CreateRoutePoint($routeId, $cargoSelectedId, $cityId, $distance, $typeId, $orderNum, $db)
+    {
+        // ... шаблон запроса
+        $sql = 'INSERT INTO route_point (route_id, cargo_selected_id, city_id, distance, type_id, order_num)
+                        VALUES (?i, ?i, ?i, ?i, ?i, ?i)';
+
+        $db->query($sql, $routeId, $cargoSelectedId, $cityId, $distance, $typeId, $orderNum);
+
+        return $db->insertId();
+    }
+
+    public static function DeleteRoutePoint($routeId, $routePointId, $db)
+    {
+        $sql = 'DELETE FROM route_point WHERE route_id = ?i AND id = ?i';
+        $db->query($sql, $routeId, $routePointId);
+    }
+
+    public static function UpdateRoutePointDistanceAndOrderNumber($routePointId, $distance, $orderNumber, $db)
+    {
+        // ... шаблон запроса
+        $sql = 'UPDATE route_point
+                      SET  distance = ?i, order_num = ?i
+                    WHERE id = ?i';
+
+        $db->query($sql, $distance, $orderNumber, $routePointId);
+    }
+
+
+    public static function UpdateRoutePointDistance($routePointId, $distance, $db)
+    {
+        // ... шаблон запроса
+        $sql = 'UPDATE route_point
+                      SET  distance = ?i
+                    WHERE id = ?i';
+
+        $db->query($sql, $distance, $routePointId);
+    }
+
+
+    public static function UpdateRoutePointOrderNumber($routePointId, $orderNumber, $db)
+    {
+        // ... шаблон запроса
+        $sql = 'UPDATE route_point
+                      SET  order_num = ?i
+                    WHERE id = ?i';
+
+        $db->query($sql, $orderNumber, $routePointId);
+    }
+
+    public static function GetFirstRoutePointIdFromRoute($routeId, $db)
+    {
+        $sql = 'SELECT id FROM route_point
+                    WHERE route_id = ?i
+                    ORDER BY order_num LIMIT 1';
+
+        $route_point_id = $db->getOne($sql, $routeId);
+
+        return $route_point_id;
+    }
+
+
+    public static function DeleteRoutePointFromRouteByCargoSelectedId($routeId, $cargoSelectedIds, $db)
+    {
+        $idsInSqlString = implode(',', $cargoSelectedIds);
+
+        $sql = 'DELETE FROM route_point WHERE route_id = ?i AND cargo_selected_id IN (?p)';
+
+        $db->query($sql, $routeId, $idsInSqlString);
+    }
+
+
+
     public static function AreAllPointsInRoute($routeId, &$pointIds, $db)
     {
 
@@ -150,7 +232,7 @@ class RouteHelper
     {
         $list = array();
 
-        $sql = 'SELECT RP.id, RP.cargo_selected_id, RP.city_id, GC.name AS city_name, RP.distance, RP.is_first_point_of_pair, RP.order_num
+        $sql = 'SELECT RP.id, RP.cargo_selected_id, RP.city_id, GC.name AS city_name, RP.distance, RP.type_id, RP.order_num
                 FROM route_point RP
                   INNER JOIN geocities GC
                     ON GC.id = RP.city_id
@@ -165,7 +247,7 @@ class RouteHelper
             {
                 $entry = new RoutePoint
                 (
-                    $row['id'], $row['cargo_selected_id'], $row['city_id'], $row['city_name'], $row['distance'], $row['is_first_point_of_pair'], $row['order_num']
+                    $row['id'], $row['cargo_selected_id'], $row['city_id'], $row['city_name'], $row['distance'], $row['type_id'], $row['order_num']
                 );
 
                 $list[$entry->id] = $entry;
@@ -240,7 +322,7 @@ class RouteHelper
 
         foreach($routePoints as $routePoint)
         {
-            if($routePoint->isFirstPointOfPair)
+            if(RoutePointType::FirstPoint == $routePoint->typeId)
             {
                 $cityInfo = new AjaxCityShortInfo($routePoint->cityId, $routePoint->cityName);
                 $arr_cities[$routePoint->cityId] = $cityInfo;
@@ -286,25 +368,25 @@ class RouteHelper
     {
         $firstPointOfRoute = $routePoints[key($routePoints)];
         $routePointToInsert = $routePoints[$routePointId];
-        $isFirstPointOfPair = $routePointToInsert->isFirstPointOfPair;
+        $isFirstPointOfPair = (RoutePointType::FirstPoint == $routePointToInsert->typeId);
 
         // проверяем, что позиция вставки - это не обратный путь маршрута
-        if(!is_null($afterRoutePointId))
+        if( ! is_null($afterRoutePointId))
         {
             $afterRoutePoint = $routePoints[$afterRoutePointId];
 
             // если cargoSelectedId = 0, и это не первая точка в маршруте,
             // значит точка вставки - обратный путь
-            if(1 > $afterRoutePoint->cargoSelectedId && $afterRoutePoint->id != $firstPointOfRoute->id)
+            if( 1 > $afterRoutePoint->cargoSelectedId && $afterRoutePoint->id != $firstPointOfRoute->id )
                 return false;
         }
 
 
         // если переносим точку в начало, то это должна быть начальная точка маршрута
         // первая точка маршрута не должна быть с пустым заданием
-        if(is_null($afterRoutePointId))
+        if( is_null($afterRoutePointId) )
         {
-            if(1 > $firstPointOfRoute->cargoSelectedId)
+            if( 1 > $firstPointOfRoute->cargoSelectedId )
                 return false;
 
             return $isFirstPointOfPair;

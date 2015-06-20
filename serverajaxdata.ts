@@ -99,6 +99,14 @@ module ServerData
         public cargoCost: boolean;
     }
 
+    export class AjaxVirtualRoutePoint
+    {
+        public startCityId: number;
+        public addBackWayEntry: boolean;
+    }
+
+
+
     export class AjaxRoutePointList
     {
         public routePoints: AjaxRoutePoint[];

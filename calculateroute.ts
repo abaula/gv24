@@ -1069,6 +1069,7 @@ module CalculateRoute
             __currentComp.calculateOptions.vehicleParams = vehicleParams;
             __currentComp.fillVehicleParams();
 
+
             // обновляем таблицы заданий и маршрута
             if (null != __currentComp.taskData)
             {
