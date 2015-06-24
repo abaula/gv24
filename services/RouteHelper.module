@@ -137,6 +137,73 @@ class RouteHelper
         $db->query($sql, $routeId);
     }
 
+    public static function CheckCargoIdsExistInRoute($ids, &$routeData)
+    {
+        foreach($routeData as $routePoint)
+        {
+            foreach($ids as $cargoId)
+            {
+                if($cargoId == $routePoint->cargoSelectedId)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    // возвращает последую точку в маршруте, за исключением обратного пути
+    public static function GetLastPointFromRoute(&$routeData)
+    {
+        $lastPoint = null;
+
+        if(0 < count($routeData))
+        {
+            $lastPoint = end($routeData);
+
+            if(RoutePointType::WayBackPoint == $lastPoint->typeId)
+            {
+                $lastPoint = prev($routeData);
+
+                if(! $lastPoint)
+                    $lastPoint = null;
+            }
+
+            if (null != $lastPoint
+                    && RoutePointType::StartPoint == $lastPoint->typeId)
+            {
+                $lastPoint = null;
+            }
+
+            // возвращаем указатель на начало массива
+            reset($routeData);
+        }
+
+
+        return $lastPoint;
+    }
+
+
+    // возвращает последую точку в маршруте, за исключением обратного пути
+    public static function GetWayBackPointFromRoute(&$routeData)
+    {
+        $lastPoint = null;
+
+        if(0 < count($routeData))
+        {
+            $lastPoint = end($routeData);
+
+            if(RoutePointType::WayBackPoint != $lastPoint->typeId)
+            {
+                $lastPoint = null;
+            }
+
+            // возвращаем указатель на начало массива
+            reset($routeData);
+        }
+
+        return $lastPoint;
+    }
 
     public static function CreateRoutePoint($routeId, $cargoSelectedId, $cityId, $distance, $typeId, $orderNum, $db)
     {
@@ -187,6 +254,7 @@ class RouteHelper
         $db->query($sql, $orderNumber, $routePointId);
     }
 
+    /*
     public static function GetFirstRoutePointIdFromRoute($routeId, $db)
     {
         $sql = 'SELECT id FROM route_point
@@ -197,8 +265,9 @@ class RouteHelper
 
         return $route_point_id;
     }
+    */
 
-
+    /*
     public static function DeleteRoutePointFromRouteByCargoSelectedId($routeId, $cargoSelectedIds, $db)
     {
         $idsInSqlString = implode(',', $cargoSelectedIds);
@@ -206,6 +275,45 @@ class RouteHelper
         $sql = 'DELETE FROM route_point WHERE route_id = ?i AND cargo_selected_id IN (?p)';
 
         $db->query($sql, $routeId, $idsInSqlString);
+    }
+    */
+
+    public static function DeleteRoutePointFromRoute($routePointsToDelete, $db)
+    {
+        $routePointIds = array();
+
+        foreach($routePointsToDelete as $routePoint)
+        {
+            array_push($routePointIds, $routePoint->id);
+        }
+
+
+        $idsInSqlString = implode(',', $routePointIds);
+
+        $sql = 'DELETE FROM route_point WHERE id IN (?p)';
+
+        $db->query($sql, $idsInSqlString);
+    }
+
+
+
+    public static function GetRoutePointsFromRouteByCargoId($cargoSelectedIds, &$routeData)
+    {
+        $result = array();
+
+
+        foreach($routeData as $routePoint)
+        {
+            foreach($cargoSelectedIds as $cargoId)
+            {
+                if($cargoId == $routePoint->cargoSelectedId)
+                {
+                    array_push($result, $routePoint);
+                }
+            }
+        }
+
+        return $result;
     }
 
 

@@ -189,6 +189,8 @@ class RouteWebService extends WebServBase
 
             $max_order = 0;
             $lastCityId = 0;
+            $wayBackPoint = null;
+            $routeData = array();
 
             // 4. проверяем, создан ли маршрут и при необходимости создаём его
             $route_id = RouteHelper::GetRouteId($accountId, $userTokenId, $db);
@@ -200,35 +202,26 @@ class RouteWebService extends WebServBase
             }
             else
             {
-                // 5. если маршрут уже есть в БД, то проверяем переданные задания на повтор - содержатся ли указанные грузы в маршруте
-                $idsInSqlString = implode(',', $data->ids);
-
-                $sql = 'SELECT count(*) FROM route_point
-                        WHERE route_id = ?i AND cargo_selected_id IN(?p)';
-
-                $repeats_num = $db->getOne($sql, $route_id, $idsInSqlString);
+                // Получаем данные маршрута
+                $routeData = RouteHelper::GetRouteData($route_id, $db);
 
                 // 6. если указанные грузы уже есть в маршруте, то возвращаем ошибку
-                if(0 < $repeats_num)
+                $hasRepeats = RouteHelper::CheckCargoIdsExistInRoute($data->ids, $routeData);
+
+                if($hasRepeats)
                 {
                     $this->returnError(400, array(1015), $data);
                     return;
                 }
 
                 // 7. получаем данные последней точки в маршруте
-                $sql = 'SELECT city_id, order_num
-                        FROM route_point
-                        WHERE route_id = ?i
-                        ORDER BY order_num DESC
-                        LIMIT 1';
+                $lastPoint = RouteHelper::GetLastPointFromRoute($routeData);
+                $wayBackPoint = RouteHelper::GetWayBackPointFromRoute($routeData);
 
-                $result = $db->query($sql, $route_id);
-
-                if(0 < $db->numRows($result))
+                if(null != $lastPoint)
                 {
-                    $row = $db->fetch($result);
-                    $max_order = $row['order_num'];
-                    $lastCityId = $row['city_id'];
+                    $max_order = $lastPoint->orderNum;
+                    $lastCityId = $lastPoint->cityId;
                 }
             }
 
@@ -238,6 +231,9 @@ class RouteWebService extends WebServBase
             // 8.1 формируем список городов
             $arr_cities = array();
             array_push($arr_cities, $lastCityId);
+
+            if(null != $wayBackPoint)
+                array_push($arr_cities, $wayBackPoint->cityId);
 
             foreach ($arr_cargo as $cargo)
             {
@@ -256,22 +252,30 @@ class RouteWebService extends WebServBase
                 $cargo = $arr_cargo[$i];
 
                 $distance = $distanceList->GetDistanceFromList($lastCityId, $cargo->city1);
-                RouteHelper::CreateRoutePoint($route_id, $cargo->id, $cargo->city1, $distance, 1, $max_order++, $db);
+                RouteHelper::CreateRoutePoint($route_id, $cargo->id, $cargo->city1, $distance, RoutePointType::FirstPoint, $max_order++, $db);
 
                 $distance = $distanceList->GetDistanceFromList($cargo->city1, $cargo->city2);
-                RouteHelper::CreateRoutePoint($route_id, $cargo->id, $cargo->city2, $distance, 0, $max_order++, $db);
+                RouteHelper::CreateRoutePoint($route_id, $cargo->id, $cargo->city2, $distance, RoutePointType::SecondPoint, $max_order++, $db);
 
                 $lastCityId = $cargo->city2;
             }
 
-            // 10. Получаем обновлённый маршрут
+            // 10. если в маршруте есть обратный путь, то обновляем в нём дистанцию
+            if(null != $wayBackPoint)
+            {
+                $wayBackDistance = $distanceList->GetDistanceFromList($wayBackPoint->cityId, $lastCityId);
+                RouteHelper::UpdateRoutePointDistanceAndOrderNumber($wayBackPoint->id, $wayBackDistance, $max_order++, $db);
+            }
+
+
+            // 11. Получаем обновлённый маршрут
             $routePointList = CalculateRouteWebService::GetRouteData($accountId, $userTokenId, $db);
 
-            // 11. получаем список городов для построенного маршрута
+            // 12. получаем список городов для построенного маршрута
             $routeStartCities = RouteHelper::GetUniqueStartCitiesFromAjaxRoutePointsArray($routePointList->routePoints);
             $routeStartCitiesList = new AjaxCityList($routeStartCities);
 
-            // 12. Возвращаем ответ клиенту
+            // 13. Возвращаем ответ клиенту
             $responseData = new AjaxIdsListAndRoutePointList();
             $responseData->idsList = $data;
             $responseData->routePointList = $routePointList;
@@ -418,27 +422,47 @@ class RouteWebService extends WebServBase
                 return;
             }
 
-            // 2. удаляем указанные маршруты
-            RouteHelper::DeleteRoutePointFromRouteByCargoSelectedId($route_id, $data->ids, $db);
+            // 2. получаем данные маршрута
+            $routeData = RouteHelper::GetRouteData($route_id, $db);
 
-            // 3. корректируем дистанцию 1-й точки в маршруте
-            // ... получаем идентификатор 1-й точки маршрута
-            $route_point_id = RouteHelper::GetFirstRoutePointIdFromRoute($route_id, $db);
 
-            // ... если идентификатор получен, то обнуляем дистанцию у 1-й точки маршрута
-            if(0 < $route_point_id)
+            // 3. получаем идентификаторы удаляемых точек маршрута
+            $routePointsToDelete = RouteHelper::GetRoutePointsFromRouteByCargoId($data->ids, $routeData);
+
+            // 4. удаляем найденные точки из БД
+            RouteHelper::DeleteRoutePointFromRoute($routePointsToDelete, $db);
+
+            // 5. удаляем найденные точки из списка точек маршрута
+            foreach($routePointsToDelete as $routePointToDelete)
+                unset($routeData[$routePointToDelete->id]);
+
+            // 6. корректируем дистанции в маршруте
+            $arr_cities = array();
+
+            foreach($routeData as $routePoint)
+                array_push($arr_cities, $routePoint->cityId);
+
+            $distanceList = GeoRouteHelper::GetDistanceList($arr_cities, $db);
+
+            $orderNum = 1;
+            $lastCityId = 0;
+
+            foreach($routeData as $routePoint)
             {
-                RouteHelper::UpdateRoutePointDistance($route_point_id, 0, $db);
+                $distance = $distanceList->GetDistanceFromList($lastCityId, $routePoint->cityId);
+                RouteHelper::UpdateRoutePointDistanceAndOrderNumber($routePoint->id, $distance, $orderNum++, $db);
+                $lastCityId = $routePoint->cityId;
             }
 
-            // 4. Получаем обновлённый маршрут
+
+            // 7. Получаем обновлённый маршрут
             $routePointList = CalculateRouteWebService::GetRouteData($accountId, $userTokenId, $db);
 
-            // 5. получаем список городов для построенного маршрута
+            // 8. получаем список городов для построенного маршрута
             $routeStartCities = RouteHelper::GetUniqueStartCitiesFromAjaxRoutePointsArray($routePointList->routePoints);
             $routeStartCitiesList = new AjaxCityList($routeStartCities);
 
-            // 6. возвращаем ответ клиенту
+            // 9. возвращаем ответ клиенту
             $responseData = new AjaxIdsListAndRoutePointList();
             $responseData->idsList = $data;
             $responseData->routePointList = $routePointList;

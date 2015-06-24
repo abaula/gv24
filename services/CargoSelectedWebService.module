@@ -191,8 +191,8 @@ class CargoSelectedWebService extends WebServBase
                 $where_sql_definition = $db->parse(' account_id = ?i ', $accountId);
 
             // 1. получаем все идентификаторы записей выбранных грузов для удаления
-            $ids = AjaxTaskInfoList::GetIds($data->tasks);
-            $idsInSqlString = implode(',', $ids);
+            $cargoIds = AjaxTaskInfoList::GetIds($data->tasks);
+            $idsInSqlString = implode(',', $cargoIds);
 
             $sql = 'SELECT id FROM cargo_selected WHERE cargo_id IN(?p) AND ?p';
             $result = $db->query($sql, $idsInSqlString, $where_sql_definition);
@@ -204,9 +204,34 @@ class CargoSelectedWebService extends WebServBase
                 array_push($ids_to_delete, $row['id']);
             }
 
+
+
+            // Удалять можно только задания которых нет в маршруте
+
+            // 1. получаем id маршрута для пользователя
+            $route_id = RouteHelper::GetRouteId($accountId, $userTokenId, $db);
+
+            if(0 < $route_id)
+            {
+                // 2. получаем данные маршрута
+                $routeData = RouteHelper::GetRouteData($route_id, $db);
+
+                $isCargoIdsInRoute = RouteHelper::CheckCargoIdsExistInRoute($ids_to_delete, $routeData);
+
+                if($isCargoIdsInRoute)
+                {
+                    // возвращаем ошибку
+                    $this->returnError(400, array(1017), $data);
+                    return;
+                }
+
+            }
+
+
             // 2. создаём список идентификаторов записей выбранных задач
             $cargo_selected_idsInSqlString = implode(',', $ids_to_delete);
 
+            /*
             // 3. получаем id маршрута для пользователя
             $sql = 'SELECT id FROM route WHERE ?p';
             $route_id = $db->getOne($sql, $where_sql_definition);
@@ -217,6 +242,7 @@ class CargoSelectedWebService extends WebServBase
                 $sql = 'DELETE FROM route_point WHERE route_id = ?i AND cargo_selected_id IN (?p)';
                 $db->query($sql, $route_id, $cargo_selected_idsInSqlString);
             }
+            */
 
             // 5. удаляем запись из таблицы выбранных грузов
             $sql = 'DELETE FROM cargo_selected WHERE id IN (?p) AND ?p';
