@@ -91,11 +91,9 @@ class GeoRouteHelper
                 $entry = new GeoRouteDistance($row['cityId1'], $row['cityId2'], $row['distance']);
                 array_push($list->geoRouteDistanceList, $entry);
             }
-
-            return $list;
         }
 
-        return null;
+        return $list;
     }
 
 
