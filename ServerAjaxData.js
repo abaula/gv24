@@ -85,6 +85,13 @@
     })();
     ServerData.AjaxVirtualRoutePoint = AjaxVirtualRoutePoint;
 
+    var AjaxVirtualRoutePointAndRoutePointList = (function () {
+        function AjaxVirtualRoutePointAndRoutePointList() {
+        }
+        return AjaxVirtualRoutePointAndRoutePointList;
+    })();
+    ServerData.AjaxVirtualRoutePointAndRoutePointList = AjaxVirtualRoutePointAndRoutePointList;
+
     var AjaxRoutePointList = (function () {
         function AjaxRoutePointList() {
         }

@@ -410,6 +410,12 @@ class AjaxVirtualRoutePoint
     }
 }
 
+class AjaxVirtualRoutePointAndRoutePointList
+{
+    public $virtualRoutePoint;
+    public $routePointList;
+    public $routeStartCitiesList;
+}
 
 class AjaxRoutePointList
 {

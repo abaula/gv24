@@ -66,6 +66,23 @@ class RouteExtWebService extends WebServBase
             // 4. Обновляем порядок маршрутных точек
             self::_updateRoutePointOrders($routeData, $db);
 
+            // 5. Получаем обновлённый маршрут
+            $routePointList = CalculateRouteWebService::GetRouteData($accountId, $userTokenId, $db);
+
+            // 6. получаем список городов для построенного маршрута
+            $routeStartCities = RouteHelper::GetUniqueStartCitiesFromAjaxRoutePointsArray($routePointList->routePoints);
+            $routeStartCitiesList = new AjaxCityList($routeStartCities);
+
+            // 7. возвращаем ответ клиенту
+            $responseData = new AjaxVirtualRoutePointAndRoutePointList();
+            $responseData->virtualRoutePoint = $data;
+            $responseData->routePointList = $routePointList;
+            $responseData->routeStartCitiesList = $routeStartCitiesList;
+            $response = new AjaxServerResponse(200, '', '', $responseData);
+            sendHTTPStatus(200);
+            header('Content-type: application/json');
+            echo json_encode($response);
+
         }
         catch(Exception $ex)
         {

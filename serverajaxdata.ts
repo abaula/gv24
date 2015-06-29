@@ -105,7 +105,12 @@ module ServerData
         public addBackWayEntry: boolean;
     }
 
-
+    export class AjaxVirtualRoutePointAndRoutePointList
+    {
+        public virtualRoutePoint: AjaxVirtualRoutePoint;
+        public routePointList: AjaxRoutePointList;
+        public routeStartCitiesList: AjaxCityList;
+    }
 
     export class AjaxRoutePointList
     {

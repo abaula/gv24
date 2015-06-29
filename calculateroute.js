@@ -26,6 +26,9 @@ var CalculateRoute;
             $("#i-calc-param-tax").focusout(CalculateRoute.__currentComp.onVehicleParamsTaxFocusOut);
             $("#i-calc-param-expences").focusout(CalculateRoute.__currentComp.onVehicleParamsExpencesFocusOut);
 
+            $("#i-route-options-start-city-add").click(CalculateRoute.__currentComp.onRouteOptionsStartCityAddClick);
+            $("#i-route-options-way-back-add").click(CalculateRoute.__currentComp.onRouteOptionsWayBackAddClick);
+
             // проверяем авторизован ли пользователь
             var authentificated = CalculateRoute.__currentComp.application.isAuthentificated();
 
@@ -115,6 +118,7 @@ var CalculateRoute;
 
             // помещаем данные в контролы
             CalculateRoute.__currentComp.updateStartCity();
+            CalculateRoute.__currentComp.updateCalculateParamsStartCity();
 
             if (null != CalculateRoute.__currentComp.calculateOptions) {
                 CalculateRoute.__currentComp.drawTasksList();
@@ -330,7 +334,7 @@ var CalculateRoute;
         };
 
         CalculateRouteController.prototype.onUseCargoFromRouteClick = function (event) {
-            CalculateRoute.__currentComp.updateStartCity();
+            CalculateRoute.__currentComp.updateCalculateParamsStartCity();
         };
 
         CalculateRouteController.prototype.onRouteComputeClick = function (event) {
@@ -383,7 +387,7 @@ var CalculateRoute;
             CalculateRoute.__currentComp.routeData = resp.routePointList;
             CalculateRoute.__currentComp.routeStartCities = resp.routeStartCitiesList;
 
-            CalculateRoute.__currentComp.updateStartCity();
+            CalculateRoute.__currentComp.updateCalculateParamsStartCity();
             CalculateRoute.__currentComp.drawRouteTable();
             CalculateRoute.__currentComp.updateSelectedTasksFromRouteData();
 
@@ -475,7 +479,7 @@ else if ("i-page-cargoselected-link" == id)
             CalculateRoute.__currentComp.routeData = resp.routePointList;
             CalculateRoute.__currentComp.routeStartCities = resp.routeStartCitiesList;
 
-            CalculateRoute.__currentComp.updateStartCity();
+            CalculateRoute.__currentComp.updateCalculateParamsStartCity();
             CalculateRoute.__currentComp.drawRouteTable();
 
             // скрываем иконку загрузки
@@ -503,7 +507,7 @@ else if ("i-page-cargoselected-link" == id)
             CalculateRoute.__currentComp.routeData = resp.routePointList;
             CalculateRoute.__currentComp.routeStartCities = resp.routeStartCitiesList;
 
-            CalculateRoute.__currentComp.updateStartCity();
+            CalculateRoute.__currentComp.updateCalculateParamsStartCity();
             CalculateRoute.__currentComp.drawRouteTable();
 
             // скрываем иконку загрузки
@@ -811,7 +815,7 @@ else
             CalculateRoute.__currentComp.routeData = resp.routePointList;
             CalculateRoute.__currentComp.routeStartCities = resp.routeStartCitiesList;
 
-            CalculateRoute.__currentComp.updateStartCity();
+            CalculateRoute.__currentComp.updateCalculateParamsStartCity();
             CalculateRoute.__currentComp.drawRouteTable();
 
             // скрываем иконку загрузки
@@ -819,7 +823,7 @@ else
         };
 
         CalculateRouteController.prototype.clearStartCity = function () {
-            var sel = $("#i-calc-auto-param-start-city");
+            var sel = $("#i-route-options-start-city");
             sel.empty();
 
             // добавляем опцию по умолчанию
@@ -827,13 +831,46 @@ else
         };
 
         CalculateRouteController.prototype.updateStartCity = function () {
-            var sel = $("#i-calc-auto-param-start-city");
+            var sel = $("#i-route-options-start-city");
 
             // запоминаем выбранный город
             var startCityId = $(":selected", sel).val();
 
             // очищаем список городов
             CalculateRoute.__currentComp.clearStartCity();
+
+            // выбираем список городов
+            var cities = CalculateRoute.__currentComp.startCities.cities;
+
+            if (cities != null && cities.length > 0) {
+                sel.empty();
+
+                for (var i = 0; i < cities.length; i++) {
+                    var cityInfo = cities[i];
+                    sel.append($('<option value="' + cityInfo.id + '">' + cityInfo.name + '</option>'));
+                }
+            }
+
+            // пытаемся восстановить выбранный ранее город
+            $("[value=" + startCityId + "]", sel).attr("selected", "selected");
+        };
+
+        CalculateRouteController.prototype.clearCalculateParamsStartCity = function () {
+            var sel = $("#i-calc-auto-param-start-city");
+            sel.empty();
+
+            // добавляем опцию по умолчанию
+            sel.append($('<option value="-1">-</option>'));
+        };
+
+        CalculateRouteController.prototype.updateCalculateParamsStartCity = function () {
+            var sel = $("#i-calc-auto-param-start-city");
+
+            // запоминаем выбранный город
+            var startCityId = $(":selected", sel).val();
+
+            // очищаем список городов
+            CalculateRoute.__currentComp.clearCalculateParamsStartCity();
 
             // выбираем источник для списка городов
             var useCargoFromRoute = $("#i-calc-option-use-cargo-from-route").is(":checked");
@@ -928,6 +965,97 @@ else
 
             // скрываем иконку загрузки
             CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-vehicle-params-overlay");
+        };
+
+        CalculateRouteController.prototype.onRouteOptionsStartCityAddClick = function (event) {
+            var startCityId = $("#i-route-options-start-city :selected").val();
+            var requestData = new ServerData.AjaxVirtualRoutePoint();
+            requestData.startCityId = startCityId;
+            requestData.addBackWayEntry = false;
+
+            // показываем иконку загрузки
+            CalculateRoute.__currentComp.application.showOverlay("#i-ctrl-overlay", "#i-calc-contents");
+
+            // отправляем запрос на сервер
+            $.ajax({
+                type: "POST",
+                url: CalculateRoute.__currentComp.application.getFullUri("api/routeext"),
+                data: JSON.stringify(requestData),
+                contentType: "application/json",
+                dataType: "json",
+                success: CalculateRoute.__currentComp.onAjaxOnRouteOptionsStartCityAddSuccess,
+                error: CalculateRoute.__currentComp.onAjaxOnRouteOptionsStartCityAddError
+            });
+        };
+
+        CalculateRouteController.prototype.onAjaxOnRouteOptionsStartCityAddError = function (jqXHR, status, message) {
+            //window.console.log("onAjaxOnRouteOptionsStartCityAddError");
+            CalculateRoute.__currentComp.errorData = JSON.parse(jqXHR.responseText);
+            CalculateRoute.__currentComp.dataError(CalculateRoute.__currentComp, CalculateRoute.__currentComp.errorData);
+
+            // TODO обрабатываем ошибки сервера
+            // скрываем иконку загрузки
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-overlay");
+        };
+
+        CalculateRouteController.prototype.onAjaxOnRouteOptionsStartCityAddSuccess = function (data, status, jqXHR) {
+            //window.console.log("onAjaxOnRouteOptionsStartCityAddSuccess");
+            // ответ сервера - AjaxVirtualRoutePointAndRoutePointList
+            var resp = data.data;
+
+            // обновляем таблицу маршрута
+            CalculateRoute.__currentComp.routeData = resp.routePointList;
+            CalculateRoute.__currentComp.routeStartCities = resp.routeStartCitiesList;
+            CalculateRoute.__currentComp.updateCalculateParamsStartCity();
+            CalculateRoute.__currentComp.drawRouteTable();
+
+            // скрываем иконку загрузки
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-overlay");
+        };
+
+        CalculateRouteController.prototype.onRouteOptionsWayBackAddClick = function (event) {
+            var requestData = new ServerData.AjaxVirtualRoutePoint();
+            requestData.startCityId = 0;
+            requestData.addBackWayEntry = true;
+
+            // показываем иконку загрузки
+            CalculateRoute.__currentComp.application.showOverlay("#i-ctrl-overlay", "#i-calc-contents");
+
+            // отправляем запрос на сервер
+            $.ajax({
+                type: "POST",
+                url: CalculateRoute.__currentComp.application.getFullUri("api/routeext"),
+                data: JSON.stringify(requestData),
+                contentType: "application/json",
+                dataType: "json",
+                success: CalculateRoute.__currentComp.onRouteOptionsWayBackAddSuccess,
+                error: CalculateRoute.__currentComp.onRouteOptionsWayBackAddError
+            });
+        };
+
+        CalculateRouteController.prototype.onRouteOptionsWayBackAddError = function (jqXHR, status, message) {
+            //window.console.log("onRouteOptionsWayBackAddError");
+            CalculateRoute.__currentComp.errorData = JSON.parse(jqXHR.responseText);
+            CalculateRoute.__currentComp.dataError(CalculateRoute.__currentComp, CalculateRoute.__currentComp.errorData);
+
+            // TODO обрабатываем ошибки сервера
+            // скрываем иконку загрузки
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-overlay");
+        };
+
+        CalculateRouteController.prototype.onRouteOptionsWayBackAddSuccess = function (data, status, jqXHR) {
+            //window.console.log("onRouteOptionsWayBackAddSuccess");
+            // ответ сервера - AjaxVirtualRoutePointAndRoutePointList
+            var resp = data.data;
+
+            // обновляем таблицу маршрута
+            CalculateRoute.__currentComp.routeData = resp.routePointList;
+            CalculateRoute.__currentComp.routeStartCities = resp.routeStartCitiesList;
+            CalculateRoute.__currentComp.updateCalculateParamsStartCity();
+            CalculateRoute.__currentComp.drawRouteTable();
+
+            // скрываем иконку загрузки
+            CalculateRoute.__currentComp.application.hideOverlay("#i-ctrl-overlay");
         };
 
         CalculateRouteController.prototype.onVehicleParamsMaxWeightFocusOut = function (event) {
