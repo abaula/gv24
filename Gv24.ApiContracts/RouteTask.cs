@@ -5,7 +5,7 @@ namespace Gv24.ApiContracts
     {
         public Address From;
         public Address To;
-        private Cargo Cargo;
+        public Cargo Cargo;
         public decimal DistanceKm;
     }
 }
