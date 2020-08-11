@@ -1,0 +1,89 @@
+{
+  "version": 3,
+  "targets": {
+    ".NETCoreApp,Version=v3.1": {
+      "Gv24.ApiContracts/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.0",
+        "compile": {
+          "bin/placeholder/Gv24.ApiContracts.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Gv24.ApiContracts.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Gv24.ApiContracts/1.0.0": {
+      "type": "project",
+      "path": "../Gv24.ApiContracts/Gv24.ApiContracts.csproj",
+      "msbuildProject": "../Gv24.ApiContracts/Gv24.ApiContracts.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    ".NETCoreApp,Version=v3.1": [
+      "Gv24.ApiContracts >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "/home/anton/.nuget/packages/": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "/home/anton/Documents/code/dotnet/gv24/Gv24.WebApi/Gv24.WebApi.csproj",
+      "projectName": "Gv24.WebApi",
+      "projectPath": "/home/anton/Documents/code/dotnet/gv24/Gv24.WebApi/Gv24.WebApi.csproj",
+      "packagesPath": "/home/anton/.nuget/packages/",
+      "outputPath": "/home/anton/Documents/code/dotnet/gv24/Gv24.WebApi/obj/",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "/home/anton/.nuget/NuGet/NuGet.Config"
+      ],
+      "originalTargetFrameworks": [
+        "netcoreapp3.1"
+      ],
+      "sources": {
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "projectReferences": {
+            "/home/anton/Documents/code/dotnet/gv24/Gv24.ApiContracts/Gv24.ApiContracts.csproj": {
+              "projectPath": "/home/anton/Documents/code/dotnet/gv24/Gv24.ApiContracts/Gv24.ApiContracts.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "netcoreapp3.1": {
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.AspNetCore.App": {
+            "privateAssets": "none"
+          },
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/3.1.302/RuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

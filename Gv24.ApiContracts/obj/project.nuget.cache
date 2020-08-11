@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "WejEE3veLmL2C2jw1dFz5mMdX4bHgLrKzdJHOBsbR1Rpd8+ADY39pRHaHb0SMVXBw7vtLG0Gs81o8KHRFOwwdw==",
+  "success": true,
+  "projectFilePath": "/home/anton/Documents/code/dotnet/gv24/Gv24.ApiContracts/Gv24.ApiContracts.csproj",
+  "expectedPackageFiles": [
+    "/home/anton/.nuget/packages/microsoft.netcore.platforms/1.1.0/microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "/home/anton/.nuget/packages/netstandard.library/2.0.3/netstandard.library.2.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

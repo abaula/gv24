@@ -1,0 +1,9 @@
+/home/anton/Documents/code/dotnet/gv24/Gv24.ApiContracts/bin/Debug/netstandard2.0/Gv24.ApiContracts.deps.json
+/home/anton/Documents/code/dotnet/gv24/Gv24.ApiContracts/bin/Debug/netstandard2.0/Gv24.ApiContracts.dll
+/home/anton/Documents/code/dotnet/gv24/Gv24.ApiContracts/bin/Debug/netstandard2.0/Gv24.ApiContracts.pdb
+/home/anton/Documents/code/dotnet/gv24/Gv24.ApiContracts/obj/Debug/netstandard2.0/Gv24.ApiContracts.csprojAssemblyReference.cache
+/home/anton/Documents/code/dotnet/gv24/Gv24.ApiContracts/obj/Debug/netstandard2.0/Gv24.ApiContracts.AssemblyInfoInputs.cache
+/home/anton/Documents/code/dotnet/gv24/Gv24.ApiContracts/obj/Debug/netstandard2.0/Gv24.ApiContracts.AssemblyInfo.cs
+/home/anton/Documents/code/dotnet/gv24/Gv24.ApiContracts/obj/Debug/netstandard2.0/Gv24.ApiContracts.csproj.CoreCompileInputs.cache
+/home/anton/Documents/code/dotnet/gv24/Gv24.ApiContracts/obj/Debug/netstandard2.0/Gv24.ApiContracts.dll
+/home/anton/Documents/code/dotnet/gv24/Gv24.ApiContracts/obj/Debug/netstandard2.0/Gv24.ApiContracts.pdb
