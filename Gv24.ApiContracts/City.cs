@@ -1,5 +1,5 @@
 
-namespace Gv24.ApiContracts.Route
+namespace Gv24.ApiContracts
 {
     public class City
     {

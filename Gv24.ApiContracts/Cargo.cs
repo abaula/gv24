@@ -1,4 +1,4 @@
-namespace Gv24.ApiContracts.Cargo
+namespace Gv24.ApiContracts
 {
     public class Cargo
     {
