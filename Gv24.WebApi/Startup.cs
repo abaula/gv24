@@ -21,9 +21,9 @@ namespace Gv24.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers();            
+            
             services.AddApiVersioning();
-            services.AddControllers();
-            services.AddSwaggerGen();
 
             services.AddSwaggerGen(
                 c =>
@@ -37,6 +37,7 @@ namespace Gv24.WebApi
                         });
                     c.OperationFilter<RemoveVersionParameterFilter>();
                     c.DocumentFilter<ReplaceVersionWithExactValueInPathFilter>();
+                    c.DocumentFilter<CamelCaseDocumentFilter>();
                     c.EnableAnnotations();
                 });
         }

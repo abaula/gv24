@@ -5,8 +5,8 @@ namespace Gv24.ApiContracts.v1_0
     /// </summary>
     public class ShippingManifest : ShippingManifestIdentity
     {
-        public Vehicle Vehicle;
-        public CargoTransportation[] CargoTransportations;
-        public Route Route;
+        public Vehicle Vehicle { get; set; }
+        public CargoTransportation[] CargoTransportations { get; set; }
+        public Route Route { get; set; }
     }
 }

@@ -9,26 +9,26 @@ namespace Gv24.ApiContracts.v1_0
         /// <summary>
         /// Адрес отправления.
         /// </summary>
-        public Address DepartureAddress;
+        public Address DepartureAddress { get; set; }
 
         /// <summary>
         /// Адрес прибытия.
         /// </summary>
-        public Address ArrivalAddress;
+        public Address ArrivalAddress { get; set; }
 
         /// <summary>
         /// Груз.
         /// </summary>
-        public Cargo Cargo;
+        public Cargo Cargo { get; set; }
         
         /// <summary>
         /// Финансовое соглашение.
         /// </summary>
-        public PaymentContract PaymentContract;
+        public PaymentContract PaymentContract { get; set; }
         
         /// <summary>
         /// Состояние контракта.
         /// </summary>
-        public CargoTransportationStatus Status;
+        public CargoTransportationStatus Status { get; set; }
     }
 }

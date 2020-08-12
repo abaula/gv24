@@ -1,9 +1,9 @@
 namespace Gv24.ApiContracts.v1_0
 {
     /// <summary>
-    /// Соглашение об оплате.
+    /// Идентификатор города.
     /// </summary>
-    public class PaymentContract
+    public class CityIdentity
     {
         
     }
