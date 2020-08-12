@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using Gv24.WebApi.Const;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace Gv24.WebApi.Controllers
+namespace Gv24.WebApi.Controllers.v1_0
 {
     [ApiController]
-    [Route("[controller]")]
+    [ApiVersion(ApiVersionConst.V1)]
+    [Route("v{version:apiVersion}/[controller]")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
