@@ -19,9 +19,24 @@ namespace Gv24.WebApi.Controllers.v1_0
             _logger = logger;
         }
 
-        [HttpPost]
+        [HttpGet]
+        [Route("{id}")]
+        public Task<Address> Get([FromRoute] Guid id)
+        {
+            _logger.LogTrace(nameof(AddressController.Delete));
+            
+            return Task.FromResult(new Address{
+                Id = id,
+                City = new City(),
+                PostCode = "123",
+                FullAddress = "улица Широкая, дом 1",
+                AddressNote = "крайний дом слева"
+            });
+        } 
+
+        [HttpGet]
         [Route("find")]
-        public Task<DataFrame<Address>> Find([FromBody] SearchRequest request)
+        public Task<DataFrame<Address>> Find([FromQuery] SearchRequest request)
         {
             _logger.LogTrace(nameof(AddressController.Find));
             
@@ -30,5 +45,29 @@ namespace Gv24.WebApi.Controllers.v1_0
                 HasNext = false
             });
         }
+
+        [HttpPost]
+        [Route("add")]
+        public Task<CreatedAtActionResult> Add([FromBody] Address address)
+        {
+            _logger.LogTrace(nameof(AddressController.Add));
+            
+            return Task.FromResult(CreatedAtAction(nameof(Get), 
+                new { 
+                        id = address.Id, 
+                        version = ApiVersionConst.V1_0 
+                    }, 
+                null)
+            );
+        }
+
+        [HttpDelete]
+        [Route("delete/{id}")]
+        public Task<NoContentResult> Delete([FromRoute] Guid id)
+        {
+            _logger.LogTrace(nameof(AddressController.Delete));
+            
+            return Task.FromResult(NoContent());
+        }        
     }
 }

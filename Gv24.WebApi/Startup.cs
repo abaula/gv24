@@ -1,12 +1,13 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using Autofac;
 using Gv24.WebApi.Const;
 using Gv24.WebApi.Filters;
+using Gv24.WebApi.ParameterTransformers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -48,8 +49,10 @@ namespace Gv24.WebApi
                 services.AddSingleton<IConfiguration>(_configuration);
                 services.AddMemoryCache();
                 services.AddControllers(opt => 
-                    opt.Filters.Add(typeof(GlobalExceptionFilterAttribute))
-                    );                            
+                    {
+                        opt.Filters.Add(typeof(GlobalExceptionFilterAttribute));
+                        opt.Conventions.Add(new RouteTokenTransformerConvention(new CamelCaseParameterTransformer()));
+                    });                            
                 services.AddApiVersioning();
                 services.AddOptions();
 
@@ -65,7 +68,6 @@ namespace Gv24.WebApi
                             });
                         c.OperationFilter<RemoveVersionParameterFilter>();
                         c.DocumentFilter<ReplaceVersionWithExactValueInPathFilter>();
-                        c.DocumentFilter<CamelCaseDocumentFilter>();
                         c.EnableAnnotations();
                     });                
             }
