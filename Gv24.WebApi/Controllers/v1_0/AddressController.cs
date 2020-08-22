@@ -25,7 +25,8 @@ namespace Gv24.WebApi.Controllers.v1_0
         {
             _logger.LogTrace(nameof(AddressController.Delete));
             
-            return Task.FromResult(new Address{
+            return Task.FromResult(new Address
+            {
                 Id = id,
                 City = new City(),
                 PostCode = "123",
@@ -40,7 +41,8 @@ namespace Gv24.WebApi.Controllers.v1_0
         {
             _logger.LogTrace(nameof(AddressController.Find));
             
-            return Task.FromResult(new DataFrame<Address>{ 
+            return Task.FromResult(new DataFrame<Address>
+            { 
                 Items = Array.Empty<Address>(),
                 HasNext = false
             });
@@ -52,13 +54,12 @@ namespace Gv24.WebApi.Controllers.v1_0
         {
             _logger.LogTrace(nameof(AddressController.Add));
             
-            return Task.FromResult(CreatedAtAction(nameof(Get), 
-                new { 
-                        id = address.Id, 
-                        version = ApiVersionConst.V1_0 
-                    }, 
-                null)
-            );
+            return Task.FromResult(CreatedAtAction(nameof(Get), new 
+            { 
+                id = address.Id, 
+                version = ApiVersionConst.V1_0 
+            }, 
+            null));
         }
 
         [HttpDelete]
